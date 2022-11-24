@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches: '*'
 
@@ -14,9 +14,9 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v1
       with:
-        node-version: '16'
+        node-version: '18'
 
-    - uses: actions/checkout@master
+    - uses: actions/checkout@main
       name: Checkout
 
     - name: Install dependencies
@@ -25,4 +25,4 @@ jobs:
 
     - name: Run checks
       run: |
-        npm run lint
+        npm run test

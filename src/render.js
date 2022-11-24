@@ -8,7 +8,6 @@ const RenderPosition = {
 /**
  * Создает и возвращает DOM-разметку на
  * основе принятого текстового шаблона.
- *
  * @param {string} template Разметка в текстовом формате.
  * @return {nodeObject} DOM-узел.
  */
@@ -26,7 +25,6 @@ const createElement = (template) => {
  * - 'afterbegin' - в начале контейнера;
  * - 'beforeend' - в конце контейнера;
  * - 'afterend' - после контейнера.
- *
  * @param {nodeObject} component DOM-узел для вставки.
  * @param {nodeObject} container Контейнер.
  * @param {string=} place Позиция. По умолчанию в конце контейнера.

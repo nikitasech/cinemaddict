@@ -4,9 +4,7 @@ import CommentView from '../views/comment-view.js';
 
 /** Презентер попапа фильма. */
 export default class FilmDetailsPresenter {
-  /**
-   * Отрисовывает папап фильма.
-   */
+  /** Отрисовывает папап фильма. */
   init() {
     const COMMENT_COUNT = 2;
     const siteElement = document.querySelector('body');

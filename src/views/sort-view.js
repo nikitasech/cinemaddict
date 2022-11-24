@@ -1,19 +1,20 @@
 import {createElement} from '../render.js';
 
-const createNewProfileRatingTemplate = () => (`
-  <section class="header__profile profile">
-    <p class="profile__rating">Movie Buff</p>
-    <img class="profile__avatar" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
-  </section>
+const createSortTemplate = () => (`
+  <ul class="sort">
+    <li><a href="#" class="sort__button sort__button--active">Sort by default</a></li>
+    <li><a href="#" class="sort__button">Sort by date</a></li>
+    <li><a href="#" class="sort__button">Sort by rating</a></li>
+  </ul>
 `);
 
-/** Вью рейтинга пользователя. */
-export default class ProfileRatingView {
+/** Вью сортировки. */
+export default class SortView {
   /**
    * @returns {string} Шаблон разметки.
    */
   getTemplate() {
-    return createNewProfileRatingTemplate();
+    return createSortTemplate();
   }
 
   /**

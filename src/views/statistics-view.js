@@ -6,6 +6,7 @@ const createStatisticsTemplate = () => (`
   </section>
 `);
 
+/** Вью статистики количества фильмов на сервисе. */
 export default class StatisticsView {
   /**
    * @returns {string} Шаблон разметки.

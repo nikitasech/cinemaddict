@@ -1,6 +1,7 @@
 import {createElement} from '../render.js';
+import FilmControlsView from './film-controls-view.js';
 
-const createCardFilmsTemplate = () => (`
+const createFilmCardTemplate = () => (`
   <article class="film-card">
     <a class="film-card__link">
       <h3 class="film-card__title">The Dance of Life</h3>
@@ -14,20 +15,17 @@ const createCardFilmsTemplate = () => (`
       <p class="film-card__description">Burlesque comic Ralph "Skid" Johnson (Skelly), and specialty dancer Bonny Lee King (Carroll), end up together on a cold, rainy night at a tr…</p>
       <span class="film-card__comments">5 comments</span>
     </a>
-    <div class="film-card__controls">
-      <button class="film-card__controls-item film-card__controls-item--add-to-watchlist" type="button">Add to watchlist</button>
-      <button class="film-card__controls-item film-card__controls-item--mark-as-watched" type="button">Mark as watched</button>
-      <button class="film-card__controls-item film-card__controls-item--favorite" type="button">Mark as favorite</button>
-    </div>
+    ${new FilmControlsView().getTemplate()}
   </article>
 `);
 
-export default class CardFilmsView {
+
+export default class FilmCardView {
   /**
    * @returns {string} Шаблон разметки.
    */
   getTemplate() {
-    return createCardFilmsTemplate();
+    return createFilmCardTemplate();
   }
 
   /**

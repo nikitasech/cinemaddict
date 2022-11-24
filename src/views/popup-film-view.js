@@ -1,19 +1,23 @@
 import {createElement} from '../render.js';
+import FilmDetailsView from './film-details-view.js';
+import CommentsView from './comments-view.js';
 
-const createNewProfileRatingTemplate = () => (`
-  <section class="header__profile profile">
-    <p class="profile__rating">Movie Buff</p>
-    <img class="profile__avatar" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
+const createPopupFilmTemplate = () => (`
+  <section class="film-details">
+    <div class="film-details__inner">
+      ${new FilmDetailsView().getTemplate()}
+      ${new CommentsView().getTemplate()}
+    </div>
   </section>
 `);
 
-/** Вью рейтинга пользователя. */
-export default class ProfileRatingView {
+/** Вью попапа для подробного описания фильма. */
+export default class PopupFilmView {
   /**
    * @returns {string} Шаблон разметки.
    */
   getTemplate() {
-    return createNewProfileRatingTemplate();
+    return createPopupFilmTemplate();
   }
 
   /**

@@ -156,10 +156,5 @@ export default class FilmsPresenter {
       this.commentedListComponent,
       siteFilmsElement
     );
-
-    /* -----------------------------------
-      Отрисовывает попап с деталями фильма.
-    */
-    this.renderPopup();
   }
 }

@@ -5,6 +5,8 @@ import ListFilmsView from './../views/list-films-view.js';
 import FilmsContainerView from './../views/films-container-view.js';
 import FilmCardView from './../views/film-card-view.js';
 import ButtonMoreView from './../views/button-more-view.js';
+import PopupFilmView from './../views/popup-film-view.js';
+import CommentView from '../views/comment-view.js';
 
 const ListTitle = {
   LOADING: 'Loading...',
@@ -105,6 +107,22 @@ export default class FilmsPresenter {
     render(listComponent, container);
   }
 
+  /** Отрисовывает папап фильма. */
+  renderPopup() {
+    const COMMENT_COUNT = 2;
+    const siteElement = document.querySelector('body');
+
+    siteElement.classList.add('hide-overflow');
+
+    render(new PopupFilmView(), siteElement);
+    const siteCommentsListElement = siteElement
+      .querySelector('.film-details__comments-list');
+
+    for (let i = 0; i < COMMENT_COUNT; i++) {
+      render(new CommentView(), siteCommentsListElement);
+    }
+  }
+
   /**
    * Отрисовывает начальное состояние приложения.
    * @param {nodeObject} filmsContainer Контейнер для отрисовки состояния.
@@ -138,5 +156,10 @@ export default class FilmsPresenter {
       this.commentedListComponent,
       siteFilmsElement
     );
+
+    /* -----------------------------------
+      Отрисовывает попап с деталями фильма.
+    */
+    this.renderPopup();
   }
 }

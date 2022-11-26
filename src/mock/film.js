@@ -19,7 +19,7 @@ export const generateFilm = () => ({
   comments: [
     1, 6
   ],
-  filmInfo: {
+  info: {
     title: getRandomTitle(),
     alternativeTitle: getRandomTitle(),
     totalRating: `${getRandomInt(0, 9)}.${getRandomInt(0, 9)}`,
@@ -34,7 +34,7 @@ export const generateFilm = () => ({
     ],
     release: {
       date: '2019-05-11T00:00:00.000Z',
-      releaseCountry: 'Finland'
+      country: 'Finland'
     },
     runtime: 77,
     genre: [

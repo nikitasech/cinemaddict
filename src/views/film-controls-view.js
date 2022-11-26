@@ -1,40 +1,77 @@
 import {createElement} from '../render.js';
 
-const createDetailsControlsTemplate = () => (`
-  <section class="film-details__controls">
-    <button type="button" class="film-details__control-button film-details__control-button--watchlist" id="watchlist" name="watchlist">Add to watchlist</button>
-    <button type="button" class="film-details__control-button film-details__control-button--active film-details__control-button--watched" id="watched" name="watched">Already watched</button>
-    <button type="button" class="film-details__control-button film-details__control-button--favorite" id="favorite" name="favorite">Add to favorites</button>
-  </section>
-`);
+const createControlsTemplate = (
+  {isWatchlist, isWatched, isFavorite}, parent
+) => {
+  let activeClassName = '';
 
-const createCardControlsTemplate = () => (`
-  <div class="film-card__controls">
-    <button class="film-card__controls-item film-card__controls-item--add-to-watchlist" type="button">Add to watchlist</button>
-    <button class="film-card__controls-item film-card__controls-item--mark-as-watched" type="button">Mark as watched</button>
-    <button class="film-card__controls-item film-card__controls-item--favorite" type="button">Mark as favorite</button>
-  </div>
-`);
+  switch (parent) {
+    case 'card':
+      activeClassName = 'film-card__controls-item--active';
+      break;
+    case 'details':
+      activeClassName = 'film-details__control-button--active';
+      break;
+  }
+
+  const watchlistClassName = isWatchlist ? activeClassName : '';
+  const watchedClassName = isWatched ? activeClassName : '';
+  const favoriteClassName = isFavorite ? activeClassName : '';
+
+  const watchlistText = isWatchlist
+    ? 'Remove from watchlist'
+    : 'Add to watchlist';
+  const watchedText = isWatched
+    ? 'Remove from watched'
+    : 'Mark as watched';
+  const favoriteText = isFavorite
+    ? 'remove from favorites'
+    : 'Add to favorites';
+
+  const cardControlsTemplate = (`
+    <div class="film-card__controls">
+      <button class="film-card__controls-item film-card__controls-item--add-to-watchlist ${watchlistClassName}" type="button">${watchlistText}</button>
+      <button class="film-card__controls-item film-card__controls-item--mark-as-watched ${watchedClassName}" type="button">${watchedText}</button>
+      <button class="film-card__controls-item film-card__controls-item--favorite ${favoriteClassName}" type="button">${favoriteText}</button>
+    </div>
+  `);
+
+  const filmDetailsControlsTemplate = (`
+    <section class="film-details__controls">
+      <button type="button" class="film-details__control-button film-details__control-button--watchlist ${watchlistClassName}" id="watchlist" name="watchlist">${watchlistText}</button>
+      <button type="button" class="film-details__control-button film-details__control-button--watched ${watchedClassName}" id="watched" name="watched">${watchedText}</button>
+      <button type="button" class="film-details__control-button film-details__control-button--favorite ${favoriteClassName}" id="favorite" name="favorite">${favoriteText}</button>
+    </section>
+  `);
+
+  switch (parent) {
+    case 'card':
+      return cardControlsTemplate;
+    case 'details':
+      return filmDetailsControlsTemplate;
+  }
+};
 
 /** Вью кнопок управления. */
 export default class FilmControlsView {
   /**
+   * @param {object} state Состояние элементов управления.
    * @param {string=} rapent Название родительского блока. 'card' или 'details'.
    */
-  constructor(rapent = 'card') {
+  constructor(state, rapent = 'card') {
     this.parent = rapent;
+    this.state = {
+      isWatchlist: state.watchlist,
+      isWatched: state.alreadyWatched,
+      isFavorite: state.favorite
+    };
   }
 
   /**
    * @returns {string} Шаблон разметки.
    */
   getTemplate() {
-    switch (this.parent) {
-      case 'details':
-        return createDetailsControlsTemplate();
-      default:
-        return createCardControlsTemplate();
-    }
+    return createControlsTemplate(this.state, this.parent);
   }
 
   /**

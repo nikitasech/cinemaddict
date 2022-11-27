@@ -21,6 +21,12 @@ const getRandomInt = (min, max) => {
 const formatReleaseYear = (date) => dayjs(date).format('YYYY');
 
 /**
+ * @param {string} date Дата в формате ISO 8601.
+ * @returns {string} Дата в формате "30 Мая 2013".
+ */
+const formatReleaseDate = (date) => dayjs(date).format('DD MMMM YYYY');
+
+/**
  * @param {number} runtime Время в минутах.
  * @returns {string} Продолжительность фильма в формате "1h 3m".
  */
@@ -31,4 +37,4 @@ const formatRuntime = (runtime) => {
   return `${hours}h ${minutes}m`;
 };
 
-export {getRandomInt, formatReleaseYear, formatRuntime};
+export {getRandomInt, formatReleaseYear, formatReleaseDate, formatRuntime};

@@ -104,19 +104,22 @@ export default class FilmsPresenter {
     render(listComponent, container);
   }
 
-  /** Отрисовывает папап фильма. */
-  renderPopup() {
+  /**
+   * Отрисовывает папап фильма.
+   * @param {object} film Объект фильма для отрисовки.
+   */
+  renderPopup(film) {
     const COMMENT_COUNT = 2;
     const siteElement = document.querySelector('body');
 
     siteElement.classList.add('hide-overflow');
 
-    render(new PopupFilmView(), siteElement);
+    render(new PopupFilmView(film), siteElement);
     const siteCommentsListElement = siteElement
       .querySelector('.film-details__comments-list');
 
     for (let i = 0; i < COMMENT_COUNT; i++) {
-      render(new CommentView(), siteCommentsListElement);
+      render(new CommentView(film), siteCommentsListElement);
     }
   }
 
@@ -148,5 +151,7 @@ export default class FilmsPresenter {
       siteFilmsElement,
       this.films,
     );
+
+    this.renderPopup(this.films[0]);
   }
 }

@@ -2,10 +2,10 @@ import {createElement} from '../render.js';
 import FilmDetailsView from './film-details-view.js';
 import CommentsView from './comments-view.js';
 
-const createPopupFilmTemplate = () => (`
+const createPopupFilmTemplate = (film) => (`
   <section class="film-details">
     <div class="film-details__inner">
-      ${new FilmDetailsView().getTemplate()}
+      ${new FilmDetailsView(film).getTemplate()}
       ${new CommentsView().getTemplate()}
     </div>
   </section>
@@ -14,10 +14,17 @@ const createPopupFilmTemplate = () => (`
 /** Вью попапа для подробного описания фильма. */
 export default class PopupFilmView {
   /**
+   * @param {object} film Объект с данными о фильме.
+   */
+  constructor(film) {
+    this.film = film;
+  }
+
+  /**
    * @returns {string} Шаблон разметки.
    */
   getTemplate() {
-    return createPopupFilmTemplate();
+    return createPopupFilmTemplate(this.film);
   }
 
   /**

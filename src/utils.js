@@ -15,6 +15,23 @@ const getRandomInt = (min, max) => {
 };
 
 /**
+ * Перемешивает массив по алгоритму Фишера - Йетса.
+ * WARNING: Перемешивает переданный массив!
+ * https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+ * @param {array} array Массив для перемешивания.
+ * @returns {array} Ссылка на перемешанный массив.
+ */
+const shuffleArray = (array) => {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = getRandomInt(0, i);
+
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+
+  return array;
+};
+
+/**
  * @param {string} date Дата в формате ISO 8601.
  * @returns {string} Дата по шаблону.
  */
@@ -46,4 +63,4 @@ const getRandomName = () => {
   return names[getRandomInt(0, names.length - 1)];
 };
 
-export {getRandomInt, formatIsoDate, formatRuntime, getRandomName};
+export {getRandomInt, shuffleArray, formatIsoDate, formatRuntime, getRandomName};

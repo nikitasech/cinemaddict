@@ -1,4 +1,4 @@
-import { render } from './../render.js';
+import {render} from './../render.js';
 import SortView from './../views/sort-view.js';
 import FilmsView from './../views/films-view.js';
 import ListFilmsView from './../views/list-films-view.js';
@@ -141,6 +141,8 @@ export default class FilmsPresenter {
    */
   init(filmsContainer, filmsModel, commentsModel) {
     this.films = [...filmsModel.getFilms()];
+    this.topFilms = [...filmsModel.getTopFilms()];
+    this.CommentedFilms = [...filmsModel.getCommentedFilms()];
     this.comments = [...commentsModel.getComments()];
 
     render(new SortView(), filmsContainer);
@@ -156,13 +158,13 @@ export default class FilmsPresenter {
     this.renderExtraList(
       this.topListComponent,
       siteFilmsElement,
-      this.films,
+      this.topFilms
     );
 
     this.renderExtraList(
       this.commentedListComponent,
       siteFilmsElement,
-      this.films,
+      this.CommentedFilms,
     );
 
     this.renderPopup(this.films[0]);

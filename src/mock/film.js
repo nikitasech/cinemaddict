@@ -1,4 +1,4 @@
-import { getRandomInt } from '../utils.js';
+import {getRandomInt} from '../utils.js';
 
 const getRandomTitle = () => {
   const titles = [
@@ -11,7 +11,7 @@ const getRandomTitle = () => {
     'The man with the golden arm'
   ];
 
-  return titles[getRandomInt(0, titles.length)];
+  return titles[getRandomInt(0, titles.length - 1)];
 };
 
 export const generateFilm = () => ({

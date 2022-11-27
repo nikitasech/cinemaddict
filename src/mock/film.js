@@ -11,7 +11,7 @@ const getRandomTitle = () => {
     'The man with the golden arm'
   ];
 
-  return titles[getRandomInt(1, 7)];
+  return titles[getRandomInt(0, titles.length)];
 };
 
 export const generateFilm = () => ({

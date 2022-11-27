@@ -16,15 +16,9 @@ const getRandomInt = (min, max) => {
 
 /**
  * @param {string} date Дата в формате ISO 8601.
- * @returns {string} Год в формате "2001".
+ * @returns {string} Дата по шаблону.
  */
-const formatReleaseYear = (date) => dayjs(date).format('YYYY');
-
-/**
- * @param {string} date Дата в формате ISO 8601.
- * @returns {string} Дата в формате "30 Мая 2013".
- */
-const formatReleaseDate = (date) => dayjs(date).format('DD MMMM YYYY');
+const formatIsoDate = (date, template) => dayjs(date).format(template);
 
 /**
  * @param {number} runtime Время в минутах.
@@ -37,4 +31,19 @@ const formatRuntime = (runtime) => {
   return `${hours}h ${minutes}m`;
 };
 
-export {getRandomInt, formatReleaseYear, formatReleaseDate, formatRuntime};
+/**
+ * @returns {string} Случайное имя.
+ */
+const getRandomName = () => {
+  const names = [
+    'Aelene Inglorion',
+    'Fenella Ocallaghan',
+    'Kevin Shan',
+    'Reaghan Ennis',
+    'Megan Jones'
+  ];
+
+  return names[getRandomInt(0, names.length - 1)];
+};
+
+export {getRandomInt, formatIsoDate, formatRuntime, getRandomName};

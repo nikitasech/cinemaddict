@@ -1,6 +1,6 @@
 import {createElement} from '../render.js';
 import FilmControlsView from './film-controls-view.js';
-import {formatReleaseDate, formatRuntime} from './../utils.js';
+import {formatIsoDate, formatRuntime} from './../utils.js';
 
 const createFilmDetailsTemplate = (film) => {
   const {
@@ -9,7 +9,7 @@ const createFilmDetailsTemplate = (film) => {
   } = film.info;
   const writers = film.info.writers.join(', ');
   const actors = film.info.actors.join(', ');
-  const dateRelease = formatReleaseDate(film.info.release.date);
+  const dateRelease = formatIsoDate(film.info.release.date, 'DD MMMM YYYY');
   const countryRelease = film.info.release.country;
   const runtime = formatRuntime(film.info.runtime);
   const stateControls = film.userDetails;

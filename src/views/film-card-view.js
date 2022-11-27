@@ -1,6 +1,6 @@
 import {createElement} from '../render.js';
 import FilmControlsView from './film-controls-view.js';
-import {formatReleaseYear, formatRuntime} from './../utils.js';
+import {formatIsoDate, formatRuntime} from './../utils.js';
 
 /**
  * @param {object} film Объект с данными о фильме.
@@ -8,7 +8,7 @@ import {formatReleaseYear, formatRuntime} from './../utils.js';
  */
 const createFilmCardTemplate = (film) => {
   const {title, totalRating, release, genre, poster} = film.info;
-  const dateRelease = formatReleaseYear(release.date);
+  const dateRelease = formatIsoDate(release.date, 'YYYY');
   const runtime = formatRuntime(film.info.runtime);
   const mainGenre = genre[0];
   const countComments = film.comments.length;

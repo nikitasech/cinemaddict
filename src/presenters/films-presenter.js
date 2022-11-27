@@ -105,12 +105,24 @@ export default class FilmsPresenter {
   }
 
   /**
+   * Находит комментарии к фильму.
+   * @param {object} film Объект с информацией о фильме.
+   * @returns {object} Объект с комментариями к фильму.
+   */
+  searchFilmComments(film) {
+    const comments = this.comments;
+
+    return film.comments.map((id) => comments
+      .find((comment) => id === comment.id));
+  }
+
+  /**
    * Отрисовывает папап фильма.
    * @param {object} film Объект фильма для отрисовки.
    */
   renderPopup(film) {
-    const COMMENT_COUNT = 2;
     const siteElement = document.querySelector('body');
+    const comments = this.searchFilmComments(film);
 
     siteElement.classList.add('hide-overflow');
 
@@ -118,8 +130,8 @@ export default class FilmsPresenter {
     const siteCommentsListElement = siteElement
       .querySelector('.film-details__comments-list');
 
-    for (let i = 0; i < COMMENT_COUNT; i++) {
-      render(new CommentView(film), siteCommentsListElement);
+    for (const comment of comments) {
+      render(new CommentView(comment), siteCommentsListElement);
     }
   }
 
@@ -127,8 +139,9 @@ export default class FilmsPresenter {
    * Отрисовывает начальное состояние приложения.
    * @param {nodeObject} filmsContainer Контейнер для отрисовки состояния.
    */
-  init(filmsContainer, filmsModel) {
+  init(filmsContainer, filmsModel, commentsModel) {
     this.films = [...filmsModel.getFilms()];
+    this.comments = [...commentsModel.getComments()];
 
     render(new SortView(), filmsContainer);
     render(new FilmsView(), filmsContainer);

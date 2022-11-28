@@ -1,4 +1,8 @@
-import {getRandomInt, getRandomName} from '../utils.js';
+import {getRandomInt, getRandomItem, getRandomText, getRandomDate} from '../utils.js';
+import {names} from './../const.js';
+
+const getCommentText = () => getRandomText(getRandomInt(8, 20));
+
 
 const getCounterId = () => {
   let id = 0;
@@ -21,8 +25,8 @@ const getRandomEmotion = () => {
 
 export const generateComment = () => ({
   id: getId(),
-  author: getRandomName(),
-  comment: 'a film that changed my life, a true masterpiece, post-credit scene was just amazing omg.',
-  date: '2019-05-11T16:12:32.554Z',
+  author: getRandomItem(names),
+  comment: getCommentText(),
+  date: getRandomDate(),
   emotion: getRandomEmotion()
 });

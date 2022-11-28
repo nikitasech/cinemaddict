@@ -16,19 +16,53 @@ const getRandomInt = (min, max) => {
 
 /**
  * Перемешивает массив по алгоритму Фишера - Йетса.
- * WARNING: Перемешивает переданный массив!
  * https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
  * @param {array} array Массив для перемешивания.
- * @returns {array} Ссылка на перемешанный массив.
+ * @returns {array} Перемешанный массив.
  */
 const shuffleArray = (array) => {
-  for (let i = array.length - 1; i > 0; i--) {
+  const newArray = array.slice();
+
+  for (let i = newArray.length - 1; i > 0; i--) {
     const j = getRandomInt(0, i);
 
-    [array[i], array[j]] = [array[j], array[i]];
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
   }
 
-  return array;
+  return newArray;
+};
+
+/**
+ * @param {array} array Массив.
+ * @returns Случайный элемент массива.
+ */
+const getRandomItem = (array) => array[getRandomInt(0, array.length - 1)];
+
+/**
+ * @param {number} countWords Количество слов.
+ * @returns {string} Случайный текст.
+ */
+const getRandomText = (countWords) => {
+  const text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
+
+  return text
+    .split(' ')
+    .sort(() => getRandomInt(-1, 1))
+    .slice(0, countWords)
+    .join(' ');
+};
+
+/**
+ * @returns {string} Случайная дата в формате ISO 8601.
+ */
+const getRandomDate = () => {
+  const year = getRandomInt(1980, 2021);
+  const mount = getRandomInt(10, 12);
+  const day = getRandomInt(10, 28);
+  const hour = getRandomInt(10, 24);
+  const minute = getRandomInt(10, 59);
+
+  return `${year}-${mount}-${day}T${hour}:${minute}:00.000Z`;
 };
 
 /**
@@ -48,19 +82,12 @@ const formatRuntime = (runtime) => {
   return `${hours}h ${minutes}m`;
 };
 
-/**
- * @returns {string} Случайное имя.
- */
-const getRandomName = () => {
-  const names = [
-    'Aelene Inglorion',
-    'Fenella Ocallaghan',
-    'Kevin Shan',
-    'Reaghan Ennis',
-    'Megan Jones'
-  ];
-
-  return names[getRandomInt(0, names.length - 1)];
+export {
+  getRandomInt,
+  shuffleArray,
+  getRandomItem,
+  getRandomText,
+  getRandomDate,
+  formatIsoDate,
+  formatRuntime
 };
-
-export {getRandomInt, shuffleArray, formatIsoDate, formatRuntime, getRandomName};

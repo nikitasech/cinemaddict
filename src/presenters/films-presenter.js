@@ -1,4 +1,5 @@
 import {render} from './../render.js';
+import {ListTitle, TypeList} from './../const.js';
 import SortView from './../views/sort-view.js';
 import FilmsView from './../views/films-view.js';
 import ListFilmsView from './../views/list-films-view.js';
@@ -7,22 +8,6 @@ import FilmCardView from './../views/film-card-view.js';
 import ButtonMoreView from './../views/button-more-view.js';
 import PopupFilmView from './../views/popup-film-view.js';
 import CommentView from '../views/comment-view.js';
-
-const ListTitle = {
-  LOADING: 'Loading...',
-  ALL: 'All movies. Upcoming',
-  TOP: 'Top rated',
-  COMMENTED: 'Most commented',
-  NO_FILMS: 'There are no movies in our database',
-  NO_WATCHLIST_ADDED: 'There are no movies to watch now',
-  NO_HISTIRY_ADDED: 'There are no watched movies now',
-  NO_FAVORITES_ADDED: 'There are no favorite movies now'
-};
-
-const TypeList = {
-  MAIN: 'main',
-  EXTRA: 'extra'
-};
 
 /** Презентер списков фильмов. */
 export default class FilmsPresenter {
@@ -105,24 +90,12 @@ export default class FilmsPresenter {
   }
 
   /**
-   * Находит комментарии к фильму.
-   * @param {object} film Объект с информацией о фильме.
-   * @returns {object} Объект с комментариями к фильму.
-   */
-  searchFilmComments(film) {
-    const comments = this.comments;
-
-    return film.comments.map((id) => comments
-      .find((comment) => id === comment.id));
-  }
-
-  /**
    * Отрисовывает папап фильма.
    * @param {object} film Объект фильма для отрисовки.
    */
   renderPopup(film) {
     const siteElement = document.querySelector('body');
-    const comments = this.searchFilmComments(film);
+    const comments = this.commentsModel.getCommentsById(film.comments);
 
     siteElement.classList.add('hide-overflow');
 
@@ -140,6 +113,9 @@ export default class FilmsPresenter {
    * @param {nodeObject} filmsContainer Контейнер для отрисовки состояния.
    */
   init(filmsContainer, filmsModel, commentsModel) {
+    this.filmsModel = filmsModel;
+    this.commentsModel = commentsModel;
+
     this.films = [...filmsModel.getFilms()];
     this.topFilms = [...filmsModel.getTopFilms()];
     this.CommentedFilms = [...filmsModel.getCommentedFilms()];

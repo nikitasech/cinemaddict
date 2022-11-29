@@ -25,7 +25,7 @@ const createControlsTemplate = (
     ? 'Remove from watched'
     : 'Mark as watched';
   const favoriteText = isFavorite
-    ? 'remove from favorites'
+    ? 'Remove from favorites'
     : 'Add to favorites';
 
   const cardControlsTemplate = (`

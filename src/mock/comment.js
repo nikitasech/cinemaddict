@@ -1,7 +1,7 @@
-import {getRandomInt, getRandomItem, getRandomText, getRandomDate} from '../utils.js';
+import {getRandomNumber, getRandomItem, getRandomText, getRandomDate} from '../utils.js';
 import {names} from './../const.js';
 
-const getCommentText = () => getRandomText(getRandomInt(8, 20));
+const getCommentText = () => getRandomText(getRandomNumber(8, 20));
 
 
 const getCounterId = () => {
@@ -20,7 +20,7 @@ const getRandomEmotion = () => {
     'smile',
   ];
 
-  return emotions[getRandomInt(0, emotions.length - 1)];
+  return emotions[getRandomNumber(0, emotions.length - 1)];
 };
 
 export const generateComment = () => ({

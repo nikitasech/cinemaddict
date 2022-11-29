@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
  * @param {number} max Максимальный порог.
  * @returns {number} Случайное число из заданого диапазона.
  */
-const getRandomInt = (min, max) => {
+const getRandomNumber = (min, max) => {
   const lower = Math.ceil(Math.min(min, max));
   const upper = Math.floor(Math.max(min, max));
 
@@ -24,7 +24,7 @@ const shuffleArray = (array) => {
   const newArray = array.slice();
 
   for (let i = newArray.length - 1; i > 0; i--) {
-    const j = getRandomInt(0, i);
+    const j = getRandomNumber(0, i);
 
     [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
   }
@@ -36,7 +36,7 @@ const shuffleArray = (array) => {
  * @param {array} array Массив.
  * @returns Случайный элемент массива.
  */
-const getRandomItem = (array) => array[getRandomInt(0, array.length - 1)];
+const getRandomItem = (array) => array[getRandomNumber(0, array.length - 1)];
 
 /**
  * @param {number} countWords Количество слов.
@@ -47,7 +47,7 @@ const getRandomText = (countWords) => {
 
   return text
     .split(' ')
-    .sort(() => getRandomInt(-1, 1))
+    .sort(() => getRandomNumber(-1, 1))
     .slice(0, countWords)
     .join(' ');
 };
@@ -56,11 +56,11 @@ const getRandomText = (countWords) => {
  * @returns {string} Случайная дата в формате ISO 8601.
  */
 const getRandomDate = () => {
-  const year = getRandomInt(1980, 2021);
-  const mount = getRandomInt(1, 12);
-  const day = getRandomInt(1, 28);
-  const hour = getRandomInt(1, 24);
-  const minute = getRandomInt(1, 59);
+  const year = getRandomNumber(1980, 2021);
+  const mount = getRandomNumber(1, 12);
+  const day = getRandomNumber(1, 28);
+  const hour = getRandomNumber(1, 24);
+  const minute = getRandomNumber(1, 59);
 
   const date = new Date(year, mount, day, hour, minute);
 
@@ -85,7 +85,7 @@ const formatRuntime = (runtime) => {
 };
 
 export {
-  getRandomInt,
+  getRandomNumber,
   shuffleArray,
   getRandomItem,
   getRandomText,

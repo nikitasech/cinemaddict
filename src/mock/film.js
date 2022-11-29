@@ -1,4 +1,10 @@
-import {getRandomInt, shuffleArray, getRandomItem, getRandomText, getRandomDate} from './../utils.js';
+import {
+  getRandomNumber,
+  shuffleArray,
+  getRandomItem,
+  getRandomText,
+  getRandomDate
+} from './../utils.js';
 import {names} from './../const.js';
 
 const titles = [
@@ -33,7 +39,7 @@ const countries = [
 const comments = Array.from({length: 36}, (item, i) => i + 1);
 
 const getRandomArray = (array, maxLength) => shuffleArray(array)
-  .slice(0, getRandomInt(1, maxLength));
+  .slice(0, getRandomNumber(1, maxLength));
 
 export const generateFilm = () => ({
   id: 0,
@@ -41,9 +47,9 @@ export const generateFilm = () => ({
   info: {
     title: getRandomItem(titles),
     alternativeTitle: getRandomItem(titles),
-    totalRating: `${getRandomInt(0, 9)}.${getRandomInt(0, 9)}`,
+    totalRating: `${getRandomNumber(0, 9)}.${getRandomNumber(0, 9)}`,
     poster: getRandomItem(posters),
-    ageRating: getRandomInt(0, 21),
+    ageRating: getRandomNumber(0, 21),
     director: getRandomItem(names),
     writers: getRandomArray(names, 5),
     actors: getRandomArray(names, 5),
@@ -51,9 +57,9 @@ export const generateFilm = () => ({
       date: getRandomDate(),
       country: getRandomItem(countries)
     },
-    runtime: getRandomInt(40, 120),
+    runtime: getRandomNumber(40, 120),
     genre: getRandomArray(genres, 5),
-    description: getRandomText(getRandomInt(30, 100))
+    description: getRandomText(getRandomNumber(30, 100))
   },
   userDetails: {
     watchlist: getRandomItem([true, false]),

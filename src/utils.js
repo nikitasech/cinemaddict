@@ -57,12 +57,14 @@ const getRandomText = (countWords) => {
  */
 const getRandomDate = () => {
   const year = getRandomInt(1980, 2021);
-  const mount = getRandomInt(10, 12);
-  const day = getRandomInt(10, 28);
-  const hour = getRandomInt(10, 24);
-  const minute = getRandomInt(10, 59);
+  const mount = getRandomInt(1, 12);
+  const day = getRandomInt(1, 28);
+  const hour = getRandomInt(1, 24);
+  const minute = getRandomInt(1, 59);
 
-  return `${year}-${mount}-${day}T${hour}:${minute}:00.000Z`;
+  const date = new Date(year, mount, day, hour, minute);
+
+  return date.toISOString();
 };
 
 /**

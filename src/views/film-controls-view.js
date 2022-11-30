@@ -19,13 +19,13 @@ const createControlsTemplate = (
   const favoriteClassName = isFavorite ? activeClassName : '';
 
   const watchlistText = isWatchlist
-    ? 'Remove from watchlist'
+    ? 'Not to watch'
     : 'Add to watchlist';
   const watchedText = isWatched
-    ? 'Remove from watched'
+    ? 'Haven\'t watched'
     : 'Mark as watched';
   const favoriteText = isFavorite
-    ? 'Remove from favorites'
+    ? 'Don\'t favorite'
     : 'Add to favorites';
 
   const cardControlsTemplate = (`

@@ -1,10 +1,16 @@
 import {createElement} from '../render.js';
 
-const createListTemplate = (title, type) => (`
-  <section class="films-list ${(type === 'extra') ? 'films-list--extra' : ''}">
-    <h2 class="films-list__title">${title}</h2>
-  </section>
-`);
+const createListTemplate = (title, type) => {
+  const listTypeClassName = (type === 'extra')
+    ? 'films-list--extra'
+    : '';
+
+  return (`
+    <section class="films-list ${listTypeClassName}">
+      <h2 class="films-list__title">${title}</h2>
+    </section>
+  `);
+};
 
 /**
  * Вью списка фильмов. По умолчанию создается 'main' список.

@@ -1,32 +1,13 @@
-import { render } from './../render.js';
+import {render} from './../render.js';
+import {ListTitle, TypeList} from './../const.js';
 import SortView from './../views/sort-view.js';
 import FilmsView from './../views/films-view.js';
 import ListFilmsView from './../views/list-films-view.js';
 import FilmsContainerView from './../views/films-container-view.js';
 import FilmCardView from './../views/film-card-view.js';
 import ButtonMoreView from './../views/button-more-view.js';
-
-const ListTitle = {
-  LOADING: 'Loading...',
-  ALL: 'All movies. Upcoming',
-  TOP: 'Top rated',
-  COMMENTED: 'Most commented',
-  NO_FILMS: 'There are no movies in our database',
-  NO_WATCHLIST_ADDED: 'There are no movies to watch now',
-  NO_HISTIRY_ADDED: 'There are no watched movies now',
-  NO_FAVORITES_ADDED: 'There are no favorite movies now'
-};
-
-const CardCount = {
-  ALL: 5,
-  TOP: 2,
-  COMMENTED: 2
-};
-
-const TypeList = {
-  MAIN: 'main',
-  EXTRA: 'extra'
-};
+import PopupFilmView from './../views/popup-film-view.js';
+import CommentView from '../views/comment-view.js';
 
 /** Презентер списков фильмов. */
 export default class FilmsPresenter {
@@ -35,25 +16,19 @@ export default class FilmsPresenter {
   commentedListComponent = new ListFilmsView(ListTitle.COMMENTED, TypeList.EXTRA);
 
   /**
-   * Отрисовывает нужное количество карточек в списке фильмов.
-   * @param {nodeObject} listElement Элемент, в контейнере которого нужно отрисовать карточки.
-   * @param {number} countCards Количество карточек.
+   * @param {object} filmsModel Модель фильмов.
+   * @param {object} commentsModel Модель комментариев.
    */
-  initialRenderCards(listElement, countCards) {
-    render(new FilmsContainerView(), listElement);
-    const containerElement = listElement
-      .querySelector('.films-list__container');
-
-    for (let i = 0; i < countCards; i++) {
-      render(new FilmCardView(), containerElement);
-    }
+  constructor(filmsModel, commentsModel) {
+    this.filmsModel = filmsModel;
+    this.commentsModel = commentsModel;
   }
 
   /**
    * Изменяет заголовок списка фильмов.
    * @param {nodeObject} listElement DOM-элемент списка фильмов.
    * @param {string} title Новый заголовок.
-   * @param {boolean} isHide Скрыть заголовок?
+   * @param {boolean=} isHide Скрыть заголовок?
    */
   changeTitleList(listElement, title, isHide = true) {
     const titleElement = listElement
@@ -69,74 +44,111 @@ export default class FilmsPresenter {
   }
 
   /**
-   * Заполняет главный список фильмами и кнопкой 'Load more'.
-   * @param {nodeObject} listElement DOM-элемент списка.
+   * Отрисовывает в контейнер списка все переданные фильмы.
+   * @param {nodeObject} listElement Список, в контейнере которого нужно отрисовать карточки.
+   * @param {array} films Массив фильмов.
    */
-  fillAllFilms(listElement) {
-    this.changeTitleList(listElement, ListTitle.ALL);
-    this.initialRenderCards(listElement, CardCount.ALL);
+  addCards(listElement, films) {
+    const containerElement = listElement
+      .querySelector('.films-list__container');
 
-    render(new ButtonMoreView(), this.allListComponent.element);
+    for (const film of films) {
+      render(new FilmCardView(film), containerElement);
+    }
   }
 
   /**
-   * Отрисовывает блок Top rated.
+   * Создает в списке контейнер для карточек и все отрисовывает.
+   * @param {nodeObject} listElement Список, в контейнере которого нужно отрисовать карточки.
+   * @param {array} films Массив фильмов.
+   */
+  initialRenderCards(listElement, films) {
+    render(new FilmsContainerView(), listElement);
+    this.addCards(listElement, films);
+  }
+
+  /**
+   * Отрисовывает главный список фильмов.
    * @param {object} listComponent Компонент списка.
    * @param {nodeObject} container Контейнер для отрисовки списка.
+   * @param {array} films Массив фильмов.
    */
-  renderTopFilms(listComponent, container) {
-    this.initialRenderCards(
-      listComponent.getElement(),
-      CardCount.TOP
-    );
+  renderMainList(listComponent, container, films) {
+    const CARD_COUNT = 5;
+    const croppedFilms = films.slice(0, CARD_COUNT);
+
+    render(listComponent, container);
+    this.changeTitleList(listComponent.getElement(), ListTitle.ALL);
+    this.initialRenderCards(listComponent.getElement(), croppedFilms);
+
+    render(new ButtonMoreView(), listComponent.getElement());
+  }
+
+  /**
+   * Отрисовывает дополнительный список.
+   * @param {object} listComponent Компонент списка.
+   * @param {nodeObject} container Контейнер для отрисовки списка.
+   * @param {array} films Массив фильмов.
+   */
+  renderExtraList(listComponent, container, films) {
+    const CARD_COUNT = 2;
+    const croppedFilms = films.slice(0, CARD_COUNT);
+
+    this.initialRenderCards(listComponent.getElement(), croppedFilms);
     render(listComponent, container);
   }
 
   /**
-   * Отрисовывает блок Most commented.
-   * @param {object} listComponent Компонент списка.
-   * @param {nodeObject} container Контейнер для отрисовки списка.
+   * Отрисовывает папап фильма.
+   * @param {object} film Объект фильма для отрисовки.
    */
-  renderCommentedFilms(listComponent, container) {
-    this.initialRenderCards(
-      listComponent.getElement(),
-      CardCount.COMMENTED
-    );
-    render(listComponent, container);
+  renderPopup(film) {
+    const siteElement = document.querySelector('body');
+    const comments = this.commentsModel.getCommentsById(film.comments);
+
+    siteElement.classList.add('hide-overflow');
+
+    render(new PopupFilmView(film), siteElement);
+    const siteCommentsListElement = siteElement
+      .querySelector('.film-details__comments-list');
+
+    for (const comment of comments) {
+      render(new CommentView(comment), siteCommentsListElement);
+    }
   }
 
   /**
    * Отрисовывает начальное состояние приложения.
    * @param {nodeObject} filmsContainer Контейнер для отрисовки состояния.
    */
-  init(mainContainer) {
-    render(new SortView(), mainContainer);
-    render(new FilmsView(), mainContainer);
-    const siteFilmsElement = mainContainer.querySelector('.films');
+  init(filmsContainer) {
+    this.films = [...this.filmsModel.getFilms()];
+    this.topFilms = [...this.filmsModel.getTopFilms()];
+    this.CommentedFilms = [...this.filmsModel.getCommentedFilms()];
+    this.comments = [...this.commentsModel.getComments()];
 
-    /* -----------------------------------
-      - Отрисовывает блок All movie с сообщением о загрузке.
-      - После успешного получения данных заполняет список фильмами.
-    */
-    render(this.allListComponent, siteFilmsElement);
-    this.fillAllFilms(
-      siteFilmsElement.querySelector('.films-list')
+    render(new SortView(), filmsContainer);
+    render(new FilmsView(), filmsContainer);
+    const siteFilmsElement = filmsContainer.querySelector('.films');
+
+    this.renderMainList(
+      this.allListComponent,
+      siteFilmsElement,
+      this.films
     );
 
-    /* -----------------------------------
-      Отрисовывает блок Top rates.
-    */
-    this.renderTopFilms(
+    this.renderExtraList(
       this.topListComponent,
-      siteFilmsElement
+      siteFilmsElement,
+      this.topFilms
     );
 
-    /* -----------------------------------
-      Отрисовывает блок Most commented.
-    */
-    this.renderCommentedFilms(
+    this.renderExtraList(
       this.commentedListComponent,
-      siteFilmsElement
+      siteFilmsElement,
+      this.CommentedFilms,
     );
+
+    this.renderPopup(this.films[0]);
   }
 }

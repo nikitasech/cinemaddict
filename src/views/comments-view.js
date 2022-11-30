@@ -1,10 +1,12 @@
 import {createElement} from '../render.js';
 import FormCommentView from './form-comment-view.js';
 
-const createCommentsTemplate = () => (`
+const createCommentsTemplate = (commentsCount) => (`
   <div class="film-details__bottom-container">
     <section class="film-details__comments-wrap">
-      <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">2</span></h3>
+      <h3 class="film-details__comments-title">
+        Comments <span class="film-details__comments-count">${commentsCount}</span>
+      </h3>
       <ul class="film-details__comments-list"></ul>
       ${new FormCommentView().getTemplate()}
     </section>
@@ -13,11 +15,15 @@ const createCommentsTemplate = () => (`
 
 /** Вью блока с комментариями. */
 export default class CommentsView {
+  constructor(commentsCount) {
+    this.count = commentsCount;
+  }
+
   /**
    * @returns {string} Шаблон разметки.
    */
   getTemplate() {
-    return createCommentsTemplate();
+    return createCommentsTemplate(this.count);
   }
 
   /**

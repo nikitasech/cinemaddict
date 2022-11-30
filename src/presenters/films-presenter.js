@@ -16,10 +16,19 @@ export default class FilmsPresenter {
   commentedListComponent = new ListFilmsView(ListTitle.COMMENTED, TypeList.EXTRA);
 
   /**
+   * @param {object} filmsModel Модель фильмов.
+   * @param {object} commentsModel Модель комментариев.
+   */
+  constructor(filmsModel, commentsModel) {
+    this.filmsModel = filmsModel;
+    this.commentsModel = commentsModel;
+  }
+
+  /**
    * Изменяет заголовок списка фильмов.
    * @param {nodeObject} listElement DOM-элемент списка фильмов.
    * @param {string} title Новый заголовок.
-   * @param {boolean} isHide Скрыть заголовок?
+   * @param {boolean=} isHide Скрыть заголовок?
    */
   changeTitleList(listElement, title, isHide = true) {
     const titleElement = listElement
@@ -38,7 +47,6 @@ export default class FilmsPresenter {
    * Отрисовывает в контейнер списка все переданные фильмы.
    * @param {nodeObject} listElement Список, в контейнере которого нужно отрисовать карточки.
    * @param {array} films Массив фильмов.
-   * @param {number} count Количество карточек.
    */
   addCards(listElement, films) {
     const containerElement = listElement
@@ -80,6 +88,7 @@ export default class FilmsPresenter {
    * Отрисовывает дополнительный список.
    * @param {object} listComponent Компонент списка.
    * @param {nodeObject} container Контейнер для отрисовки списка.
+   * @param {array} films Массив фильмов.
    */
   renderExtraList(listComponent, container, films) {
     const CARD_COUNT = 2;
@@ -112,14 +121,11 @@ export default class FilmsPresenter {
    * Отрисовывает начальное состояние приложения.
    * @param {nodeObject} filmsContainer Контейнер для отрисовки состояния.
    */
-  init(filmsContainer, filmsModel, commentsModel) {
-    this.filmsModel = filmsModel;
-    this.commentsModel = commentsModel;
-
-    this.films = [...filmsModel.getFilms()];
-    this.topFilms = [...filmsModel.getTopFilms()];
-    this.CommentedFilms = [...filmsModel.getCommentedFilms()];
-    this.comments = [...commentsModel.getComments()];
+  init(filmsContainer) {
+    this.films = [...this.filmsModel.getFilms()];
+    this.topFilms = [...this.filmsModel.getTopFilms()];
+    this.CommentedFilms = [...this.filmsModel.getCommentedFilms()];
+    this.comments = [...this.commentsModel.getComments()];
 
     render(new SortView(), filmsContainer);
     render(new FilmsView(), filmsContainer);

@@ -1,6 +1,6 @@
 import {createElement} from '../render.js';
-import FilmControlsView from './film-controls-view.js';
 import {formatIsoDate, formatRuntime} from './../utils.js';
+import FilmControlsView from './film-controls-view.js';
 
 const createFilmDetailsTemplate = (film) => {
   const {

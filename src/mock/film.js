@@ -3,9 +3,14 @@ import {
   shuffleArray,
   getRandomItem,
   getRandomText,
-  getRandomDate
+  getRandomDate,
+  getCounter
 } from './../utils.js';
 import {names} from './../const.js';
+
+const allComments = Array.from({length: 36}, (item, i) => i + 1);
+
+const booleans = [true, false];
 
 const titles = [
   'Made for each other', 'Popeye meets sinbad', 'Sagebrush trail',
@@ -36,18 +41,27 @@ const countries = [
   'Sudan', 'United Arab Emirates', 'The Democratic Republic of the Congo'
 ];
 
-const comments = Array.from({length: 36}, (item, i) => i + 1);
+const getId = getCounter();
+const getRating = () => `${getRandomNumber(0, 9)}.${getRandomNumber(0, 9)}`;
 
+/**
+ * @param {array} array Массив-основа.
+ * @param {number} maxLength Максимальная длина нового массива.
+ * @returns {array} Перемешанный массив-основа со случайной длиной.
+ */
 const getRandomArray = (array, maxLength) => shuffleArray(array)
   .slice(0, getRandomNumber(1, maxLength));
 
+/**
+ * @returns {object} Сгенерированный фильм.
+ */
 export const generateFilm = () => ({
-  id: 0,
-  comments: getRandomArray(comments, 10),
+  id: getId(),
+  comments: getRandomArray(allComments, 10),
   info: {
     title: getRandomItem(titles),
     alternativeTitle: getRandomItem(titles),
-    totalRating: `${getRandomNumber(0, 9)}.${getRandomNumber(0, 9)}`,
+    totalRating: getRating(),
     poster: getRandomItem(posters),
     ageRating: getRandomNumber(0, 21),
     director: getRandomItem(names),
@@ -62,9 +76,9 @@ export const generateFilm = () => ({
     description: getRandomText(getRandomNumber(30, 100))
   },
   userDetails: {
-    watchlist: getRandomItem([true, false]),
-    alreadyWatched: getRandomItem([true, false]),
+    watchlist: getRandomItem(booleans),
+    alreadyWatched: getRandomItem(booleans),
     watchingDate: getRandomDate(),
-    favorite: getRandomItem([true, false])
+    favorite: getRandomItem(booleans)
   }
 });

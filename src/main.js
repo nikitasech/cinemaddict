@@ -10,9 +10,9 @@ const siteMainElement = document.querySelector('.main');
 
 const filmsModel = new FilmsModel();
 const commentsModel = new CommentsModel();
-const filmsPresenter = new FilmsPresenter();
+const filmsPresenter = new FilmsPresenter(filmsModel, commentsModel);
 
 render(new ProfileRatingView(), siteHeaderElement);
 render(new FiltersView(), siteMainElement);
 
-filmsPresenter.init(siteMainElement, filmsModel, commentsModel);
+filmsPresenter.init(siteMainElement);

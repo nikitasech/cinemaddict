@@ -1,32 +1,29 @@
-import {getRandomNumber, getRandomItem, getRandomText, getRandomDate} from '../utils.js';
+import {
+  getRandomNumber,
+  getRandomItem,
+  getRandomText,
+  getRandomDate,
+  getCounter
+} from '../utils.js';
 import {names} from './../const.js';
 
+const emotions = [
+  'angry',
+  'puke',
+  'sleeping',
+  'smile',
+];
+
+const getId = getCounter();
 const getCommentText = () => getRandomText(getRandomNumber(8, 20));
 
-
-const getCounterId = () => {
-  let id = 0;
-
-  return () => id++;
-};
-
-const getId = getCounterId();
-
-const getRandomEmotion = () => {
-  const emotions = [
-    'angry',
-    'puke',
-    'sleeping',
-    'smile',
-  ];
-
-  return emotions[getRandomNumber(0, emotions.length - 1)];
-};
-
+/**
+ * @returns {object} Сгенерированный комментарий.
+ */
 export const generateComment = () => ({
   id: getId(),
   author: getRandomItem(names),
   comment: getCommentText(),
   date: getRandomDate(),
-  emotion: getRandomEmotion()
+  emotion: getRandomItem(emotions)
 });

@@ -6,7 +6,7 @@ const createPopupFilmTemplate = (film) => (`
   <section class="film-details">
     <div class="film-details__inner">
       ${new FilmDetailsView(film).getTemplate()}
-      ${new CommentsView().getTemplate()}
+      ${new CommentsView(film.comments.length).getTemplate()}
     </div>
   </section>
 `);

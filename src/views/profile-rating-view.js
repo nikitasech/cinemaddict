@@ -14,16 +14,16 @@ export default class ProfileRatingView {
   /**
    * @returns {string} Шаблон разметки.
    */
-  getTemplate() {
+  get template() {
     return createNewProfileRatingTemplate();
   }
 
   /**
    * @returns {nodeObject} DOM-узел разметки.
    */
-  getElement() {
+  get element() {
     if (!this.#element) {
-      this.#element = createElement(this.getTemplate());
+      this.#element = createElement(this.template);
     }
 
     return this.#element;

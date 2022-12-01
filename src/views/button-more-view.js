@@ -11,16 +11,16 @@ export default class ButtonMoreView {
   /**
    * @returns {string} Шаблон разметки.
    */
-  getTemplate() {
+  get template() {
     return createMoreButtonTemplate();
   }
 
   /**
    * @returns {nodeObject} DOM-узел разметки.
    */
-  getElement() {
+  get element() {
     if (!this.#element) {
-      this.#element = createElement(this.getTemplate());
+      this.#element = createElement(this.template);
     }
 
     return this.#element;

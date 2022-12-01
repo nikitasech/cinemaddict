@@ -5,8 +5,8 @@ import CommentsView from './comments-view.js';
 const createPopupFilmTemplate = (film) => (`
   <section class="film-details">
     <div class="film-details__inner">
-      ${new FilmDetailsView(film).getTemplate()}
-      ${new CommentsView(film.comments.length).getTemplate()}
+      ${new FilmDetailsView(film).template}
+      ${new CommentsView(film.comments.length).template}
     </div>
   </section>
 `);
@@ -26,16 +26,16 @@ export default class PopupFilmView {
   /**
    * @returns {string} Шаблон разметки.
    */
-  getTemplate() {
+  get template() {
     return createPopupFilmTemplate(this.#film);
   }
 
   /**
    * @returns {nodeObject} DOM-узел разметки.
    */
-  getElement() {
+  get element() {
     if (!this.#element) {
-      this.#element = createElement(this.getTemplate());
+      this.#element = createElement(this.template);
     }
 
     return this.#element;

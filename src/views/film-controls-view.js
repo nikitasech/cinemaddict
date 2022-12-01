@@ -74,16 +74,16 @@ export default class FilmControlsView {
   /**
    * @returns {string} Шаблон разметки.
    */
-  getTemplate() {
+  get template() {
     return createControlsTemplate(this.#state, this.#parent);
   }
 
   /**
    * @returns {nodeObject} DOM-узел разметки.
    */
-  getElement() {
+  get element() {
     if (!this.#element) {
-      this.#element = createElement(this.getTemplate());
+      this.#element = createElement(this.template);
     }
 
     return this.#element;

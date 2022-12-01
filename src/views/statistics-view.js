@@ -13,16 +13,16 @@ export default class StatisticsView {
   /**
    * @returns {string} Шаблон разметки.
    */
-  getTemplate() {
+  get template() {
     return createStatisticsTemplate();
   }
 
   /**
    * @returns {nodeObject} DOM-узел разметки.
    */
-  getElement() {
+  get element() {
     if (!this.#element) {
-      this.#element = createElement(this.getTemplate());
+      this.#element = createElement(this.template);
     }
 
     return this.#element;

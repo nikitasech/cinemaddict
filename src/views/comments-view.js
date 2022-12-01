@@ -8,7 +8,7 @@ const createCommentsTemplate = (commentsCount) => (`
         Comments <span class="film-details__comments-count">${commentsCount}</span>
       </h3>
       <ul class="film-details__comments-list"></ul>
-      ${new FormCommentView().getTemplate()}
+      ${new FormCommentView().template}
     </section>
   </div>
 `);
@@ -25,16 +25,16 @@ export default class CommentsView {
   /**
    * @returns {string} Шаблон разметки.
    */
-  getTemplate() {
+  get template() {
     return createCommentsTemplate(this.#count);
   }
 
   /**
    * @returns {nodeObject} DOM-узел разметки.
    */
-  getElement() {
+  get element() {
     if (!this.#element) {
-      this.#element = createElement(this.getTemplate());
+      this.#element = createElement(this.template);
     }
 
     return this.#element;

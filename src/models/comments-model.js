@@ -4,7 +4,9 @@ import {generateComment} from '../mock/comment.js';
 export default class CommentsModel {
   #comments = Array.from({length: 74}, generateComment);
 
-  getComments = () => this.#comments;
+  get comments() {
+    return this.#comments;
+  }
 
   /**
    * @param {array} ids Массив с id нужных комментариев.

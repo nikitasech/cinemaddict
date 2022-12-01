@@ -85,10 +85,10 @@ export default class FilmsPresenter {
     const croppedFilms = films.slice(0, CARD_COUNT);
 
     render(listComponent, container);
-    this.changeTitleList(listComponent.getElement(), ListTitle.ALL);
-    this.initialRenderCards(listComponent.getElement(), croppedFilms);
+    this.changeTitleList(listComponent.element, ListTitle.ALL);
+    this.initialRenderCards(listComponent.element, croppedFilms);
 
-    render(new ButtonMoreView(), listComponent.getElement());
+    render(new ButtonMoreView(), listComponent.element);
   }
 
   /**
@@ -101,7 +101,7 @@ export default class FilmsPresenter {
     const CARD_COUNT = 2;
     const croppedFilms = films.slice(0, CARD_COUNT);
 
-    this.initialRenderCards(listComponent.getElement(), croppedFilms);
+    this.initialRenderCards(listComponent.element, croppedFilms);
     render(listComponent, container);
   }
 
@@ -129,9 +129,9 @@ export default class FilmsPresenter {
    * @param {nodeObject} filmsContainer Контейнер для отрисовки состояния.
    */
   init(filmsContainer) {
-    this.#films = [...this.#filmsModel.getFilms()];
-    this.#topFilms = [...this.#filmsModel.getTopFilms()];
-    this.#commentedFilms = [...this.#filmsModel.getCommentedFilms()];
+    this.#films = [...this.#filmsModel.films];
+    this.#topFilms = [...this.#filmsModel.topFilms];
+    this.#commentedFilms = [...this.#filmsModel.commentedFilms];
 
     render(new SortView(), filmsContainer);
     render(new FilmsView(), filmsContainer);

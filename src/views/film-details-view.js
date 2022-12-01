@@ -72,7 +72,7 @@ const createFilmDetailsTemplate = (film) => {
           <p class="film-details__film-description">${description}</p>
         </div>
       </div>
-      ${new FilmControlsView(stateControls, 'details').getTemplate()}
+      ${new FilmControlsView(stateControls, 'details').template}
     </div>
   `);
 };
@@ -92,16 +92,16 @@ export default class FilmDetailsView {
   /**
    * @returns {string} Шаблон разметки.
    */
-  getTemplate() {
+  get template() {
     return createFilmDetailsTemplate(this.#film);
   }
 
   /**
    * @returns {nodeObject} DOM-узел разметки.
    */
-  getElement() {
+  get element() {
     if (!this.#element) {
-      this.#element = createElement(this.getTemplate());
+      this.#element = createElement(this.template);
     }
 
     return this.#element;

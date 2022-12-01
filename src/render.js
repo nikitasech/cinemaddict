@@ -30,7 +30,7 @@ const createElement = (template) => {
  * @param {string=} place Позиция. По умолчанию в конце контейнера.
  */
 const render = (component, container, place = RenderPosition.BEFOREEND) => {
-  container.insertAdjacentElement(place, component.getElement());
+  container.insertAdjacentElement(place, component.element);
 };
 
 export {RenderPosition, createElement, render};

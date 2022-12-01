@@ -29,7 +29,7 @@ const createFilmCardTemplate = (film) => {
         <p class="film-card__description">${description}</p>
         <span class="film-card__comments">${countComments} comments</span>
       </a>
-      ${new FilmControlsView(stateControls).getTemplate()}
+      ${new FilmControlsView(stateControls).template}
     </article>
   `);
 };
@@ -49,16 +49,16 @@ export default class FilmCardView {
   /**
    * @returns {string} Шаблон разметки.
    */
-  getTemplate() {
+  get template() {
     return createFilmCardTemplate(this.#film);
   }
 
   /**
    * @returns {nodeObject} DOM-узел разметки.
    */
-  getElement() {
+  get element() {
     if (!this.#element) {
-      this.#element = createElement(this.getTemplate());
+      this.#element = createElement(this.template);
     }
 
     return this.#element;

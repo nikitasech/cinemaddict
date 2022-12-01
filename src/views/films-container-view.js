@@ -6,6 +6,7 @@ const createFilmsContainerTemplate = () => (`
 
 /** Вью контейнера для фильмов в списке. */
 export default class FilmsContainerView {
+  #element = null;
 
   /**
    * @returns {string} Шаблон разметки.
@@ -18,17 +19,17 @@ export default class FilmsContainerView {
    * @returns {nodeObject} DOM-узел разметки.
    */
   getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+    if (!this.#element) {
+      this.#element = createElement(this.getTemplate());
     }
 
-    return this.element;
+    return this.#element;
   }
 
   /**
    * Удаляет DOM-узел из объекта.
    */
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

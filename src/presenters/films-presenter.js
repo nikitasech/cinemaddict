@@ -11,17 +11,24 @@ import CommentView from '../views/comment-view.js';
 
 /** Презентер списков фильмов. */
 export default class FilmsPresenter {
-  allListComponent = new ListFilmsView(ListTitle.LOADING);
-  topListComponent = new ListFilmsView(ListTitle.TOP, TypeList.EXTRA);
-  commentedListComponent = new ListFilmsView(ListTitle.COMMENTED, TypeList.EXTRA);
+  #filmsModel = null;
+  #commentsModel = null;
+
+  #films = [];
+  #topFilms = [];
+  #commentedFilms = [];
+
+  #allListComponent = new ListFilmsView(ListTitle.LOADING);
+  #topListComponent = new ListFilmsView(ListTitle.TOP, TypeList.EXTRA);
+  #commentedListComponent = new ListFilmsView(ListTitle.COMMENTED, TypeList.EXTRA);
 
   /**
    * @param {object} filmsModel Модель фильмов.
    * @param {object} commentsModel Модель комментариев.
    */
   constructor(filmsModel, commentsModel) {
-    this.filmsModel = filmsModel;
-    this.commentsModel = commentsModel;
+    this.#filmsModel = filmsModel;
+    this.#commentsModel = commentsModel;
   }
 
   /**
@@ -104,7 +111,7 @@ export default class FilmsPresenter {
    */
   renderPopup(film) {
     const siteElement = document.querySelector('body');
-    const comments = this.commentsModel.getCommentsById(film.comments);
+    const comments = this.#commentsModel.getCommentsById(film.comments);
 
     siteElement.classList.add('hide-overflow');
 
@@ -122,33 +129,32 @@ export default class FilmsPresenter {
    * @param {nodeObject} filmsContainer Контейнер для отрисовки состояния.
    */
   init(filmsContainer) {
-    this.films = [...this.filmsModel.getFilms()];
-    this.topFilms = [...this.filmsModel.getTopFilms()];
-    this.CommentedFilms = [...this.filmsModel.getCommentedFilms()];
-    this.comments = [...this.commentsModel.getComments()];
+    this.#films = [...this.#filmsModel.getFilms()];
+    this.#topFilms = [...this.#filmsModel.getTopFilms()];
+    this.#commentedFilms = [...this.#filmsModel.getCommentedFilms()];
 
     render(new SortView(), filmsContainer);
     render(new FilmsView(), filmsContainer);
     const siteFilmsElement = filmsContainer.querySelector('.films');
 
     this.renderMainList(
-      this.allListComponent,
+      this.#allListComponent,
       siteFilmsElement,
-      this.films
+      this.#films
     );
 
     this.renderExtraList(
-      this.topListComponent,
+      this.#topListComponent,
       siteFilmsElement,
-      this.topFilms
+      this.#topFilms
     );
 
     this.renderExtraList(
-      this.commentedListComponent,
+      this.#commentedListComponent,
       siteFilmsElement,
-      this.CommentedFilms,
+      this.#commentedFilms,
     );
 
-    this.renderPopup(this.films[0]);
+    this.renderPopup(this.#films[0]);
   }
 }

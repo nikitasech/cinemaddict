@@ -10,6 +10,8 @@ const createSortTemplate = () => (`
 
 /** Вью сортировки. */
 export default class SortView {
+  #element = null;
+
   /**
    * @returns {string} Шаблон разметки.
    */
@@ -21,17 +23,17 @@ export default class SortView {
    * @returns {nodeObject} DOM-узел разметки.
    */
   getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+    if (!this.#element) {
+      this.#element = createElement(this.getTemplate());
     }
 
-    return this.element;
+    return this.#element;
   }
 
   /**
    * Удаляет DOM-узел из объекта.
    */
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

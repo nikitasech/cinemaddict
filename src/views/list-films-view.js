@@ -16,37 +16,41 @@ const createListTemplate = (title, type) => {
  * Вью списка фильмов. По умолчанию создается 'main' список.
 */
 export default class ListFilmsView {
+  #element = null;
+  #title = null;
+  #type = null;
+
   /**
    * @param {string} [title] Заголовок компонента.
    * @param {string=} [type] Тип списка. Может быть 'main' или 'extra'.
    */
   constructor(title, type = 'main') {
-    this.title = title;
-    this.type = type;
+    this.#title = title;
+    this.#type = type;
   }
 
   /**
    * @returns {string} Шаблон разметки.
    */
   getTemplate() {
-    return createListTemplate(this.title, this.type);
+    return createListTemplate(this.#title, this.#type);
   }
 
   /**
    * @returns {nodeObject} DOM-узел разметки.
    */
   getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+    if (!this.#element) {
+      this.#element = createElement(this.getTemplate());
     }
 
-    return this.element;
+    return this.#element;
   }
 
   /**
    * Удаляет DOM-узел из объекта.
    */
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

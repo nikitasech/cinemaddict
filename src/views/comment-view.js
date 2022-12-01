@@ -26,35 +26,38 @@ const createCommentTemplate = (comment) => {
 
 /** Вью комментария. */
 export default class CommentView {
+  #element = null;
+  #comment = {};
+
   /**
    * @param {object} comment Объект с данными комменария.
    */
   constructor(comment) {
-    this.comment = comment;
+    this.#comment = comment;
   }
 
   /**
    * @returns {string} Шаблон разметки.
    */
   getTemplate() {
-    return createCommentTemplate(this.comment);
+    return createCommentTemplate(this.#comment);
   }
 
   /**
    * @returns {nodeObject} DOM-узел разметки.
    */
   getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+    if (!this.#element) {
+      this.#element = createElement(this.getTemplate());
     }
 
-    return this.element;
+    return this.#element;
   }
 
   /**
    * Удаляет DOM-узел из объекта.
    */
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

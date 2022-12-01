@@ -54,13 +54,17 @@ const createControlsTemplate = (
 
 /** Вью кнопок управления. */
 export default class FilmControlsView {
+  #element = null;
+  #parent = null;
+  #state = null;
+
   /**
    * @param {object} state Состояние элементов управления.
    * @param {string=} rapent Название родительского блока. 'card' или 'details'.
    */
   constructor(state, rapent = 'card') {
-    this.parent = rapent;
-    this.state = {
+    this.#parent = rapent;
+    this.#state = {
       isWatchlist: state.watchlist,
       isWatched: state.alreadyWatched,
       isFavorite: state.favorite
@@ -71,24 +75,24 @@ export default class FilmControlsView {
    * @returns {string} Шаблон разметки.
    */
   getTemplate() {
-    return createControlsTemplate(this.state, this.parent);
+    return createControlsTemplate(this.#state, this.#parent);
   }
 
   /**
    * @returns {nodeObject} DOM-узел разметки.
    */
   getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+    if (!this.#element) {
+      this.#element = createElement(this.getTemplate());
     }
 
-    return this.element;
+    return this.#element;
   }
 
   /**
    * Удаляет DOM-узел из объекта.
    */
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

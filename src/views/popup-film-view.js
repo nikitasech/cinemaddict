@@ -13,35 +13,38 @@ const createPopupFilmTemplate = (film) => (`
 
 /** Вью попапа для подробного описания фильма. */
 export default class PopupFilmView {
+  #element = null;
+  #film = null;
+
   /**
    * @param {object} film Объект с данными о фильме.
    */
   constructor(film) {
-    this.film = film;
+    this.#film = film;
   }
 
   /**
    * @returns {string} Шаблон разметки.
    */
   getTemplate() {
-    return createPopupFilmTemplate(this.film);
+    return createPopupFilmTemplate(this.#film);
   }
 
   /**
    * @returns {nodeObject} DOM-узел разметки.
    */
   getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+    if (!this.#element) {
+      this.#element = createElement(this.getTemplate());
     }
 
-    return this.element;
+    return this.#element;
   }
 
   /**
    * Удаляет DOM-узел из объекта.
    */
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

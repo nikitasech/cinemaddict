@@ -11,6 +11,8 @@ import CommentView from '../views/comment-view.js';
 
 /** Презентер списков фильмов. */
 export default class FilmsPresenter {
+  #filmsElement = null;
+
   #filmsModel = null;
   #commentsModel = null;
 
@@ -29,25 +31,6 @@ export default class FilmsPresenter {
   constructor(filmsModel, commentsModel) {
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
-  }
-
-  /**
-   * Изменяет заголовок списка фильмов.
-   * @param {nodeObject} listElement DOM-элемент списка фильмов.
-   * @param {string} title Новый заголовок.
-   * @param {boolean=} isHide Скрыть заголовок?
-   */
-  changeTitleList(listElement, title, isHide = true) {
-    const titleElement = listElement
-      .querySelector('.films-list__title');
-
-    if (isHide) {
-      titleElement.classList.add('visually-hidden');
-    } else {
-      titleElement.classList.remove('visually-hidden');
-    }
-
-    titleElement.textContent = title;
   }
 
   /**
@@ -85,7 +68,8 @@ export default class FilmsPresenter {
     const croppedFilms = films.slice(0, CARD_COUNT);
 
     render(listComponent, container);
-    this.changeTitleList(listComponent.element, ListTitle.ALL);
+    listComponent.changeTitle(ListTitle.ALL);
+    listComponent.toggleHidingTitle();
     this.initialRenderCards(listComponent.element, croppedFilms);
 
     render(new ButtonMoreView(), listComponent.element);

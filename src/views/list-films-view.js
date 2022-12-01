@@ -53,4 +53,25 @@ export default class ListFilmsView {
   removeElement() {
     this.#element = null;
   }
+
+  /**
+   * Изменяет заголовок списка фильмов.
+   * @param {nodeObject} listElement DOM-элемент списка фильмов.
+   * @param {string} title Новый заголовок.
+   * @param {boolean=} isHide Скрыть заголовок?
+   */
+  changeTitle(title) {
+    const titleElement = this.#element
+      .querySelector('.films-list__title');
+
+    titleElement.textContent = title;
+  }
+
+  /** Переключает скрытие заголовка. */
+  toggleHidingTitle() {
+    const titleElement = this.#element
+      .querySelector('.films-list__title');
+
+    titleElement.classList.toggle('visually-hidden');
+  }
 }

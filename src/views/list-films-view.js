@@ -68,10 +68,10 @@ export default class ListFilmsView {
   }
 
   /** Переключает скрытие заголовка. */
-  toggleHidingTitle() {
+  toggleHidingTitle = () => {
     const titleElement = this.#element
       .querySelector('.films-list__title');
 
     titleElement.classList.toggle('visually-hidden');
-  }
+  };
 }

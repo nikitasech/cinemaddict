@@ -26,10 +26,15 @@ export default class ButtonMoreView {
     return this.#element;
   }
 
+  /** Скрывает кнопку. */
+  hide = () => {
+    this.#element.setAttribute('hidden', 'true');
+  };
+
   /**
    * Удаляет DOM-узел из объекта.
    */
-  removeElement() {
+  removeElement = () => {
     this.#element = null;
-  }
+  };
 }

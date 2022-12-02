@@ -1,5 +1,3 @@
-import {render} from './../render.js';
-import {ListTitle, TypeList} from './../const.js';
 import SortView from './../views/sort-view.js';
 import FilmsView from './../views/films-view.js';
 import ListFilmsView from './../views/list-films-view.js';
@@ -8,92 +6,117 @@ import FilmCardView from './../views/film-card-view.js';
 import ButtonMoreView from './../views/button-more-view.js';
 import PopupFilmView from './../views/popup-film-view.js';
 import CommentView from '../views/comment-view.js';
+import {render} from './../render.js';
+import {ListTitle, TypeList, PORTION_CARD_COUNT} from './../const.js';
 
-/** Презентер списков фильмов. */
+/**
+ * Презентер списков фильмов.
+ * @param {object} filmsModel модель фильмов
+ * @param {object} commentsModel модель комментариев
+*/
 export default class FilmsPresenter {
   #filmsElement = null;
 
   #filmsModel = null;
   #commentsModel = null;
 
-  #films = [];
-  #topFilms = [];
-  #commentedFilms = [];
+  #films = null;
+  #topFilms = null;
+  #commentedFilms = null;
 
   #allListComponent = new ListFilmsView(ListTitle.LOADING);
   #topListComponent = new ListFilmsView(ListTitle.TOP, TypeList.EXTRA);
   #commentedListComponent = new ListFilmsView(ListTitle.COMMENTED, TypeList.EXTRA);
+  #loadButton = new ButtonMoreView();
 
-  /**
-   * @param {object} filmsModel Модель фильмов.
-   * @param {object} commentsModel Модель комментариев.
-   */
+  #renderedCardCount = 0;
+
   constructor(filmsModel, commentsModel) {
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
   }
 
   /**
-   * Отрисовывает в контейнер списка все переданные фильмы.
-   * @param {nodeObject} listElement Список, в контейнере которого нужно отрисовать карточки.
-   * @param {array} films Массив фильмов.
+   * Отрисовывает карточку фильма в контейнер.
+   * @param {nodeObject} container контейнер для отрисовки карточек
+   * @param {object} film объект с данными о фильме
    */
-  addCards(listElement, films) {
-    const containerElement = listElement
-      .querySelector('.films-list__container');
-
-    for (const film of films) {
-      render(new FilmCardView(film), containerElement);
-    }
-  }
+  #renderCard = (container, film) => {
+    render(new FilmCardView(film), container);
+  };
 
   /**
-   * Создает в списке контейнер для карточек и все отрисовывает.
-   * @param {nodeObject} listElement Список, в контейнере которого нужно отрисовать карточки.
-   * @param {array} films Массив фильмов.
-   */
-  initialRenderCards(listElement, films) {
-    render(new FilmsContainerView(), listElement);
-    this.addCards(listElement, films);
-  }
+   * Отрисовывает новую порцию карточек и кнопку,
+   * если есть ещё карточки которые нужно отрисовать.
+  */
+  #renderPortionCards = () => {
+    const containerElement = this.#allListComponent.element
+      .querySelector('.films-list__container');
+
+    const first = this.#renderedCardCount;
+    const last = Math.min(
+      this.#renderedCardCount + PORTION_CARD_COUNT,
+      this.#films.length
+    );
+
+    this.#films
+      .slice(first, last)
+      .forEach((film) => {
+        this.#renderCard(containerElement, film);
+      });
+
+    if (last === this.#films.length) {
+      this.#loadButton.hide();
+    }
+
+    this.#renderedCardCount = last;
+  };
+
+  /** Добавляет рабочую кнопку Load more в список всех фильмов. */
+  #renderLoadMore = () => {
+    const listElement = this.#allListComponent.element;
+
+    render(this.#loadButton, listElement);
+    this.#allListComponent.element
+      .addEventListener('click', this.#renderPortionCards);
+  };
 
   /**
    * Отрисовывает главный список фильмов.
-   * @param {object} listComponent Компонент списка.
-   * @param {nodeObject} container Контейнер для отрисовки списка.
-   * @param {array} films Массив фильмов.
+   * @param {object} listComponent компонент списка
    */
-  renderMainList(listComponent, container, films) {
-    const CARD_COUNT = 5;
-    const croppedFilms = films.slice(0, CARD_COUNT);
+  #renderMainList = (listComponent) => {
+    render(listComponent, this.#filmsElement);
 
-    render(listComponent, container);
+    render(new FilmsContainerView(), listComponent.element);
     listComponent.changeTitle(ListTitle.ALL);
     listComponent.toggleHidingTitle();
-    this.initialRenderCards(listComponent.element, croppedFilms);
-
-    render(new ButtonMoreView(), listComponent.element);
-  }
+    this.#renderLoadMore();
+    this.#renderPortionCards();
+  };
 
   /**
-   * Отрисовывает дополнительный список.
-   * @param {object} listComponent Компонент списка.
-   * @param {nodeObject} container Контейнер для отрисовки списка.
-   * @param {array} films Массив фильмов.
+   * Отрисовывает обычный список.
+   * @param {object} listComponent компонент списка
+   * @param {array} films массив фильмов
    */
-  renderExtraList(listComponent, container, films) {
-    const CARD_COUNT = 2;
-    const croppedFilms = films.slice(0, CARD_COUNT);
+  #renderExtraList = (listComponent, filtredFilms) => {
+    render(listComponent, this.#filmsElement);
+    const containerComponent = new FilmsContainerView();
+    render(containerComponent, listComponent.element);
 
-    this.initialRenderCards(listComponent.element, croppedFilms);
-    render(listComponent, container);
-  }
+    filtredFilms
+      .slice(0, 2)
+      .forEach((film) => {
+        this.#renderCard(containerComponent.element, film);
+      });
+  };
 
   /**
    * Отрисовывает папап фильма.
-   * @param {object} film Объект фильма для отрисовки.
+   * @param {object} film объект с данными о фильме
    */
-  renderPopup(film) {
+  #renderPopup = (film) => {
     const siteElement = document.querySelector('body');
     const comments = this.#commentsModel.getCommentsById(film.comments);
 
@@ -106,39 +129,25 @@ export default class FilmsPresenter {
     for (const comment of comments) {
       render(new CommentView(comment), siteCommentsListElement);
     }
-  }
+  };
 
   /**
    * Отрисовывает начальное состояние приложения.
-   * @param {nodeObject} filmsContainer Контейнер для отрисовки состояния.
+   * @param {nodeObject} filmsContainer контейнер для отрисовки состояния
    */
-  init(filmsContainer) {
+  init = (filmsContainer) => {
     this.#films = [...this.#filmsModel.films];
     this.#topFilms = [...this.#filmsModel.topFilms];
     this.#commentedFilms = [...this.#filmsModel.commentedFilms];
 
     render(new SortView(), filmsContainer);
     render(new FilmsView(), filmsContainer);
-    const siteFilmsElement = filmsContainer.querySelector('.films');
+    this.#filmsElement = filmsContainer.querySelector('.films');
 
-    this.renderMainList(
-      this.#allListComponent,
-      siteFilmsElement,
-      this.#films
-    );
+    this.#renderMainList(this.#allListComponent, this.#films);
+    this.#renderExtraList(this.#topListComponent, this.#topFilms);
+    this.#renderExtraList(this.#commentedListComponent, this.#commentedFilms);
 
-    this.renderExtraList(
-      this.#topListComponent,
-      siteFilmsElement,
-      this.#topFilms
-    );
-
-    this.renderExtraList(
-      this.#commentedListComponent,
-      siteFilmsElement,
-      this.#commentedFilms,
-    );
-
-    this.renderPopup(this.#films[0]);
-  }
+    // this.renderPopup(this.#films[0]);
+  };
 }

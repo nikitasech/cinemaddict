@@ -26,6 +26,10 @@ export default class ButtonMoreView {
     return this.#element;
   }
 
+  toggleHiding() {
+    this.#element.setAttribute('hidden', 'true');
+  }
+
   /**
    * Удаляет DOM-узел из объекта.
    */

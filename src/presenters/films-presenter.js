@@ -9,6 +9,8 @@ import ButtonMoreView from './../views/button-more-view.js';
 import PopupFilmView from './../views/popup-film-view.js';
 import CommentView from '../views/comment-view.js';
 
+const PORTION_CARD_COUNT = 5;
+
 /** Презентер списков фильмов. */
 export default class FilmsPresenter {
   #filmsElement = null;
@@ -23,6 +25,9 @@ export default class FilmsPresenter {
   #allListComponent = new ListFilmsView(ListTitle.LOADING);
   #topListComponent = new ListFilmsView(ListTitle.TOP, TypeList.EXTRA);
   #commentedListComponent = new ListFilmsView(ListTitle.COMMENTED, TypeList.EXTRA);
+  #loadButton = new ButtonMoreView();
+
+  #renderedCardCount = 0;
 
   /**
    * @param {object} filmsModel Модель фильмов.
@@ -37,18 +42,27 @@ export default class FilmsPresenter {
     render(new FilmCardView(film), container);
   }
 
-  /**
-   * Отрисовывает в контейнер списка все переданные фильмы.
-   * @param {nodeObject} listElement Список, в контейнере которого нужно отрисовать карточки.
-   * @param {array} films Массив фильмов.
-   */
-  rednerCards(listElement, films) {
-    const containerElement = listElement
+  renderPortionCardsToAllList() {
+    const containerElement = this.#allListComponent.element
       .querySelector('.films-list__container');
 
-    for (const film of films) {
-      this.renderCard(containerElement, film);
+    const first = this.#renderedCardCount;
+    const last = Math.min(
+      this.#renderedCardCount + PORTION_CARD_COUNT,
+      this.#films.length
+    );
+
+    this.#films
+      .slice(first, last)
+      .forEach((film) => {
+        this.renderCard(containerElement, film);
+      });
+
+    if (last === this.#films.length) {
+      this.#loadButton.toggleHiding();
     }
+
+    this.#renderedCardCount = last;
   }
 
   /**
@@ -56,14 +70,14 @@ export default class FilmsPresenter {
    * @param {object} listComponent Компонент списка.
    * @param {array} films Массив фильмов.
    */
-  renderMainList(listComponent, films) {
+  renderMainList(listComponent) {
     render(listComponent, this.#filmsElement);
-    render(new FilmsContainerView(), listComponent.element);
-    this.rednerCards(listComponent.element, films);
 
+    render(new FilmsContainerView(), listComponent.element);
+    render(this.#loadButton, listComponent.element);
     listComponent.changeTitle(ListTitle.ALL);
     listComponent.toggleHidingTitle();
-    render(new ButtonMoreView(), listComponent.element);
+    this.renderPortionCardsToAllList();
   }
 
   /**
@@ -71,10 +85,16 @@ export default class FilmsPresenter {
    * @param {object} listComponent Компонент списка.
    * @param {array} films Массив фильмов.
    */
-  renderExtraList(listComponent, films) {
+  renderExtraList(listComponent, filtredFilms) {
     render(listComponent, this.#filmsElement);
-    render(new FilmsContainerView(), listComponent.element);
-    this.rednerCards(listComponent.element, films);
+    const containerComponent = new FilmsContainerView();
+    render(containerComponent, listComponent.element);
+
+    filtredFilms
+      .slice(0, 2)
+      .forEach((film) => {
+        this.renderCard(containerComponent.element, film);
+      });
   }
 
   /**
@@ -102,27 +122,16 @@ export default class FilmsPresenter {
    */
   init(filmsContainer) {
     this.#films = [...this.#filmsModel.films];
-    this.#topFilms = [...this.#filmsModel.topFilms].slice(0, 2);
-    this.#commentedFilms = [...this.#filmsModel.commentedFilms].slice(0, 2);
+    this.#topFilms = [...this.#filmsModel.topFilms];
+    this.#commentedFilms = [...this.#filmsModel.commentedFilms];
 
     render(new SortView(), filmsContainer);
     render(new FilmsView(), filmsContainer);
     this.#filmsElement = filmsContainer.querySelector('.films');
 
-    this.renderMainList(
-      this.#allListComponent,
-      this.#films
-    );
-
-    this.renderExtraList(
-      this.#topListComponent,
-      this.#topFilms
-    );
-
-    this.renderExtraList(
-      this.#commentedListComponent,
-      this.#commentedFilms,
-    );
+    this.renderMainList(this.#allListComponent, this.#films);
+    this.renderExtraList(this.#topListComponent, this.#topFilms);
+    this.renderExtraList(this.#commentedListComponent, this.#commentedFilms);
 
     // this.renderPopup(this.#films[0]);
   }

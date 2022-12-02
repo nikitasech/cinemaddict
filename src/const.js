@@ -25,3 +25,4 @@ export const names = [
   'Morgan Freeman'
 ];
 
+export const PORTION_CARD_COUNT = 5;

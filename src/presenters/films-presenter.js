@@ -66,7 +66,7 @@ export default class FilmsPresenter {
       });
 
     if (last === this.#films.length) {
-      this.#loadButton.toggleHiding();
+      this.#loadButton.hide();
     }
 
     this.#renderedCardCount = last;
@@ -84,7 +84,6 @@ export default class FilmsPresenter {
   /**
    * Отрисовывает главный список фильмов.
    * @param {object} listComponent компонент списка
-   * @param {array} films массив фильмов
    */
   #renderMainList = (listComponent) => {
     render(listComponent, this.#filmsElement);

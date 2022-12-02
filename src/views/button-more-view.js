@@ -26,7 +26,8 @@ export default class ButtonMoreView {
     return this.#element;
   }
 
-  toggleHiding = () => {
+  /** Скрывает кнопку. */
+  hide = () => {
     this.#element.setAttribute('hidden', 'true');
   };
 

@@ -57,7 +57,7 @@ export default class CommentView {
   /**
    * Удаляет DOM-узел из объекта.
    */
-  removeElement() {
+  removeElement = () => {
     this.#element = null;
-  }
+  };
 }

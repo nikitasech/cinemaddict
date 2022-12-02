@@ -29,7 +29,7 @@ export default class FilmsView {
   /**
    * Удаляет DOM-узел из объекта.
    */
-  removeElement() {
+  removeElement = () => {
     this.#element = null;
-  }
+  };
 }

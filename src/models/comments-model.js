@@ -12,8 +12,6 @@ export default class CommentsModel {
    * @param {array} ids Массив с id нужных комментариев.
    * @returns {array} Массив с найденными по id комментариями.
    */
-  getCommentsById(ids) {
-    return ids.map((id) => this.#comments
-      .find((comment) => id === comment.id));
-  }
+  getCommentsById = (ids) => ids.map((id) => this.#comments
+    .find((comment) => id === comment.id));
 }

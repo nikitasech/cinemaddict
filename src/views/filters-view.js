@@ -34,7 +34,7 @@ export default class FiltersView {
   /**
    * Удаляет DOM-узел из объекта.
    */
-  removeElement() {
+  removeElement = () => {
     this.#element = null;
-  }
+  };
 }

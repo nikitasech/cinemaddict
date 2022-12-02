@@ -31,7 +31,7 @@ export default class StatisticsView {
   /**
    * Удаляет DOM-узел из объекта.
    */
-  removeElement() {
+  removeElement = () => {
     this.#element = null;
-  }
+  };
 }

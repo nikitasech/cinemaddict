@@ -110,7 +110,7 @@ export default class FilmDetailsView {
   /**
    * Удаляет DOM-узел из объекта.
    */
-  removeElement() {
+  removeElement = () => {
     this.#element = null;
-  }
+  };
 }

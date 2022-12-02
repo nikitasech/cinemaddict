@@ -38,11 +38,16 @@ export default class FilmsPresenter {
     this.#commentsModel = commentsModel;
   }
 
-  renderCard(container, film) {
-    render(new FilmCardView(film), container);
-  }
+  #renderLoadMore = () => {
+    render(this.#loadButton, this.#allListComponent.element);
+    this.#allListComponent.element.addEventListener('click', this.#renderPortionCardsToAllList);
+  };
 
-  renderPortionCardsToAllList() {
+  #renderCard = (container, film) => {
+    render(new FilmCardView(film), container);
+  };
+
+  #renderPortionCardsToAllList = () => {
     const containerElement = this.#allListComponent.element
       .querySelector('.films-list__container');
 
@@ -55,7 +60,7 @@ export default class FilmsPresenter {
     this.#films
       .slice(first, last)
       .forEach((film) => {
-        this.renderCard(containerElement, film);
+        this.#renderCard(containerElement, film);
       });
 
     if (last === this.#films.length) {
@@ -63,29 +68,29 @@ export default class FilmsPresenter {
     }
 
     this.#renderedCardCount = last;
-  }
+  };
 
   /**
    * Отрисовывает главный список фильмов.
    * @param {object} listComponent Компонент списка.
    * @param {array} films Массив фильмов.
    */
-  renderMainList(listComponent) {
+  #renderMainList = (listComponent) => {
     render(listComponent, this.#filmsElement);
 
     render(new FilmsContainerView(), listComponent.element);
-    render(this.#loadButton, listComponent.element);
     listComponent.changeTitle(ListTitle.ALL);
     listComponent.toggleHidingTitle();
-    this.renderPortionCardsToAllList();
-  }
+    this.#renderLoadMore();
+    this.#renderPortionCardsToAllList();
+  };
 
   /**
    * Отрисовывает обычный список.
    * @param {object} listComponent Компонент списка.
    * @param {array} films Массив фильмов.
    */
-  renderExtraList(listComponent, filtredFilms) {
+  #renderExtraList = (listComponent, filtredFilms) => {
     render(listComponent, this.#filmsElement);
     const containerComponent = new FilmsContainerView();
     render(containerComponent, listComponent.element);
@@ -93,15 +98,15 @@ export default class FilmsPresenter {
     filtredFilms
       .slice(0, 2)
       .forEach((film) => {
-        this.renderCard(containerComponent.element, film);
+        this.#renderCard(containerComponent.element, film);
       });
-  }
+  };
 
   /**
    * Отрисовывает папап фильма.
    * @param {object} film Объект фильма для отрисовки.
    */
-  renderPopup(film) {
+  #renderPopup = (film) => {
     const siteElement = document.querySelector('body');
     const comments = this.#commentsModel.getCommentsById(film.comments);
 
@@ -114,13 +119,13 @@ export default class FilmsPresenter {
     for (const comment of comments) {
       render(new CommentView(comment), siteCommentsListElement);
     }
-  }
+  };
 
   /**
    * Отрисовывает начальное состояние приложения.
    * @param {nodeObject} filmsContainer Контейнер для отрисовки состояния.
    */
-  init(filmsContainer) {
+  init = (filmsContainer) => {
     this.#films = [...this.#filmsModel.films];
     this.#topFilms = [...this.#filmsModel.topFilms];
     this.#commentedFilms = [...this.#filmsModel.commentedFilms];
@@ -129,10 +134,10 @@ export default class FilmsPresenter {
     render(new FilmsView(), filmsContainer);
     this.#filmsElement = filmsContainer.querySelector('.films');
 
-    this.renderMainList(this.#allListComponent, this.#films);
-    this.renderExtraList(this.#topListComponent, this.#topFilms);
-    this.renderExtraList(this.#commentedListComponent, this.#commentedFilms);
+    this.#renderMainList(this.#allListComponent, this.#films);
+    this.#renderExtraList(this.#topListComponent, this.#topFilms);
+    this.#renderExtraList(this.#commentedListComponent, this.#commentedFilms);
 
     // this.renderPopup(this.#films[0]);
-  }
+  };
 }

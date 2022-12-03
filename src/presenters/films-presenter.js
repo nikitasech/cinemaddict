@@ -42,7 +42,11 @@ export default class FilmsPresenter {
    * @param {object} film объект с данными о фильме
    */
   #renderCard = (container, film) => {
-    render(new FilmCardView(film), container);
+    const card = new FilmCardView(film);
+    const linkElement = card.element.querySelector('.film-card__link');
+
+    linkElement.addEventListener('click', this.#renderPopup.bind(this, film));
+    render(card, container);
   };
 
   /**

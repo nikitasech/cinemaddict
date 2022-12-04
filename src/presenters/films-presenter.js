@@ -27,7 +27,7 @@ export default class FilmsPresenter {
   #allListComponent = new ListFilmsView(ListTitle.LOADING);
   #topListComponent = new ListFilmsView(ListTitle.TOP, TypeList.EXTRA);
   #commentedListComponent = new ListFilmsView(ListTitle.COMMENTED, TypeList.EXTRA);
-  #loadButton = new ButtonMoreView();
+  #loadButtonComponent = new ButtonMoreView();
   #popupComponent = null;
 
   #renderedCardCount = 0;
@@ -71,7 +71,7 @@ export default class FilmsPresenter {
       });
 
     if (last === this.#films.length) {
-      this.#loadButton.hide();
+      this.#loadButtonComponent.hide();
     }
 
     this.#renderedCardCount = last;
@@ -81,7 +81,7 @@ export default class FilmsPresenter {
   #renderLoadMore = () => {
     const listElement = this.#allListComponent.element;
 
-    render(this.#loadButton, listElement);
+    render(this.#loadButtonComponent, listElement);
     this.#allListComponent.element
       .addEventListener('click', this.#renderPortionCards);
   };
@@ -93,11 +93,15 @@ export default class FilmsPresenter {
   #renderMainList = (listComponent) => {
     render(listComponent, this.#filmsElement);
 
-    render(new FilmsContainerView(), listComponent.element);
-    listComponent.changeTitle(ListTitle.ALL);
-    listComponent.toggleHidingTitle();
-    this.#renderLoadMore();
-    this.#renderPortionCards();
+    if (!this.#films.length) {
+      listComponent.changeTitle(ListTitle.NO_FILMS);
+    } else {
+      render(new FilmsContainerView(), listComponent.element);
+      listComponent.changeTitle(ListTitle.ALL);
+      listComponent.toggleHidingTitle();
+      this.#renderLoadMore();
+      this.#renderPortionCards();
+    }
   };
 
   /**
@@ -195,7 +199,10 @@ export default class FilmsPresenter {
     this.#filmsElement = filmsContainer.querySelector('.films');
 
     this.#renderMainList(this.#allListComponent, this.#films);
-    this.#renderExtraList(this.#topListComponent, this.#topFilms);
-    this.#renderExtraList(this.#commentedListComponent, this.#commentedFilms);
+
+    if (this.#films.length) {
+      this.#renderExtraList(this.#topListComponent, this.#topFilms);
+      this.#renderExtraList(this.#commentedListComponent, this.#commentedFilms);
+    }
   };
 }

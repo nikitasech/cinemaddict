@@ -28,6 +28,7 @@ export default class FilmsPresenter {
   #topListComponent = new ListFilmsView(ListTitle.TOP, TypeList.EXTRA);
   #commentedListComponent = new ListFilmsView(ListTitle.COMMENTED, TypeList.EXTRA);
   #loadButton = new ButtonMoreView();
+  #popupComponent = null;
 
   #renderedCardCount = 0;
 
@@ -42,7 +43,11 @@ export default class FilmsPresenter {
    * @param {object} film объект с данными о фильме
    */
   #renderCard = (container, film) => {
-    render(new FilmCardView(film), container);
+    const card = new FilmCardView(film);
+    const linkElement = card.element.querySelector('.film-card__link');
+
+    linkElement.addEventListener('click', this.#renderPopup.bind(this, film));
+    render(card, container);
   };
 
   /**
@@ -117,17 +122,62 @@ export default class FilmsPresenter {
    * @param {object} film объект с данными о фильме
    */
   #renderPopup = (film) => {
-    const siteElement = document.querySelector('body');
+    const bodyElement = document.querySelector('body');
     const comments = this.#commentsModel.getCommentsById(film.comments);
 
-    siteElement.classList.add('hide-overflow');
+    if (this.#popupComponent) {
+      this.#removePopup();
+    }
 
-    render(new PopupFilmView(film), siteElement);
-    const siteCommentsListElement = siteElement
-      .querySelector('.film-details__comments-list');
+    this.#popupComponent = new PopupFilmView(film);
+    const closeButtonElement = this.#popupComponent.element
+      .querySelector('.film-details__close-btn');
 
-    for (const comment of comments) {
-      render(new CommentView(comment), siteCommentsListElement);
+    render(this.#popupComponent, bodyElement);
+    bodyElement.classList.add('hide-overflow');
+
+    comments.forEach((comment) => {
+      render(new CommentView(comment), this.#popupComponent.element
+        .querySelector('.film-details__comments-list')
+      );
+    });
+
+    closeButtonElement.addEventListener('click', this.#onClosePopupClick);
+    document.addEventListener('keydown', this.#onEscKeyDown);
+  };
+
+  /** Удаляет попап. */
+  #removePopup = () => {
+    document.removeEventListener('keydown', this.#onEscKeyDown);
+    this.#popupComponent.element
+      .querySelector('.film-details__close-btn')
+      .removeEventListener('click', this.#onClosePopupClick);
+
+    document.querySelector('body').classList.remove('hide-overflow');
+    this.#popupComponent.element.remove();
+    this.#popupComponent.removeElement();
+    this.#popupComponent = null;
+  };
+
+  /**
+   * Функция обработчика нажатия на кнопку закрытия попапа.
+   * @param {evt} evt объект события
+   */
+  #onClosePopupClick = (evt) => {
+    evt.preventDefault();
+
+    this.#removePopup();
+  };
+
+  /**
+   * Функция обработчика нажатия на esc.
+   * @param {evt} evt объект события
+   */
+  #onEscKeyDown = (evt) => {
+    evt.preventDefault();
+
+    if (evt.code === 'Escape') {
+      this.#removePopup();
     }
   };
 
@@ -147,7 +197,5 @@ export default class FilmsPresenter {
     this.#renderMainList(this.#allListComponent, this.#films);
     this.#renderExtraList(this.#topListComponent, this.#topFilms);
     this.#renderExtraList(this.#commentedListComponent, this.#commentedFilms);
-
-    // this.renderPopup(this.#films[0]);
   };
 }

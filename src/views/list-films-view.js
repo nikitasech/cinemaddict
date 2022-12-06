@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from './../framework/view/abstract-view.js';
 
 const createListTemplate = (title, type) => {
   const listTypeClassName = (type === 'extra')
@@ -13,65 +13,41 @@ const createListTemplate = (title, type) => {
 };
 
 /**
- * Вью списка фильмов. По умолчанию создается 'main' список.
+ * Вью списка фильмов
+ * @param {string} title заголовок компонента
+ * @param {string} [type] тип списка. Может быть 'main' (по умолчанию) или 'extra'
 */
-export default class ListFilmsView {
-  #element = null;
+export default class ListFilmsView extends AbstractView {
+  /** @type {string} заголовок компонента */
   #title = null;
+
+  /** @type {string} тип списка */
   #type = null;
 
-  /**
-   * @param {string} [title] Заголовок компонента.
-   * @param {string=} [type] Тип списка. Может быть 'main' или 'extra'.
-   */
   constructor(title, type = 'main') {
+    super();
     this.#title = title;
     this.#type = type;
   }
 
-  /**
-   * @returns {string} Шаблон разметки.
-   */
   get template() {
     return createListTemplate(this.#title, this.#type);
   }
 
   /**
-   * @returns {nodeObject} DOM-узел разметки.
-   */
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  /**
-   * Удаляет DOM-узел из объекта.
-   */
-  removeElement() {
-    this.#element = null;
-  }
-
-  /**
-   * Изменяет заголовок списка фильмов.
-   * @param {nodeObject} listElement DOM-элемент списка фильмов.
-   * @param {string} title Новый заголовок.
-   * @param {boolean=} isHide Скрыть заголовок?
+   * Изменяет заголовок списка фильмов
+   * @param {string} title новый заголовок
    */
   changeTitle(title) {
-    const titleElement = this.#element
-      .querySelector('.films-list__title');
-
-    titleElement.textContent = title;
+    this.element
+      .querySelector('.films-list__title')
+      .textContent = title;
   }
 
   /** Переключает скрытие заголовка. */
   toggleHidingTitle = () => {
-    const titleElement = this.#element
-      .querySelector('.films-list__title');
-
-    titleElement.classList.toggle('visually-hidden');
+    this.element
+      .querySelector('.films-list__title')
+      .classList.toggle('visually-hidden');
   };
 }

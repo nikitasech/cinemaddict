@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from './../framework/view/abstract-view.js';
 
 const createFormCommentTemplate = () => (`
   <form class="film-details__new-comment" action="" method="get">
@@ -32,32 +32,9 @@ const createFormCommentTemplate = () => (`
   </form>
 `);
 
-/** Вью формы нового комментария. */
-export default class FormCommentView {
-  #element = null;
-
-  /**
-   * @returns {string} Шаблон разметки.
-   */
+/** Вью формы нового комментария */
+export default class FormCommentView extends AbstractView {
   get template() {
     return createFormCommentTemplate();
   }
-
-  /**
-   * @returns {nodeObject} DOM-узел разметки.
-   */
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  /**
-   * Удаляет DOM-узел из объекта.
-   */
-  removeElement = () => {
-    this.#element = null;
-  };
 }

@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from './../framework/view/abstract-view.js';
 
 const createFiltersTemplate = () => (`
   <nav class="main-navigation">
@@ -9,32 +9,9 @@ const createFiltersTemplate = () => (`
   </nav>
 `);
 
-/** Вью фильтров. */
-export default class FiltersView {
-  #element = null;
-
-  /**
-   * @returns {string} Шаблон разметки.
-   */
+/** Вью фильтров */
+export default class FiltersView extends AbstractView {
   get template() {
     return createFiltersTemplate();
   }
-
-  /**
-   * @returns {nodeObject} DOM-узел разметки.
-   */
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  /**
-   * Удаляет DOM-узел из объекта.
-   */
-  removeElement = () => {
-    this.#element = null;
-  };
 }

@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from './../framework/view/abstract-view.js';
 import FilmDetailsView from './film-details-view.js';
 import CommentsView from './comments-view.js';
 
@@ -11,40 +11,20 @@ const createPopupFilmTemplate = (film) => (`
   </section>
 `);
 
-/** Вью попапа для подробного описания фильма. */
-export default class PopupFilmView {
-  #element = null;
-  #film = null;
+/**
+ * Вью попапа для подробного описания фильма
+ * @param {Object} film данные фильма
+ */
+export default class PopupFilmView extends AbstractView {
+  /** @type {Object} данные фильма */
+  #film = {};
 
-  /**
-   * @param {object} film Объект с данными о фильме.
-   */
   constructor(film) {
+    super();
     this.#film = film;
   }
 
-  /**
-   * @returns {string} Шаблон разметки.
-   */
   get template() {
     return createPopupFilmTemplate(this.#film);
   }
-
-  /**
-   * @returns {nodeObject} DOM-узел разметки.
-   */
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  /**
-   * Удаляет DOM-узел из объекта.
-   */
-  removeElement = () => {
-    this.#element = null;
-  };
 }

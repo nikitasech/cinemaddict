@@ -1,6 +1,5 @@
-import {createElement} from '../render.js';
-import {formatIsoDate} from '../utils.js';
-
+import AbstractView from './../framework/view/abstract-view.js';
+import {formatIsoDate} from './../utils.js';
 
 const createCommentTemplate = (comment) => {
   const {emotion, author} = comment;
@@ -24,40 +23,20 @@ const createCommentTemplate = (comment) => {
   `);
 };
 
-/** Вью комментария. */
-export default class CommentView {
-  #element = null;
+/**
+ * Вью комментария
+ * @param {Object} comment данные комменария
+ */
+export default class CommentView extends AbstractView {
+  /** @type {Object} данные комменария */
   #comment = {};
 
-  /**
-   * @param {object} comment Объект с данными комменария.
-   */
   constructor(comment) {
+    super();
     this.#comment = comment;
   }
 
-  /**
-   * @returns {string} Шаблон разметки.
-   */
   get template() {
     return createCommentTemplate(this.#comment);
   }
-
-  /**
-   * @returns {nodeObject} DOM-узел разметки.
-   */
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  /**
-   * Удаляет DOM-узел из объекта.
-   */
-  removeElement = () => {
-    this.#element = null;
-  };
 }

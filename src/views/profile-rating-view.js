@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from './../framework/view/abstract-view.js';
 
 const createNewProfileRatingTemplate = () => (`
   <section class="header__profile profile">
@@ -7,32 +7,9 @@ const createNewProfileRatingTemplate = () => (`
   </section>
 `);
 
-/** Вью рейтинга пользователя. */
-export default class ProfileRatingView {
-  #element = null;
-
-  /**
-   * @returns {string} Шаблон разметки.
-   */
+/** Вью рейтинга пользователя */
+export default class ProfileRatingView extends AbstractView {
   get template() {
     return createNewProfileRatingTemplate();
   }
-
-  /**
-   * @returns {nodeObject} DOM-узел разметки.
-   */
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  /**
-   * Удаляет DOM-узел из объекта.
-   */
-  removeElement = () => {
-    this.#element = null;
-  };
 }

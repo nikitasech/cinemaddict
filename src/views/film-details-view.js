@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from './../framework/view/abstract-view.js';
 import {formatIsoDate, formatRuntime} from './../utils.js';
 import FilmControlsView from './film-controls-view.js';
 
@@ -77,40 +77,20 @@ const createFilmDetailsTemplate = (film) => {
   `);
 };
 
-/** Вью блока с подробным описанием фильма. */
-export default class FilmDetailsView {
-  #element = null;
-  #film = null;
+/**
+ * Вью блока с подробным описанием фильма
+ * @param {Object} film данные фильма
+ */
+export default class FilmDetailsView extends AbstractView {
+  /** @type {Object} данные фильма */
+  #film = {};
 
-  /**
-   * @param {object} film Объект с данными о фильме.
-   */
   constructor(film) {
+    super();
     this.#film = film;
   }
 
-  /**
-   * @returns {string} Шаблон разметки.
-   */
   get template() {
     return createFilmDetailsTemplate(this.#film);
   }
-
-  /**
-   * @returns {nodeObject} DOM-узел разметки.
-   */
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  /**
-   * Удаляет DOM-узел из объекта.
-   */
-  removeElement = () => {
-    this.#element = null;
-  };
 }

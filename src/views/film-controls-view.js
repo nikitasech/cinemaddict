@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from './../framework/view/abstract-view.js';
 
 const createControlsTemplate = (
   {isWatchlist, isWatched, isFavorite}, parent
@@ -52,17 +52,20 @@ const createControlsTemplate = (
   }
 };
 
-/** Вью кнопок управления. */
-export default class FilmControlsView {
-  #element = null;
-  #parent = null;
-  #state = null;
+/**
+ * Вью кнопок управления
+ * @param {Object} state состояние элементов управления
+ * @param {string} [rapent] родительский блок. 'card' или 'details'
+ */
+export default class FilmControlsView extends AbstractView {
+  /** @type {Object} состояние элементов управления */
+  #state = {};
 
-  /**
-   * @param {object} state Состояние элементов управления.
-   * @param {string=} rapent Название родительского блока. 'card' или 'details'.
-   */
+  /** @type {string|null} родительский блок */
+  #parent = null;
+
   constructor(state, rapent = 'card') {
+    super();
     this.#parent = rapent;
     this.#state = {
       isWatchlist: state.watchlist,
@@ -71,28 +74,7 @@ export default class FilmControlsView {
     };
   }
 
-  /**
-   * @returns {string} Шаблон разметки.
-   */
   get template() {
     return createControlsTemplate(this.#state, this.#parent);
   }
-
-  /**
-   * @returns {nodeObject} DOM-узел разметки.
-   */
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  /**
-   * Удаляет DOM-узел из объекта.
-   */
-  removeElement = () => {
-    this.#element = null;
-  };
 }

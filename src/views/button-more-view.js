@@ -1,40 +1,17 @@
-import {createElement} from '../render.js';
+import AbstractView from './../framework/view/abstract-view.js';
 
 const createMoreButtonTemplate = () => (`
   <button class="films-list__show-more">Show more</button>
 `);
 
-/** Вью кнопки "Load more". */
-export default class ButtonMoreView {
-  #element = null;
-
-  /**
-   * @returns {string} Шаблон разметки.
-   */
+/** Вью кнопки "Load more" */
+export default class ButtonMoreView extends AbstractView {
   get template() {
     return createMoreButtonTemplate();
   }
 
-  /**
-   * @returns {nodeObject} DOM-узел разметки.
-   */
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  /** Скрывает кнопку. */
+  /** Скрывает кнопку */
   hide = () => {
-    this.#element.setAttribute('hidden', 'true');
-  };
-
-  /**
-   * Удаляет DOM-узел из объекта.
-   */
-  removeElement = () => {
-    this.#element = null;
+    this.element.setAttribute('hidden', 'true');
   };
 }

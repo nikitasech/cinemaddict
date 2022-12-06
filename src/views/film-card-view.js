@@ -1,11 +1,7 @@
-import {createElement} from '../render.js';
+import AbstractView from './../framework/view/abstract-view.js';
 import FilmControlsView from './film-controls-view.js';
 import {formatIsoDate, formatRuntime} from './../utils.js';
 
-/**
- * @param {object} film Объект с данными о фильме.
- * @returns {string} Шаблон разметки на основе данных.
- */
 const createFilmCardTemplate = (film) => {
   const {title, totalRating, release, genre, poster} = film.info;
   const dateRelease = formatIsoDate(release.date, 'YYYY');
@@ -34,40 +30,20 @@ const createFilmCardTemplate = (film) => {
   `);
 };
 
-/** Вью карточки фильма. */
-export default class FilmCardView {
-  #element = null;
-  #film = null;
+/**
+ * Вью карточки фильма
+ * @param {Object} film данные фильма
+ */
+export default class FilmCardView extends AbstractView {
+  /** @type {Object} данные фильма */
+  #film = {};
 
-  /**
-   * @param {object} film Объект с данными о фильме.
-   */
   constructor(film) {
+    super();
     this.#film = film;
   }
 
-  /**
-   * @returns {string} Шаблон разметки.
-   */
   get template() {
     return createFilmCardTemplate(this.#film);
   }
-
-  /**
-   * @returns {nodeObject} DOM-узел разметки.
-   */
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  /**
-   * Удаляет DOM-узел из объекта.
-   */
-  removeElement = () => {
-    this.#element = null;
-  };
 }

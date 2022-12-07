@@ -6,13 +6,13 @@ import FilmCardView from './../views/film-card-view.js';
 import ButtonMoreView from './../views/button-more-view.js';
 import PopupFilmView from './../views/popup-film-view.js';
 import CommentView from '../views/comment-view.js';
-import {render} from './../render.js';
+import {render} from './../framework/render.js';
 import {ListTitle, TypeList, PORTION_CARD_COUNT} from './../const.js';
 
 /**
- * Презентер списков фильмов.
- * @param {object} filmsModel модель фильмов
- * @param {object} commentsModel модель комментариев
+ * Презентер списков фильмов
+ * @param {Object} filmsModel модель фильмов
+ * @param {Object} commentsModel модель комментариев
 */
 export default class FilmsPresenter {
   #filmsElement = null;
@@ -20,9 +20,9 @@ export default class FilmsPresenter {
   #filmsModel = null;
   #commentsModel = null;
 
-  #films = null;
-  #topFilms = null;
-  #commentedFilms = null;
+  #films = {};
+  #topFilms = {};
+  #commentedFilms = {};
 
   #allListComponent = new ListFilmsView(ListTitle.LOADING);
   #topListComponent = new ListFilmsView(ListTitle.TOP, TypeList.EXTRA);
@@ -38,21 +38,19 @@ export default class FilmsPresenter {
   }
 
   /**
-   * Отрисовывает карточку фильма в контейнер.
-   * @param {nodeObject} container контейнер для отрисовки карточек
-   * @param {object} film объект с данными о фильме
+   * Отрисовывает карточку фильма в контейнер
+   * @param {HTMLElement} container контейнер для отрисовки карточек
+   * @param {Object} film объект с данными о фильме
    */
   #renderCard = (container, film) => {
     const card = new FilmCardView(film);
-    const linkElement = card.element.querySelector('.film-card__link');
-
-    linkElement.addEventListener('click', this.#renderPopup.bind(this, film));
+    card.setClickHandler(this.#renderPopup);
     render(card, container);
   };
 
   /**
    * Отрисовывает новую порцию карточек и кнопку,
-   * если есть ещё карточки которые нужно отрисовать.
+   * если есть ещё карточки которые нужно отрисовать
   */
   #renderPortionCards = () => {
     const containerElement = this.#allListComponent.element
@@ -77,18 +75,17 @@ export default class FilmsPresenter {
     this.#renderedCardCount = last;
   };
 
-  /** Добавляет рабочую кнопку Load more в список всех фильмов. */
+  /** Добавляет рабочую кнопку Load more в список всех фильмов */
   #renderLoadMore = () => {
     const listElement = this.#allListComponent.element;
 
     render(this.#loadButtonComponent, listElement);
-    this.#allListComponent.element
-      .addEventListener('click', this.#renderPortionCards);
+    this.#loadButtonComponent.setClickHandler(this.#renderPortionCards);
   };
 
   /**
-   * Отрисовывает главный список фильмов.
-   * @param {object} listComponent компонент списка
+   * Отрисовывает главный список фильмов
+   * @param {Object} listComponent компонент списка
    */
   #renderMainList = (listComponent) => {
     render(listComponent, this.#filmsElement);
@@ -105,9 +102,9 @@ export default class FilmsPresenter {
   };
 
   /**
-   * Отрисовывает обычный список.
-   * @param {object} listComponent компонент списка
-   * @param {array} films массив фильмов
+   * Отрисовывает обычный список
+   * @param {Object} listComponent компонент списка
+   * @param {Array} films массив фильмов
    */
   #renderExtraList = (listComponent, filtredFilms) => {
     render(listComponent, this.#filmsElement);
@@ -122,8 +119,8 @@ export default class FilmsPresenter {
   };
 
   /**
-   * Отрисовывает папап фильма.
-   * @param {object} film объект с данными о фильме
+   * Отрисовывает папап фильма
+   * @param {Object} film объект с данными о фильме
    */
   #renderPopup = (film) => {
     const bodyElement = document.querySelector('body');
@@ -134,9 +131,6 @@ export default class FilmsPresenter {
     }
 
     this.#popupComponent = new PopupFilmView(film);
-    const closeButtonElement = this.#popupComponent.element
-      .querySelector('.film-details__close-btn');
-
     render(this.#popupComponent, bodyElement);
     bodyElement.classList.add('hide-overflow');
 
@@ -146,16 +140,14 @@ export default class FilmsPresenter {
       );
     });
 
-    closeButtonElement.addEventListener('click', this.#onClosePopupClick);
+    this.#popupComponent.setCloseClickHandler(this.#removePopup);
     document.addEventListener('keydown', this.#onEscKeyDown);
   };
 
-  /** Удаляет попап. */
+  /** Удаляет попап */
   #removePopup = () => {
     document.removeEventListener('keydown', this.#onEscKeyDown);
-    this.#popupComponent.element
-      .querySelector('.film-details__close-btn')
-      .removeEventListener('click', this.#onClosePopupClick);
+    this.#popupComponent.removeCloseClickHandler(this.#removePopup);
 
     document.querySelector('body').classList.remove('hide-overflow');
     this.#popupComponent.element.remove();
@@ -164,18 +156,8 @@ export default class FilmsPresenter {
   };
 
   /**
-   * Функция обработчика нажатия на кнопку закрытия попапа.
-   * @param {evt} evt объект события
-   */
-  #onClosePopupClick = (evt) => {
-    evt.preventDefault();
-
-    this.#removePopup();
-  };
-
-  /**
-   * Функция обработчика нажатия на esc.
-   * @param {evt} evt объект события
+   * Функция обработчика нажатия на esc
+   * @param {Object} evt объект события
    */
   #onEscKeyDown = (evt) => {
     evt.preventDefault();
@@ -186,8 +168,8 @@ export default class FilmsPresenter {
   };
 
   /**
-   * Отрисовывает начальное состояние приложения.
-   * @param {nodeObject} filmsContainer контейнер для отрисовки состояния
+   * Отрисовывает начальное состояние приложения
+   * @param {HTMLElement} filmsContainer контейнер для отрисовки состояния
    */
   init = (filmsContainer) => {
     this.#films = [...this.#filmsModel.films];

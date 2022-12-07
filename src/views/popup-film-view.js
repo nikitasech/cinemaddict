@@ -27,4 +27,31 @@ export default class PopupFilmView extends AbstractView {
   get template() {
     return createPopupFilmTemplate(this.#film);
   }
+
+  /**
+   * Функция обработчика нажатия на кнопку закрытия попапа
+   * @param {Object} evt объект события
+   */
+  #closeClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.closeClick();
+  };
+
+  /**
+   * Устанавливает обработчик событий на клик по кнопке закрытия попапа
+   * @param {Function} callback функция для выполнения после выявления события
+   */
+  setCloseClickHandler = (callback) => {
+    this._callback.closeClick = callback;
+    this.element
+      .querySelector('.film-details__close-btn')
+      .addEventListener('click', this.#closeClickHandler);
+  };
+
+  /** Удаляет обработчик события с кнопки закрытия закрытия попапа */
+  removeCloseClickHandler = () => {
+    this.element
+      .querySelector('.film-details__close-btn')
+      .removeEventListener('click', this.#closeClickHandler);
+  };
 }

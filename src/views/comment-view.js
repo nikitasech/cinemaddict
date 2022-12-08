@@ -1,5 +1,5 @@
 import AbstractView from './../framework/view/abstract-view.js';
-import {formatIsoDate} from './../utils.js';
+import {formatIsoDate} from './../utils/common.js';
 
 const createCommentTemplate = (comment) => {
   const {emotion, author} = comment;

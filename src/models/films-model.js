@@ -1,5 +1,5 @@
 import {generateFilm} from '../mock/film.js';
-import {shuffleArray} from '../utils.js';
+import {shuffleArray} from '../utils/common.js';
 
 export default class FilmsModel {
   #films = Array.from({length: 36}, generateFilm);

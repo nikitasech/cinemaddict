@@ -1,6 +1,6 @@
 import AbstractView from './../framework/view/abstract-view.js';
 import FilmControlsView from './film-controls-view.js';
-import {formatIsoDate, formatRuntime} from './../utils.js';
+import {formatIsoDate, formatRuntime} from './../utils/common.js';
 
 const createFilmCardTemplate = (film) => {
   const {title, totalRating, release, genre, poster} = film.info;

@@ -1,3 +1,8 @@
+/**
+ * Перечисление заголовков списка
+ * @enum {string}
+ * @readonly
+ */
 export const ListTitle = {
   LOADING: 'Loading...',
   ALL: 'All movies. Upcoming',
@@ -9,11 +14,17 @@ export const ListTitle = {
   NO_FAVORITES: 'There are no favorite movies now'
 };
 
+/**
+ * Перечисление типов списка
+ * @enum {string}
+ * @readonly
+ */
 export const TypeList = {
   MAIN: 'main',
   EXTRA: 'extra'
 };
 
+/** @type {Array} массив случайных имен */
 export const names = [
   'Aelene Inglorion',
   'Fenella Ocallaghan',
@@ -25,4 +36,5 @@ export const names = [
   'Morgan Freeman'
 ];
 
+/** @type {number} количество добавляемых карточек за один шаг */
 export const PORTION_CARD_COUNT = 5;

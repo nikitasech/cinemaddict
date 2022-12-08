@@ -1,5 +1,5 @@
 import AbstractView from './../framework/view/abstract-view.js';
-import {formatIsoDate, formatRuntime} from './../utils.js';
+import {formatIsoDate, formatRuntime} from './../utils/common.js';
 import FilmControlsView from './film-controls-view.js';
 
 const createFilmDetailsTemplate = (film) => {

@@ -1,11 +1,10 @@
 import {
-  getRandomNumber,
-  shuffleArray,
   getRandomItem,
   getRandomText,
   getRandomDate,
   getCounter
-} from './../utils.js';
+} from './../utils/mock.js';
+import {getRandomNumber, shuffleArray} from './../utils/common.js';
 import {names} from './../const.js';
 
 const allComments = Array.from({length: 36}, (item, i) => i + 1);

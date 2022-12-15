@@ -49,3 +49,21 @@ export const formatRuntime = (runtime) => {
   return `${hours}h ${minutes}m`;
 };
 
+/**
+ * Делает первую букву строки заглавной
+ * @param {string} string строка, в которой нужно поднять первую букву
+ * @returns {string} строка с заглавной первой буквой
+ */
+export const capitalizeFirstLetter = (string) => (
+  string[0].toUpperCase() + string.slice(1).toLowerCase()
+);
+
+/**
+ * Разделяет число на классы в соотвествии c языком пользователя
+ * @param {number} number число, которое нужно разбить
+ * @returns {string} строка с числом, разбитым на классы
+ * @example
+ * splitNumberToClasses(458654); // > '458 654'
+ */
+export const splitNumberToClasses = (number) => number.toLocaleString();
+

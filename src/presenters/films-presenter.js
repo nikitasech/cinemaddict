@@ -2,12 +2,11 @@ import SortView from './../views/sort-view.js';
 import FilmsView from './../views/films-view.js';
 import ListFilmsView from './../views/list-films-view.js';
 import FilmsContainerView from './../views/films-container-view.js';
-import FilmCardView from './../views/film-card-view.js';
 import ButtonMoreView from './../views/button-more-view.js';
-import PopupFilmView from './../views/popup-film-view.js';
-import CommentView from '../views/comment-view.js';
 import {render} from './../framework/render.js';
 import {ListTitle, TypeList, PORTION_CARD_COUNT} from './../const.js';
+import CardPresenter from './card-presenter.js';
+import PopupPresenter from './popup-presenter.js';
 
 /**
  * Презентер списков фильмов
@@ -28,25 +27,16 @@ export default class FilmsPresenter {
   #topListComponent = new ListFilmsView(ListTitle.TOP, TypeList.EXTRA);
   #commentedListComponent = new ListFilmsView(ListTitle.COMMENTED, TypeList.EXTRA);
   #loadButtonComponent = new ButtonMoreView();
-  #popupComponent = null;
 
   #renderedCardCount = 0;
+
+  #popupPresenter = null;
 
   constructor(filmsModel, commentsModel) {
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
+    this.#popupPresenter = new PopupPresenter(this.#commentsModel);
   }
-
-  /**
-   * Отрисовывает карточку фильма в контейнер
-   * @param {HTMLElement} container контейнер для отрисовки карточек
-   * @param {Object} film объект с данными о фильме
-   */
-  #renderCard = (container, film) => {
-    const card = new FilmCardView(film);
-    card.setClickHandler(this.#renderPopup);
-    render(card, container);
-  };
 
   /**
    * Отрисовывает новую порцию карточек и кнопку,
@@ -62,11 +52,9 @@ export default class FilmsPresenter {
       this.#films.length
     );
 
-    this.#films
-      .slice(first, last)
-      .forEach((film) => {
-        this.#renderCard(containerElement, film);
-      });
+    this.#films.slice(first, last).forEach((film) => {
+      new CardPresenter(this.#popupPresenter).init(containerElement, film);
+    });
 
     if (last === this.#films.length) {
       this.#loadButtonComponent.hide();
@@ -111,74 +99,23 @@ export default class FilmsPresenter {
     const containerComponent = new FilmsContainerView();
     render(containerComponent, listComponent.element);
 
-    filtredFilms
-      .slice(0, 2)
-      .forEach((film) => {
-        this.#renderCard(containerComponent.element, film);
-      });
-  };
-
-  /**
-   * Отрисовывает папап фильма
-   * @param {Object} film объект с данными о фильме
-   */
-  #renderPopup = (film) => {
-    const bodyElement = document.querySelector('body');
-    const comments = this.#commentsModel.getCommentsById(film.comments);
-
-    if (this.#popupComponent) {
-      this.#removePopup();
-    }
-
-    this.#popupComponent = new PopupFilmView(film);
-    render(this.#popupComponent, bodyElement);
-    bodyElement.classList.add('hide-overflow');
-
-    comments.forEach((comment) => {
-      render(new CommentView(comment), this.#popupComponent.element
-        .querySelector('.film-details__comments-list')
-      );
+    filtredFilms.slice(0, 2).forEach((film) => {
+      new CardPresenter(this.#popupPresenter).init(containerComponent.element, film);
     });
-
-    this.#popupComponent.setCloseClickHandler(this.#removePopup);
-    document.addEventListener('keydown', this.#onEscKeyDown);
-  };
-
-  /** Удаляет попап */
-  #removePopup = () => {
-    document.removeEventListener('keydown', this.#onEscKeyDown);
-    this.#popupComponent.removeCloseClickHandler(this.#removePopup);
-
-    document.querySelector('body').classList.remove('hide-overflow');
-    this.#popupComponent.element.remove();
-    this.#popupComponent.removeElement();
-    this.#popupComponent = null;
-  };
-
-  /**
-   * Функция обработчика нажатия на esc
-   * @param {Object} evt объект события
-   */
-  #onEscKeyDown = (evt) => {
-    evt.preventDefault();
-
-    if (evt.code === 'Escape') {
-      this.#removePopup();
-    }
   };
 
   /**
    * Отрисовывает начальное состояние приложения
    * @param {HTMLElement} filmsContainer контейнер для отрисовки состояния
    */
-  init = (filmsContainer) => {
+  init = (rootContainer) => {
     this.#films = [...this.#filmsModel.films];
     this.#topFilms = [...this.#filmsModel.topFilms];
     this.#commentedFilms = [...this.#filmsModel.commentedFilms];
 
-    render(new SortView(), filmsContainer);
-    render(new FilmsView(), filmsContainer);
-    this.#filmsElement = filmsContainer.querySelector('.films');
+    render(new SortView(), rootContainer);
+    render(new FilmsView(), rootContainer);
+    this.#filmsElement = rootContainer.querySelector('.films');
 
     this.#renderMainList(this.#allListComponent, this.#films);
 

@@ -1,4 +1,5 @@
 import AbstractView from './../framework/view/abstract-view.js';
+import createFilmsContainerTemplate from './templates/films-container-template.js';
 
 const createListTemplate = (title, type) => {
   const listTypeClassName = (type === 'extra')
@@ -15,7 +16,7 @@ const createListTemplate = (title, type) => {
 /**
  * Вью списка фильмов
  * @param {string} title заголовок компонента
- * @param {string} [type] тип списка. Может быть 'main' (по умолчанию) или 'extra'
+ * @param {string} [type] тип списка. 'main' (по умолчанию) или 'extra'
 */
 export default class ListFilmsView extends AbstractView {
   /** @type {string} заголовок компонента */
@@ -35,19 +36,32 @@ export default class ListFilmsView extends AbstractView {
   }
 
   /**
-   * Изменяет заголовок списка фильмов
-   * @param {string} title новый заголовок
+   * Геттер для получения контайнера для фильмов
+   * @returns {HTMLElement} контейнер для фильмов
    */
-  changeTitle(title) {
-    this.element
-      .querySelector('.films-list__title')
-      .textContent = title;
+  get containerElement() {
+    return this.element.querySelector('.films-list__container');
   }
 
-  /** Переключает скрытие заголовка. */
-  toggleHidingTitle = () => {
+  /** Вставляет контейнер для фильмов в список */
+  insertFilmsContainer = () => {
+    this.element.insertAdjacentHTML('beforeend', createFilmsContainerTemplate());
+  };
+
+  /**
+   * Изменяет заголовок списка фильмов
+   * @param {string} newTitle новый заголовок
+   */
+  changeTitle(newTitle) {
     this.element
       .querySelector('.films-list__title')
-      .classList.toggle('visually-hidden');
+      .textContent = newTitle;
+  }
+
+  /** Скрывает заголовок */
+  hideTitle = () => {
+    this.element
+      .querySelector('.films-list__title')
+      .classList.add('visually-hidden');
   };
 }

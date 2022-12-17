@@ -17,10 +17,9 @@ const siteStatisticsElement = document.querySelector('.footer__statistics');
 const filmsModel = new FilmsModel();
 const commentsModel = new CommentsModel();
 const filmsPresenter = new FilmsPresenter(filmsModel, commentsModel);
-
-const filters = generateFilters(filmsModel.films);
-const profileRating = getUserRank(filmsModel.films);
-const filmsCount = filmsModel.films.length;
+const filters = generateFilters(filmsModel.items);
+const profileRating = getUserRank(filmsModel.items);
+const filmsCount = filmsModel.items.length;
 
 if (profileRating) {
   render(new ProfileRatingView(profileRating), siteHeaderElement);

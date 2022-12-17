@@ -1,12 +1,11 @@
-import {render} from './../framework/render.js';
+import {render} from '../framework/render.js';
 import FilmCardView from '../views/film-card-view.js';
 
 /**
- * Презентер фильма. Управляет отображением карточки.
- * @param {Object} filmsModel модель фильмов
- * @param {Object} commentsModel модель комментариев
+ * Презентер фильма. Управляет отображением карточки
+ * @param {Object} popupPresenter презентер попапа
 */
-export default class CardPresenter {
+export default class FilmPresenter {
   /** @type {Object} презентер попапа */
   #popupPresenter = null;
 

@@ -37,4 +37,4 @@ export const names = [
 ];
 
 /** @type {number} количество добавляемых карточек за один шаг */
-export const PORTION_CARD_COUNT = 5;
+export const PORTION_CARDS_COUNT = 5;

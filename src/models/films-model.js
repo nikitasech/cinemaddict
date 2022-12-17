@@ -2,14 +2,14 @@ import {generateFilm} from '../mock/film.js';
 import {shuffleArray} from '../utils/common.js';
 
 export default class FilmsModel {
-  #films = Array.from({length: 36}, generateFilm);
+  #items = Array.from({length: 36}, generateFilm);
 
-  get films() {
-    return this.#films;
+  get items() {
+    return this.#items;
   }
 
-  get topFilms() {
-    return shuffleArray(this.#films.slice())
+  get top() {
+    return shuffleArray(this.#items.slice())
       .sort((before, after) => {
         const beforeRating = before.info.totalRating;
         const afterRating = after.info.totalRating;
@@ -18,8 +18,8 @@ export default class FilmsModel {
       });
   }
 
-  get commentedFilms() {
-    return shuffleArray(this.#films.slice())
+  get commented() {
+    return shuffleArray(this.#items.slice())
       .sort((before, after) => {
         const beforeCount = before.comments.length;
         const afterCount = after.comments.length;

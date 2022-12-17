@@ -2,7 +2,7 @@ import {render} from './../framework/render.js';
 import PopupFilmView from './../views/popup-film-view.js';
 import CommentView from './../views/comment-view.js';
 
-/** Презентер попапа фильма. Управляет отображением попапа с деталями фильма. */
+/** Презентер попапа фильма. Управляет отображением попапа с деталями фильма */
 export default class PopupPresenter {
   #commentsModel = null;
   #popupComponent = null;
@@ -10,17 +10,6 @@ export default class PopupPresenter {
   constructor(commentsModel) {
     this.#commentsModel = commentsModel;
   }
-
-  /** Удаляет попап */
-  #removePopup = () => {
-    document.removeEventListener('keydown', this.#onEscKeyDown);
-    this.#popupComponent.removeCloseClickHandler(this.#removePopup);
-
-    document.querySelector('body').classList.remove('hide-overflow');
-    this.#popupComponent.element.remove();
-    this.#popupComponent.removeElement();
-    this.#popupComponent = null;
-  };
 
   /**
    * Функция обработчика нажатия на esc
@@ -32,6 +21,17 @@ export default class PopupPresenter {
     if (evt.code === 'Escape') {
       this.#removePopup();
     }
+  };
+
+  /** Удаляет попап */
+  #removePopup = () => {
+    document.removeEventListener('keydown', this.#onEscKeyDown);
+    this.#popupComponent.removeCloseClickHandler(this.#removePopup);
+
+    document.querySelector('body').classList.remove('hide-overflow');
+    this.#popupComponent.element.remove();
+    this.#popupComponent.removeElement();
+    this.#popupComponent = null;
   };
 
   /**

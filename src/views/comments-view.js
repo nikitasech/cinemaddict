@@ -29,4 +29,12 @@ export default class CommentsView extends AbstractView {
   get template() {
     return createCommentsTemplate(this.#count);
   }
+
+  /**
+   * Геттер получения списка комментариев
+   * @returns {HTMLElement} список комментариев
+   */
+  get listElement() {
+    return this.element.querySelector('.film-details__comments-list');
+  }
 }

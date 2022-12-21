@@ -1,56 +1,18 @@
 import AbstractView from './../framework/view/abstract-view.js';
+import createDetailsControlsTemplate from './templates/details-controls-template.js';
+import createCardControlsTemplate from './templates/card-controls-template.js';
 
-const createControlsTemplate = (
-  {isWatchlist, isWatched, isFavorite}, parent
-) => {
-  let activeClassName = '';
+const getWatchlistText = (isWatchlist) => isWatchlist
+  ? 'Not to watch'
+  : 'Add to watchlist';
 
-  switch (parent) {
-    case 'card':
-      activeClassName = 'film-card__controls-item--active';
-      break;
-    case 'details':
-      activeClassName = 'film-details__control-button--active';
-      break;
-  }
+const getWatchedText = (isWatched) => isWatched
+  ? 'Haven\'t watched'
+  : 'Mark as watched';
 
-  const watchlistClassName = isWatchlist ? activeClassName : '';
-  const watchedClassName = isWatched ? activeClassName : '';
-  const favoriteClassName = isFavorite ? activeClassName : '';
-
-  const watchlistText = isWatchlist
-    ? 'Not to watch'
-    : 'Add to watchlist';
-  const watchedText = isWatched
-    ? 'Haven\'t watched'
-    : 'Mark as watched';
-  const favoriteText = isFavorite
-    ? 'Don\'t favorite'
-    : 'Add to favorites';
-
-  const cardControlsTemplate = (`
-    <div class="film-card__controls">
-      <button class="film-card__controls-item film-card__controls-item--add-to-watchlist ${watchlistClassName}" type="button">${watchlistText}</button>
-      <button class="film-card__controls-item film-card__controls-item--mark-as-watched ${watchedClassName}" type="button">${watchedText}</button>
-      <button class="film-card__controls-item film-card__controls-item--favorite ${favoriteClassName}" type="button">${favoriteText}</button>
-    </div>
-  `);
-
-  const filmDetailsControlsTemplate = (`
-    <section class="film-details__controls">
-      <button type="button" class="film-details__control-button film-details__control-button--watchlist ${watchlistClassName}" id="watchlist" name="watchlist">${watchlistText}</button>
-      <button type="button" class="film-details__control-button film-details__control-button--watched ${watchedClassName}" id="watched" name="watched">${watchedText}</button>
-      <button type="button" class="film-details__control-button film-details__control-button--favorite ${favoriteClassName}" id="favorite" name="favorite">${favoriteText}</button>
-    </section>
-  `);
-
-  switch (parent) {
-    case 'card':
-      return cardControlsTemplate;
-    case 'details':
-      return filmDetailsControlsTemplate;
-  }
-};
+const getFavoriteText = (isFavorite) => isFavorite
+  ? 'Don\'t favorite'
+  : 'Add to favorites';
 
 /**
  * Вью кнопок управления
@@ -61,20 +23,71 @@ export default class FilmControlsView extends AbstractView {
   /** @type {Object} состояние элементов управления */
   #state = {};
 
-  /** @type {string|null} родительский блок */
+  /** @type {string|null} класс активированной кнопки управления */
+  #activeClassName = null;
+
+  /** @type {string|null} родитель жлементов управления */
   #parent = null;
 
   constructor(state, rapent = 'card') {
     super();
-    this.#parent = rapent;
     this.#state = {
       isWatchlist: state.watchlist,
       isWatched: state.alreadyWatched,
       isFavorite: state.favorite
     };
+    this.#parent = rapent;
+
+    switch (rapent) {
+      case 'card':
+        this.#activeClassName = 'film-card__controls-item--active';
+        break;
+      case 'details':
+        this.#activeClassName = 'film-details__control-button--active';
+        break;
+      default:
+        throw Error('Передан неправильный родитель');
+    }
   }
 
   get template() {
-    return createControlsTemplate(this.#state, this.#parent);
+    const ClassName = {
+      watchlist: this.#state.isWatchlist ? this.#activeClassName : '',
+      watched: this.#state.isWatched ? this.#activeClassName : '',
+      favorite: this.#state.isFavorite ? this.#activeClassName : ''
+    };
+
+    const Text = {
+      watchlist: getWatchlistText(this.#state.isWatchlist),
+      watched: getWatchedText(this.#state.isWatched),
+      favorite: getFavoriteText(this.#state.isFavorite)
+    };
+
+    return (this.#parent === 'details')
+      ? createDetailsControlsTemplate(ClassName, Text)
+      : createCardControlsTemplate(ClassName, Text);
   }
+
+  toggleWatchlistControl = () => {
+    this.element
+      .querySelector('[class=*"watchlist"]')
+      .classList.toggle(this.#activeClassName);
+  };
+
+  toggleWatchedControl = () => {
+    this.element
+      .querySelector('[class=*"watched"]')
+      .classList.toggle(this.#activeClassName);
+  };
+
+  toggleFavoriteControl = () => {
+    this.element
+      .querySelector('[class=*"favorite"]')
+      .classList.toggle(this.#activeClassName);
+  };
+
+  setWatchlistClickHandler = () => {
+    this.toggleWatchedControl();
+    // callback();
+  };
 }

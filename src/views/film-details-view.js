@@ -1,6 +1,5 @@
 import AbstractView from './../framework/view/abstract-view.js';
 import {formatIsoDate, formatRuntime} from './../utils/common.js';
-import FilmControlsView from './film-controls-view.js';
 
 const createFilmDetailsTemplate = (film) => {
   const {
@@ -12,7 +11,6 @@ const createFilmDetailsTemplate = (film) => {
   const dateRelease = formatIsoDate(film.info.release.date, 'DD MMMM YYYY');
   const countryRelease = film.info.release.country;
   const runtime = formatRuntime(film.info.runtime);
-  const stateControls = film.userDetails;
 
   const genresTemplate = genre.reduce((accumulator, item) => {
     const template = `<span class="film-details__genre">${item}</span>`;
@@ -72,7 +70,6 @@ const createFilmDetailsTemplate = (film) => {
           <p class="film-details__film-description">${description}</p>
         </div>
       </div>
-      ${new FilmControlsView(stateControls, 'details').template}
     </div>
   `);
 };

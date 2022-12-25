@@ -1,67 +1,38 @@
+import {TypeList} from './../const.js';
 import AbstractView from './../framework/view/abstract-view.js';
-import createFilmsContainerTemplate from './templates/films-container-template.js';
 
-const createListTemplate = (title, type) => {
-  const listTypeClassName = (type === 'extra')
-    ? 'films-list--extra'
+const createListFilmsTemplate = (type) => {
+  const listTypeClassName = (type !== TypeList.MAIN)
+    ? `films-list--${type}`
     : '';
 
   return (`
-    <section class="films-list ${listTypeClassName}">
-      <h2 class="films-list__title">${title}</h2>
-    </section>
+    <section class="films-list ${listTypeClassName}"></section>
   `);
 };
 
 /**
- * Вью списка фильмов
- * @param {string} title заголовок компонента
- * @param {string} [type] тип списка. 'main' (по умолчанию) или 'extra'
+ * Представление списка фильмов
+ * @param {string} [type] тип списка. 'main' или 'extra'
 */
 export default class ListFilmsView extends AbstractView {
-  /** @type {string} заголовок компонента */
-  #title = null;
-
   /** @type {string} тип списка */
   #type = null;
 
-  constructor(title, type = 'main') {
+  constructor(type) {
     super();
-    this.#title = title;
-    this.#type = type;
+
+    for (const value of Object.values(TypeList)) {
+      if (type === value) {
+        this.#type = type;
+        return;
+      }
+    }
+
+    throw Error('Incorrect list type specified');
   }
 
   get template() {
-    return createListTemplate(this.#title, this.#type);
+    return createListFilmsTemplate(this.#type);
   }
-
-  /**
-   * Геттер для получения контайнера для фильмов
-   * @returns {HTMLElement} контейнер для фильмов
-   */
-  get containerElement() {
-    return this.element.querySelector('.films-list__container');
-  }
-
-  /** Вставляет контейнер для фильмов в список */
-  insertFilmsContainer = () => {
-    this.element.insertAdjacentHTML('beforeend', createFilmsContainerTemplate());
-  };
-
-  /**
-   * Изменяет заголовок списка фильмов
-   * @param {string} newTitle новый заголовок
-   */
-  changeTitle(newTitle) {
-    this.element
-      .querySelector('.films-list__title')
-      .textContent = newTitle;
-  }
-
-  /** Скрывает заголовок */
-  hideTitle = () => {
-    this.element
-      .querySelector('.films-list__title')
-      .classList.add('visually-hidden');
-  };
 }

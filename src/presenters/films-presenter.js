@@ -1,40 +1,75 @@
 import {render} from './../framework/render.js';
-import {ListTitle, TypeList, PORTION_CARDS_COUNT} from './../const.js';
-
+import {ListTitle, TypeList, PortionCardCount} from './../const.js';
+import {sortCommentedFilms, sortTopFilms} from './../utils/sort.js';
 import SortView from './../views/sort-view.js';
 import FilmsView from './../views/films-view.js';
-import ListFilmsView from './../views/list-films-view.js';
-import ButtonMoreView from './../views/button-more-view.js';
-
-import CardPresenter from './film-presenter.js';
 import PopupPresenter from './popup-presenter.js';
+import ListPresenter from './list-presenter.js';
 
-/** Презентер списков фильмов
+/** Главный презентер. Управляет всем приложением и дочерничи презентерами
  * @param {Object} filmsModel модель фильмов
  * @param {Object} commentsModel модель комментариев
 */
 export default class FilmsPresenter {
+  /** @type {Object|null} модель фильмов */
   #filmsModel = null;
 
+  /** @type {Object|null} модель комментариев */
+  #commentsModel = null;
+
+  /** @type {Object|null} презентер попапа */
   #popupPresenter = null;
 
+  /** Перечисление презентеров списков @enum {Object} */
+  #ListPresenter = {};
+
+  /** @type {Object|null} представление корневого контейнера для фильмов */
   #filmsComponent = new FilmsView();
+
+  /** @type {Object|null} представление сортировки */
   #sortComponent = new SortView();
-  #allListComponent = new ListFilmsView(ListTitle.LOADING);
-  #topListComponent = new ListFilmsView(ListTitle.TOP, TypeList.EXTRA);
-  #commentedListComponent = new ListFilmsView(ListTitle.COMMENTED, TypeList.EXTRA);
-  #loadButtonComponent = new ButtonMoreView();
 
+  /** @type {Object} список фильмов */
   #films = {};
-  #topFilms = {};
-  #commentedFilms = {};
-
-  #renderedCardCount = 0;
 
   constructor(filmsModel, commentsModel) {
     this.#filmsModel = filmsModel;
-    this.#popupPresenter = new PopupPresenter(commentsModel);
+    this.#commentsModel = commentsModel;
   }
+
+  /** Отрисовывает начальное состояние приложения
+   * @param {HTMLElement} filmsContainer контейнер для отрисовки состояния
+   */
+  init = (rootContainer) => {
+    this.#films = [...this.#filmsModel.items];
+    this.#popupPresenter = new PopupPresenter(rootContainer, this.#commentsModel);
+    this.#ListPresenter = {
+      ALL: new ListPresenter(
+        this.#films,
+        this.#popupPresenter,
+        PortionCardCount.MAIN
+      ),
+      TOP: new ListPresenter(
+        sortTopFilms(this.#films, PortionCardCount.EXTRA),
+        this.#popupPresenter,
+        PortionCardCount.EXTRA
+      ),
+      COMMENTED: new ListPresenter(
+        sortCommentedFilms(this.#films, PortionCardCount.EXTRA),
+        this.#popupPresenter,
+        PortionCardCount.EXTRA
+      )
+    };
+
+    this.#renderSort(rootContainer);
+    this.#rednerFilmsContainer(rootContainer);
+    this.#renderMainList();
+
+    if (this.#films.length) {
+      this.#renderTopList();
+      this.#renderCommentedList();
+    }
+  };
 
   /** @param {HTMLElement} container контейнер для отрисовки сортировки */
   #renderSort = (container) => render(this.#sortComponent, container);
@@ -42,76 +77,55 @@ export default class FilmsPresenter {
   /** @param {HTMLElement} container контейнер для отрисовки контейнера фильмов */
   #rednerFilmsContainer = (container) => render(this.#filmsComponent, container);
 
-  /** Отрисовывает новую порцию карточек и кнопку,
-  если есть ещё карточки которые нужно отрисовать */
-  #renderPortionCards = () => {
-    const first = this.#renderedCardCount;
-    const last = Math.min(first + PORTION_CARDS_COUNT, this.#films.length);
-
-    this.#films.slice(first, last).forEach((film) => {
-      new CardPresenter(this.#popupPresenter)
-        .init(this.#allListComponent.containerElement, film);
-    });
-
-    if (last === this.#films.length) {
-      this.#loadButtonComponent.element.remove();
-    }
-
-    this.#renderedCardCount = last;
-  };
-
-  /** Добавляет рабочую кнопку Load more в список всех фильмов */
-  #renderLoadMore = () => {
-    render(this.#loadButtonComponent, this.#allListComponent.element);
-    this.#loadButtonComponent.setClickHandler(this.#renderPortionCards);
-  };
-
-  /** Отрисовывает главный список фильмов
-   * @param {Object} listComponent компонент списка
+  /** Универсальный метод для отрисовки списка для фильмов
+   * @param {Object} presenter презентер списка
+   * @param {string} title текст заголовка списка
+   * @param {string} type тип списка
    */
-  #renderMainList = (listComponent) => {
-    render(listComponent, this.#filmsComponent.element);
+  #universalRenderList = (presenter, title, type, isTitleHidden) => {
+    presenter.init(this.#filmsComponent.element, title, type, isTitleHidden);
+    presenter.renderFilmsContainer();
+    presenter.renderPortionCards();
+  };
 
+  /** Отрисовывает главный список фильмов. Сначало с информацией
+  загрузке, а потом перерисовывает со стандартным заголовком списка. */
+  #renderMainList = () => {
     if (!this.#films.length) {
-      listComponent.changeTitle(ListTitle.NO_FILMS);
-    } else {
-      listComponent.insertFilmsContainer();
-      listComponent.changeTitle(ListTitle.ALL);
-      listComponent.hideTitle();
-      this.#renderLoadMore();
-      this.#renderPortionCards();
+      this.#ListPresenter.ALL.init(
+        this.#filmsComponent.element,
+        ListTitle.LOADING,
+        TypeList.MAIN,
+        true
+      );
+      return;
     }
+
+    this.#universalRenderList(
+      this.#ListPresenter.ALL,
+      ListTitle.ALL,
+      TypeList.MAIN,
+      false
+    );
   };
 
-  /** Отрисовывает обычный список
-   * @param {Object} listComponent компонент списка
-   * @param {Array} sortedFilms массив сортированных фильмов
-   */
-  #renderExtraList = (listComponent, sortedFilms) => {
-    render(listComponent, this.#filmsComponent.element);
-    listComponent.insertFilmsContainer();
-
-    sortedFilms.slice(0, 2).forEach((film) => {
-      new CardPresenter(this.#popupPresenter)
-        .init(listComponent.containerElement, film);
-    });
+  /** Отрисовывает список "Top rated" */
+  #renderTopList = () => {
+    this.#universalRenderList(
+      this.#ListPresenter.TOP,
+      ListTitle.TOP,
+      TypeList.EXTRA,
+      true
+    );
   };
 
-  /** Отрисовывает начальное состояние приложения
-   * @param {HTMLElement} filmsContainer контейнер для отрисовки состояния
-   */
-  init = (rootContainer) => {
-    this.#films = [...this.#filmsModel.items];
-    this.#topFilms = [...this.#filmsModel.top];
-    this.#commentedFilms = [...this.#filmsModel.commented];
-
-    this.#renderSort(rootContainer);
-    this.#rednerFilmsContainer(rootContainer);
-    this.#renderMainList(this.#allListComponent, this.#films);
-
-    if (this.#films.length) {
-      this.#renderExtraList(this.#topListComponent, this.#topFilms);
-      this.#renderExtraList(this.#commentedListComponent, this.#commentedFilms);
-    }
+  /** Отрисовывает список "Most commented" */
+  #renderCommentedList = () => {
+    this.#universalRenderList(
+      this.#ListPresenter.COMMENTED,
+      ListTitle.COMMENTED,
+      TypeList.EXTRA,
+      true
+    );
   };
 }

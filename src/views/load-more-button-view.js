@@ -1,22 +1,17 @@
-import AbstractView from './../framework/view/abstract-view.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
-const createMoreButtonTemplate = () => (`
+const createLoadMoreButtonTemplate = () => (`
   <button class="films-list__show-more">Show more</button>
 `);
 
 /** Вью кнопки "Load more" */
-export default class ButtonMoreView extends AbstractView {
+export default class LoadMoreButtonView extends AbstractView {
   get template() {
-    return createMoreButtonTemplate();
+    return createLoadMoreButtonTemplate();
   }
 
-  /** Скрывает кнопку */
-  hide = () => {
-    this.element.setAttribute('hidden', 'true');
-  };
-
   /**
-   * Функция обработчика нажатия на кнопку "Load more"
+   * Метод обработчика нажатия на кнопку "Load more"
    * @param {Object} evt объект события
    */
   #clickHandler = (evt) => {

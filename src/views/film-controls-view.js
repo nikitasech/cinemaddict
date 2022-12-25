@@ -1,6 +1,7 @@
 import AbstractView from './../framework/view/abstract-view.js';
 import createDetailsControlsTemplate from './templates/details-controls-template.js';
 import createCardControlsTemplate from './templates/card-controls-template.js';
+import {TypeControls} from './../const.js';
 
 const getWatchlistText = (isWatchlist) => isWatchlist
   ? 'Not to watch'
@@ -27,27 +28,24 @@ export default class FilmControlsView extends AbstractView {
   #activeClassName = null;
 
   /** @type {string|null} родитель жлементов управления */
-  #parent = null;
+  #type = null;
 
-  constructor(state, rapent = 'card') {
+  constructor(state, type) {
     super();
     this.#state = {
       isWatchlist: state.watchlist,
       isWatched: state.alreadyWatched,
       isFavorite: state.favorite
     };
-    this.#parent = rapent;
 
-    switch (rapent) {
-      case 'card':
-        this.#activeClassName = 'film-card__controls-item--active';
-        break;
-      case 'details':
-        this.#activeClassName = 'film-details__control-button--active';
-        break;
-      default:
-        throw Error('Передан неправильный родитель');
+    for (const value of Object.values(TypeControls)) {
+      if (type === value) {
+        this.#type = type;
+        return;
+      }
     }
+
+    throw Error('Incorrect controls type specified');
   }
 
   get template() {
@@ -63,31 +61,8 @@ export default class FilmControlsView extends AbstractView {
       favorite: getFavoriteText(this.#state.isFavorite)
     };
 
-    return (this.#parent === 'details')
+    return (this.#type === TypeControls.DETAILS)
       ? createDetailsControlsTemplate(ClassName, Text)
       : createCardControlsTemplate(ClassName, Text);
   }
-
-  toggleWatchlistControl = () => {
-    this.element
-      .querySelector('[class=*"watchlist"]')
-      .classList.toggle(this.#activeClassName);
-  };
-
-  toggleWatchedControl = () => {
-    this.element
-      .querySelector('[class=*"watched"]')
-      .classList.toggle(this.#activeClassName);
-  };
-
-  toggleFavoriteControl = () => {
-    this.element
-      .querySelector('[class=*"favorite"]')
-      .classList.toggle(this.#activeClassName);
-  };
-
-  setWatchlistClickHandler = () => {
-    this.toggleWatchedControl();
-    // callback();
-  };
 }

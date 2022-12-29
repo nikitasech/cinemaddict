@@ -39,10 +39,14 @@ export default class ListPresenter {
   /** @type {Object|null} количество карточек за одну порцию */
   #portionCardCount = null;
 
-  constructor(films, popupPresenter, portionCardsCount) {
+  /** @type {Function|null} Функция обновления данных фильма */
+  #filmChangeHandler = null;
+
+  constructor(films, popupPresenter, portionCardsCount, filmChangeHandler) {
     this.#films = films;
     this.#popupPresenter = popupPresenter;
     this.#portionCardCount = portionCardsCount;
+    this.#filmChangeHandler = filmChangeHandler;
   }
 
   /** Инициализирует новый список без фильмов, с указанным заголовком
@@ -84,7 +88,11 @@ export default class ListPresenter {
    * @param {Object} film данные фильма
    */
   #rednerCard = (film) => {
-    const cardPresenter = new CardPresenter(this.#popupPresenter);
+    const cardPresenter = new CardPresenter(
+      this.#popupPresenter,
+      this.#filmChangeHandler
+    );
+
     this.#cardPresenter.set(film.id, cardPresenter);
     cardPresenter.init(this.#filmsContainerComponent.element, film);
   };
@@ -106,6 +114,14 @@ export default class ListPresenter {
       this.#loadMoreButtonComponent = null;
     } else if (!this.#loadMoreButtonComponent && last !== this.#films.length) {
       this.#renderLoadMoreButton();
+    }
+  };
+
+  updateCard = (newFilm) => {
+    const cardPresenter = this.#cardPresenter.get(newFilm.id);
+
+    if (cardPresenter) {
+      cardPresenter.init(this.#filmsContainerComponent.element, newFilm);
     }
   };
 

@@ -3,6 +3,11 @@ import createDetailsControlsTemplate from './templates/details-controls-template
 import createCardControlsTemplate from './templates/card-controls-template.js';
 import {TypeControls} from './../const.js';
 
+const activeClassName = new Map([
+  ['card', 'film-card__controls-item--active'],
+  ['details', 'film-details__control-button--active']
+]);
+
 const getWatchlistText = (isWatchlist) => isWatchlist
   ? 'Not to watch'
   : 'Add to watchlist';
@@ -41,6 +46,7 @@ export default class FilmControlsView extends AbstractView {
     for (const value of Object.values(TypeControls)) {
       if (type === value) {
         this.#type = type;
+        this.#activeClassName = activeClassName.get(value);
         return;
       }
     }
@@ -49,7 +55,7 @@ export default class FilmControlsView extends AbstractView {
   }
 
   get template() {
-    const ClassName = {
+    const className = {
       watchlist: this.#state.isWatchlist ? this.#activeClassName : '',
       watched: this.#state.isWatched ? this.#activeClassName : '',
       favorite: this.#state.isFavorite ? this.#activeClassName : ''
@@ -62,7 +68,35 @@ export default class FilmControlsView extends AbstractView {
     };
 
     return (this.#type === TypeControls.DETAILS)
-      ? createDetailsControlsTemplate(ClassName, Text)
-      : createCardControlsTemplate(ClassName, Text);
+      ? createDetailsControlsTemplate(className, Text)
+      : createCardControlsTemplate(className, Text);
   }
+
+  #clickHandler = (evt) => {
+    evt.preventDefault();
+
+    const controlClassesString = evt.target.classList.value;
+
+    /* Вы можете меня бить за эту индусскую
+    реализацию, но мне она нравится! */
+    switch (true) {
+      case /watchlist/.test(controlClassesString):
+        this._callback.watchlistClick();
+        break;
+      case /watched/.test(controlClassesString):
+        this._callback.watchedClick();
+        break;
+      case /favorite/.test(controlClassesString):
+        this._callback.favoriteClick();
+        break;
+    }
+  };
+
+  setClickHandler = (watchlistCallback, watchedCallback, favoriteCallback) => {
+    this._callback.watchlistClick = watchlistCallback;
+    this._callback.watchedClick = watchedCallback;
+    this._callback.favoriteClick = favoriteCallback;
+
+    this.element.addEventListener('click', this.#clickHandler);
+  };
 }

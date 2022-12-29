@@ -1,5 +1,5 @@
 import {TypeControls} from './../const.js';
-import {render} from './../framework/render.js';
+import {render, replace} from './../framework/render.js';
 import FilmCardView from './../views/film-card-view.js';
 import FilmControlsView from './../views/film-controls-view.js';
 
@@ -19,8 +19,9 @@ export default class CardPresenter {
   /** @type {Object|null} представление элементов управления */
   #controlsComponent = null;
 
-  constructor(popupPresenter) {
+  constructor(popupPresenter, filmChangeHandler) {
     this.#popupPresenter = popupPresenter;
+    this.filmChangeHandler = filmChangeHandler;
   }
 
   /** Отрисовывает карточку фильма в контейнер
@@ -37,9 +38,18 @@ export default class CardPresenter {
    * @param {HTMLElement} container контейнер для карточки
    */
   #renderCard = (container) => {
-    this.#cardComponent = new FilmCardView(this.#film);
+    if (this.#cardComponent) {
+      const prevCardComponent = this.#cardComponent;
+      this.#cardComponent = new FilmCardView(this.#film);
+
+      replace(this.#cardComponent, prevCardComponent);
+    } else {
+      this.#cardComponent = new FilmCardView(this.#film);
+
+      render(this.#cardComponent, container);
+    }
+
     this.#renderControls();
-    render(this.#cardComponent, container);
     this.#cardComponent.setClickHandler(this.#popupPresenter.init);
   };
 
@@ -50,6 +60,31 @@ export default class CardPresenter {
       TypeControls.CARD
     );
 
+    // this.#controlsComponent.setWatchlistClickHundler(this.#chengeWatchlistHandler);
+    // this.#controlsComponent.setWatchedClickHundler(this.#chengeWatchedHandler);
+    // this.#controlsComponent.setFavoriteClickHundler(this.#chengeFavoriteHandler);
+
+    this.#controlsComponent.setClickHandler(
+      this.#chengeWatchlistHandler,
+      this.#chengeWatchedHandler,
+      this.#chengeFavoriteHandler
+    );
+
     render(this.#controlsComponent, this.#cardComponent.element);
+  };
+
+  #chengeWatchlistHandler = () => {
+    this.#film.userDetails.watchlist = !this.#film.userDetails.watchlist;
+    this.filmChangeHandler(this.#film);
+  };
+
+  #chengeWatchedHandler = () => {
+    this.#film.userDetails.alreadyWatched = !this.#film.userDetails.alreadyWatched;
+    this.filmChangeHandler(this.#film);
+  };
+
+  #chengeFavoriteHandler = () => {
+    this.#film.userDetails.favorite = !this.#film.userDetails.favorite;
+    this.filmChangeHandler(this.#film);
   };
 }

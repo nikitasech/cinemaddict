@@ -32,6 +32,9 @@ export default class FilmsPresenter {
   /** @type {Object} список фильмов */
   #films = {};
 
+  /** @type {null|number} */
+  #popupFilmId = null;
+
   constructor(filmsModel, commentsModel) {
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
@@ -47,17 +50,20 @@ export default class FilmsPresenter {
       ALL: new ListPresenter(
         this.#films,
         this.#popupPresenter,
-        PortionCardCount.MAIN
+        PortionCardCount.MAIN,
+        this.#filmChangeHandler
       ),
       TOP: new ListPresenter(
         sortTopFilms(this.#films, PortionCardCount.EXTRA),
         this.#popupPresenter,
-        PortionCardCount.EXTRA
+        PortionCardCount.EXTRA,
+        this.#filmChangeHandler
       ),
       COMMENTED: new ListPresenter(
         sortCommentedFilms(this.#films, PortionCardCount.EXTRA),
         this.#popupPresenter,
-        PortionCardCount.EXTRA
+        PortionCardCount.EXTRA,
+        this.#filmChangeHandler
       )
     };
 
@@ -86,6 +92,16 @@ export default class FilmsPresenter {
     presenter.init(this.#filmsComponent.element, title, type, isTitleHidden);
     presenter.renderFilmsContainer();
     presenter.renderPortionCards();
+  };
+
+  #filmChangeHandler = (newFilm) => {
+    this.#ListPresenter.ALL.updateCard(newFilm);
+    this.#ListPresenter.TOP.updateCard(newFilm);
+    this.#ListPresenter.COMMENTED.updateCard(newFilm);
+
+    if (newFilm.id === this.#popupFilmId) {
+      this.#popupPresenter.init(newFilm);
+    }
   };
 
   /** Отрисовывает главный список фильмов. Сначало с информацией

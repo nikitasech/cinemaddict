@@ -4,19 +4,17 @@ import ButtonMoreView from './../views/load-more-button-view.js';
 import FilmsContainerView from './../views/films-container-view.js';
 import ListFilmsView from './../views/list-films-view.js';
 import ListFilmsTitleView from './../views/list-films-title-view.js';
+import {updateItem} from './../utils/common.js';
 
 /**
- * Дочерний презентер {@link FilmsPresenter}, управляющий списком фильмов
+ * Дочерний презентер {@link FilmsPresenter}, управляющий
+ * списком фильмов и карточками фильмов ({@link CardPresenter})
  * @param {Object} films список фильмов
- * @param {Object} popupPresenter презентер всплывающего окна
- * @param {number} portionCardsCount количество карточек, отображающееся за один раз
+ * @param {number} portionCardsCount количество карточек, отображающихся за один раз
  */
 export default class ListPresenter {
   /** @type {Map<number, Object>} карта презентеров карточек */
   #cardPresenter = new Map();
-
-  /** @type {Object|null} презентер всплывающего окна */
-  #popupPresenter = null;
 
   /** @type {Object|null} представление списка фильмов */
   #listComponent = null;
@@ -42,11 +40,14 @@ export default class ListPresenter {
   /** @type {Function|null} Функция обновления данных фильма */
   #filmChangeHandler = null;
 
-  constructor(films, popupPresenter, portionCardsCount, filmChangeHandler) {
+  /** @type {Function|null} Функция отрисовки попапа */
+  #openPopupHandler = null;
+
+  constructor(films, portionCardsCount, filmChangeHandler, openPopupHandler) {
     this.#films = films;
-    this.#popupPresenter = popupPresenter;
     this.#portionCardCount = portionCardsCount;
     this.#filmChangeHandler = filmChangeHandler;
+    this.#openPopupHandler = openPopupHandler;
   }
 
   /** Инициализирует новый список без фильмов, с указанным заголовком
@@ -57,15 +58,14 @@ export default class ListPresenter {
    */
   init = (container, title, type, isTitleHidden) => {
     const prevListComponent = this.#listComponent;
+    this.#listComponent = new ListFilmsView(type);
 
-    if (this.#listComponent) {
-      this.#listComponent = new ListFilmsView(type);
+    if (!prevListComponent) {
+      render(this.#listComponent, container);
+    } else {
       replace(this.#listComponent, prevListComponent);
-      return;
     }
 
-    this.#listComponent = new ListFilmsView(type);
-    render(this.#listComponent, container);
     this.#renderTitle(title, isTitleHidden);
   };
 
@@ -89,8 +89,8 @@ export default class ListPresenter {
    */
   #rednerCard = (film) => {
     const cardPresenter = new CardPresenter(
-      this.#popupPresenter,
-      this.#filmChangeHandler
+      this.#filmChangeHandler,
+      this.#openPopupHandler
     );
 
     this.#cardPresenter.set(film.id, cardPresenter);
@@ -117,7 +117,9 @@ export default class ListPresenter {
     }
   };
 
-  updateCard = (newFilm) => {
+  updateFilm = (newFilm) => {
+    this.#films = updateItem(this.#films, newFilm);
+
     const cardPresenter = this.#cardPresenter.get(newFilm.id);
 
     if (cardPresenter) {

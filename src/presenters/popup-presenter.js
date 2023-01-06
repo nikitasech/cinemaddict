@@ -1,5 +1,5 @@
 import {TypeControls} from './../const.js';
-import {render} from './../framework/render.js';
+import {remove, render, replace} from './../framework/render.js';
 import PopupFilmView from './../views/popup-film-view.js';
 import CommentView from './../views/comment-view.js';
 import FilmControlsView from './../views/film-controls-view.js';
@@ -9,10 +9,14 @@ import CommentsView from './../views/comments-view.js';
 /**
  * Дочерний презентер {@link FilmsPresenter},
  * управляющий отображением попапа с деталями фильма
- * @param {HTMLElement} container контейнер для отрисовки попапа
  * @param {Object} commentsModel модель комментариев
+ * @param {Function} filmChangeHandler функция изменения данных фильма
+ * @param {Function} closePopup функция закрытия попапа
  */
 export default class PopupPresenter {
+  /** @type {HTMLElement} контейнер для отрисовки попапа */
+  #containerElement = document.body;
+
   /** @type {Object|null} модель комментариев */
   #commentsModel = null;
 
@@ -28,80 +32,132 @@ export default class PopupPresenter {
   /** @type {Object|null} представление комментариев */
   #commentsComponent = null;
 
-  /** @type {HTMLElement|null} контейнер для отрисовки попапа */
-  #containerElement = null;
+  /** @type {Object|null} данные фильма */
+  #film = null;
 
-  constructor(container, commentsModel) {
-    this.#containerElement = container;
+  /** @type {Function|null} функция изменнеия данных фильма */
+  #filmChangeHandler = null;
+
+  /** @type {Function|null} функция закрытия попапа */
+  #closePopupClickHundler = null;
+
+  constructor(commentsModel, filmChangeHandler, closePopupClickHundler) {
     this.#commentsModel = commentsModel;
+    this.#filmChangeHandler = filmChangeHandler;
+    this.#closePopupClickHundler = closePopupClickHundler;
   }
 
   /** Инициализирует попап
    * @param {Object} film объект фильма
    */
   init = (film) => {
-    if (this.#popupComponent) {
-      this.#removePopup();
+    this.#film = film;
+
+    if (!this.#popupComponent) {
+      this.#renderPopup();
     }
 
-    this.#renderPopup(this.#containerElement, film);
-  };
-
-  /** Функция обработчика нажатия на esc
-   * @param {Object} evt объект события
-   */
-  #onEscKeyDown = (evt) => {
-    evt.preventDefault();
-
-    if (evt.code === 'Escape') {
-      this.#removePopup();
-    }
+    this.#renderDetails();
+    this.#renderComments();
+    this.#renderControls();
   };
 
   /** Удаляет попап */
-  #removePopup = () => {
-    document.removeEventListener('keydown', this.#onEscKeyDown);
-    this.#popupComponent.removeCloseClickHandler(this.#removePopup);
+  destroy = () => {
+    this.#popupComponent.removeCloseClickHandler(this.#closePopupClickHundler);
+    document.removeEventListener('keydown', this.#EscKeyDownHandler);
 
-    document.querySelector('body').classList.remove('hide-overflow');
-    this.#popupComponent.element.remove();
-    this.#popupComponent.removeElement();
+    this.#containerElement.classList.remove('hide-overflow');
+    remove(this.#popupComponent);
     this.#popupComponent = null;
+    this.#filmDetailsComponent = null;
+    this.#commentsComponent = null;
   };
 
-  /** Отрисовывает комментарии
-   * @param {Array} commentsIds массив с идентификаторами комментариев
+  /** Отрисовывает папап фильма
+   * @param {HTMLElement} container контейнер для отрисовки попапа
    */
-  #renderComments = (commentsIds) => {
-    const comments = this.#commentsModel.getCommentsById(commentsIds);
+  #renderPopup = () => {
+    this.#popupComponent = new PopupFilmView(this.#film);
+
+    render(this.#popupComponent, this.#containerElement);
+    this.#containerElement.classList.add('hide-overflow');
+  };
+
+  /** Отрисовывает детали фильма */
+  #renderDetails = () => {
+    const prevDetailsComponent = this.#filmDetailsComponent;
+    this.#filmDetailsComponent = new FilmDetailsView(this.#film);
+
+    if (!prevDetailsComponent) {
+      render(this.#filmDetailsComponent, this.#popupComponent.containerElement);
+    } else {
+      replace(this.#filmDetailsComponent, prevDetailsComponent);
+    }
+
+    this.#popupComponent.setCloseClickHandler(this.#closePopupClickHundler);
+    document.addEventListener('keydown', this.#EscKeyDownHandler);
+  };
+
+  /** Отрисовывает элементы управления */
+  #renderControls = () => {
+    this.#controlsComponent = new FilmControlsView(
+      this.#film.userDetails,
+      TypeControls.DETAILS
+    );
+
+    this.#controlsComponent.setClickHandler(
+      this.#chengeWatchlistHandler,
+      this.#chengeWatchedHandler,
+      this.#chengeFavoriteHandler
+    );
+
+    render(this.#controlsComponent, this.#filmDetailsComponent.element);
+  };
+
+  /** Отрисовывает комментарии */
+  #renderComments = () => {
+    const comments = this.#commentsModel.getCommentsById(this.#film.comments);
+    const prevCommentsComponent = this.#commentsComponent;
+    this.#commentsComponent = new CommentsView(this.#film.comments.length);
+
+    if (!prevCommentsComponent) {
+      render(this.#commentsComponent, this.#popupComponent.element);
+    } else {
+      replace(this.#commentsComponent, prevCommentsComponent);
+    }
 
     comments.forEach((comment) => {
       render(new CommentView(comment), this.#commentsComponent.listElement);
     });
   };
 
-  /** Отрисовывает папап фильма
-   * @param {HTMLElement} container контейнер для отрисовки попапа
-   * @param {Object} film объект с данными о фильме
+  /** Функция обработчика нажатия на esc
+   * @param {Object} evt объект события
    */
-  #renderPopup = (container, film) => {
-    this.#popupComponent = new PopupFilmView(film);
-    this.#filmDetailsComponent = new FilmDetailsView(film);
-    this.#commentsComponent = new CommentsView(film.comments.length);
-    this.#controlsComponent = new FilmControlsView(
-      film.userDetails,
-      TypeControls.DETAILS
-    );
+  #EscKeyDownHandler = (evt) => {
+    evt.preventDefault();
 
-    render(this.#popupComponent, container);
-    render(this.#filmDetailsComponent, this.#popupComponent.containerElement);
-    render(this.#controlsComponent, this.#filmDetailsComponent.element);
-    render(this.#commentsComponent, this.#popupComponent.element);
-    this.#renderComments(film.comments);
+    if (evt.code === 'Escape') {
+      this.#closePopupClickHundler();
+    }
+  };
 
-    container.classList.add('hide-overflow');
+  /** Добавляет фильм в список просмотров и наоборот @callback */
+  #chengeWatchlistHandler = () => {
+    this.#film.userDetails.watchlist = !this.#film.userDetails.watchlist;
+    this.#filmChangeHandler(this.#film);
+  };
 
-    this.#popupComponent.setCloseClickHandler(this.#removePopup);
-    document.addEventListener('keydown', this.#onEscKeyDown);
+  /** Добавляет фильм в просмотренные и наоборот @callback */
+  #chengeWatchedHandler = () => {
+    this.#film.userDetails.alreadyWatched = !this.#film.userDetails.alreadyWatched;
+    this.#filmChangeHandler(this.#film);
+  };
+
+  /** Добавляет фильм в любимые и наоборот @callback */
+  #chengeFavoriteHandler = () => {
+    this.#film.userDetails.favorite = !this.#film.userDetails.favorite;
+    this.#filmChangeHandler(this.#film);
   };
 }

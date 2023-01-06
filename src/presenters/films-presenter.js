@@ -5,8 +5,11 @@ import SortView from './../views/sort-view.js';
 import FilmsView from './../views/films-view.js';
 import PopupPresenter from './popup-presenter.js';
 import ListPresenter from './list-presenter.js';
+import {updateItem} from './../utils/common.js';
 
-/** Главный презентер. Управляет всем приложением и дочерничи презентерами
+/**
+ * Главный презентер. Управляет всеми списками фильмов
+ * ({@link ListPresenter}) и попапом ({@link PopupPresenter})
  * @param {Object} filmsModel модель фильмов
  * @param {Object} commentsModel модель комментариев
 */
@@ -32,7 +35,7 @@ export default class FilmsPresenter {
   /** @type {Object} список фильмов */
   #films = {};
 
-  /** @type {null|number} */
+  /** @type {null|number} id отрисованного в попапе фильма */
   #popupFilmId = null;
 
   constructor(filmsModel, commentsModel) {
@@ -45,25 +48,33 @@ export default class FilmsPresenter {
    */
   init = (rootContainer) => {
     this.#films = [...this.#filmsModel.items];
-    this.#popupPresenter = new PopupPresenter(rootContainer, this.#commentsModel);
+
+    this.#popupPresenter = new PopupPresenter(
+      this.#commentsModel,
+      this.#filmChangeHandler,
+      this.#removePopup
+    );
+
     this.#ListPresenter = {
       ALL: new ListPresenter(
         this.#films,
-        this.#popupPresenter,
         PortionCardCount.MAIN,
-        this.#filmChangeHandler
+        this.#filmChangeHandler,
+        this.#renderPopup
       ),
+
       TOP: new ListPresenter(
         sortTopFilms(this.#films, PortionCardCount.EXTRA),
-        this.#popupPresenter,
         PortionCardCount.EXTRA,
-        this.#filmChangeHandler
+        this.#filmChangeHandler,
+        this.#renderPopup
       ),
+
       COMMENTED: new ListPresenter(
         sortCommentedFilms(this.#films, PortionCardCount.EXTRA),
-        this.#popupPresenter,
         PortionCardCount.EXTRA,
-        this.#filmChangeHandler
+        this.#filmChangeHandler,
+        this.#renderPopup
       )
     };
 
@@ -94,54 +105,82 @@ export default class FilmsPresenter {
     presenter.renderPortionCards();
   };
 
-  #filmChangeHandler = (newFilm) => {
-    this.#ListPresenter.ALL.updateCard(newFilm);
-    this.#ListPresenter.TOP.updateCard(newFilm);
-    this.#ListPresenter.COMMENTED.updateCard(newFilm);
-
-    if (newFilm.id === this.#popupFilmId) {
-      this.#popupPresenter.init(newFilm);
-    }
-  };
-
   /** Отрисовывает главный список фильмов. Сначало с информацией
   загрузке, а потом перерисовывает со стандартным заголовком списка. */
   #renderMainList = () => {
+    let isTitleHidden = false;
+
     if (!this.#films.length) {
       this.#ListPresenter.ALL.init(
         this.#filmsComponent.element,
         ListTitle.LOADING,
         TypeList.MAIN,
-        true
+        isTitleHidden
       );
       return;
     }
+
+    isTitleHidden = true;
 
     this.#universalRenderList(
       this.#ListPresenter.ALL,
       ListTitle.ALL,
       TypeList.MAIN,
-      false
+      isTitleHidden
     );
   };
 
   /** Отрисовывает список "Top rated" */
   #renderTopList = () => {
+    const isTitleHidden = false;
+
     this.#universalRenderList(
       this.#ListPresenter.TOP,
       ListTitle.TOP,
       TypeList.EXTRA,
-      true
+      isTitleHidden
     );
   };
 
   /** Отрисовывает список "Most commented" */
   #renderCommentedList = () => {
+    const isTitleHidden = false;
+
     this.#universalRenderList(
       this.#ListPresenter.COMMENTED,
       ListTitle.COMMENTED,
       TypeList.EXTRA,
-      true
+      isTitleHidden
     );
+  };
+
+  /** Отрисовывает попап фильма
+   * @param {Object} film фильм для отрисовки попапа
+   */
+  #renderPopup = (film) => {
+    this.#popupFilmId = film.id;
+    this.#popupPresenter.init(film);
+  };
+
+  /** Удаляет попап фильма */
+  #removePopup = () => {
+    this.#popupFilmId = null;
+    this.#popupPresenter.destroy();
+  };
+
+  /**
+   * Обновляет данные фильма во всех списках
+   * @param {Object} новые данные фильма
+   */
+  #filmChangeHandler = (newFilm) => {
+    this.#films = updateItem(this.#films, newFilm);
+
+    this.#ListPresenter.ALL.updateFilm(newFilm);
+    this.#ListPresenter.TOP.updateFilm(newFilm);
+    this.#ListPresenter.COMMENTED.updateFilm(newFilm);
+
+    if (this.#popupFilmId === newFilm.id) {
+      this.#renderPopup(newFilm);
+    }
   };
 }

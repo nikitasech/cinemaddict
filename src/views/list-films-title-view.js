@@ -1,7 +1,7 @@
 import AbstractView from './../framework/view/abstract-view.js';
 
 const createListFilmsTitleTemplate = (title, isHidden) => {
-  const listHiddenClassList = !isHidden
+  const listHiddenClassList = isHidden
     ? 'visually-hidden'
     : '';
 

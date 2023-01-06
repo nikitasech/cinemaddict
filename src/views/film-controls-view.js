@@ -1,56 +1,24 @@
 import AbstractView from './../framework/view/abstract-view.js';
+import createDetailsControlsTemplate from './templates/details-controls-template.js';
+import createCardControlsTemplate from './templates/card-controls-template.js';
+import {TypeControls} from './../const.js';
 
-const createControlsTemplate = (
-  {isWatchlist, isWatched, isFavorite}, parent
-) => {
-  let activeClassName = '';
+const activeClassName = new Map([
+  ['card', 'film-card__controls-item--active'],
+  ['details', 'film-details__control-button--active']
+]);
 
-  switch (parent) {
-    case 'card':
-      activeClassName = 'film-card__controls-item--active';
-      break;
-    case 'details':
-      activeClassName = 'film-details__control-button--active';
-      break;
-  }
+const getWatchlistText = (isWatchlist) => isWatchlist
+  ? 'Not to watch'
+  : 'Add to watchlist';
 
-  const watchlistClassName = isWatchlist ? activeClassName : '';
-  const watchedClassName = isWatched ? activeClassName : '';
-  const favoriteClassName = isFavorite ? activeClassName : '';
+const getWatchedText = (isWatched) => isWatched
+  ? 'Haven\'t watched'
+  : 'Mark as watched';
 
-  const watchlistText = isWatchlist
-    ? 'Not to watch'
-    : 'Add to watchlist';
-  const watchedText = isWatched
-    ? 'Haven\'t watched'
-    : 'Mark as watched';
-  const favoriteText = isFavorite
-    ? 'Don\'t favorite'
-    : 'Add to favorites';
-
-  const cardControlsTemplate = (`
-    <div class="film-card__controls">
-      <button class="film-card__controls-item film-card__controls-item--add-to-watchlist ${watchlistClassName}" type="button">${watchlistText}</button>
-      <button class="film-card__controls-item film-card__controls-item--mark-as-watched ${watchedClassName}" type="button">${watchedText}</button>
-      <button class="film-card__controls-item film-card__controls-item--favorite ${favoriteClassName}" type="button">${favoriteText}</button>
-    </div>
-  `);
-
-  const filmDetailsControlsTemplate = (`
-    <section class="film-details__controls">
-      <button type="button" class="film-details__control-button film-details__control-button--watchlist ${watchlistClassName}" id="watchlist" name="watchlist">${watchlistText}</button>
-      <button type="button" class="film-details__control-button film-details__control-button--watched ${watchedClassName}" id="watched" name="watched">${watchedText}</button>
-      <button type="button" class="film-details__control-button film-details__control-button--favorite ${favoriteClassName}" id="favorite" name="favorite">${favoriteText}</button>
-    </section>
-  `);
-
-  switch (parent) {
-    case 'card':
-      return cardControlsTemplate;
-    case 'details':
-      return filmDetailsControlsTemplate;
-  }
-};
+const getFavoriteText = (isFavorite) => isFavorite
+  ? 'Don\'t favorite'
+  : 'Add to favorites';
 
 /**
  * Вью кнопок управления
@@ -61,20 +29,74 @@ export default class FilmControlsView extends AbstractView {
   /** @type {Object} состояние элементов управления */
   #state = {};
 
-  /** @type {string|null} родительский блок */
-  #parent = null;
+  /** @type {string|null} класс активированной кнопки управления */
+  #activeClassName = null;
 
-  constructor(state, rapent = 'card') {
+  /** @type {string|null} родитель жлементов управления */
+  #type = null;
+
+  constructor(state, type) {
     super();
-    this.#parent = rapent;
     this.#state = {
       isWatchlist: state.watchlist,
       isWatched: state.alreadyWatched,
       isFavorite: state.favorite
     };
+
+    for (const value of Object.values(TypeControls)) {
+      if (type === value) {
+        this.#type = type;
+        this.#activeClassName = activeClassName.get(value);
+        return;
+      }
+    }
+
+    throw Error('Incorrect controls type specified');
   }
 
   get template() {
-    return createControlsTemplate(this.#state, this.#parent);
+    const className = {
+      watchlist: this.#state.isWatchlist ? this.#activeClassName : '',
+      watched: this.#state.isWatched ? this.#activeClassName : '',
+      favorite: this.#state.isFavorite ? this.#activeClassName : ''
+    };
+
+    const Text = {
+      watchlist: getWatchlistText(this.#state.isWatchlist),
+      watched: getWatchedText(this.#state.isWatched),
+      favorite: getFavoriteText(this.#state.isFavorite)
+    };
+
+    return (this.#type === TypeControls.DETAILS)
+      ? createDetailsControlsTemplate(className, Text)
+      : createCardControlsTemplate(className, Text);
   }
+
+  #clickHandler = (evt) => {
+    evt.preventDefault();
+
+    const controlClassesString = evt.target.classList.value;
+
+    /* Вы можете меня бить за эту индусскую
+    реализацию, но мне она нравится! */
+    switch (true) {
+      case /watchlist/.test(controlClassesString):
+        this._callback.watchlistClick();
+        break;
+      case /watched/.test(controlClassesString):
+        this._callback.watchedClick();
+        break;
+      case /favorite/.test(controlClassesString):
+        this._callback.favoriteClick();
+        break;
+    }
+  };
+
+  setClickHandler = (watchlistCallback, watchedCallback, favoriteCallback) => {
+    this._callback.watchlistClick = watchlistCallback;
+    this._callback.watchedClick = watchedCallback;
+    this._callback.favoriteClick = favoriteCallback;
+
+    this.element.addEventListener('click', this.#clickHandler);
+  };
 }

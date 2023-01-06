@@ -1,5 +1,4 @@
 import AbstractView from './../framework/view/abstract-view.js';
-import FilmControlsView from './film-controls-view.js';
 import {formatIsoDate, formatRuntime} from './../utils/common.js';
 
 const createFilmCardTemplate = (film) => {
@@ -9,7 +8,6 @@ const createFilmCardTemplate = (film) => {
   const mainGenre = genre[0];
   const countComments = film.comments.length;
   const description = `${film.info.description.slice(0, 139)}…`;
-  const stateControls = film.userDetails;
 
   return (`
     <article class="film-card">
@@ -25,17 +23,16 @@ const createFilmCardTemplate = (film) => {
         <p class="film-card__description">${description}</p>
         <span class="film-card__comments">${countComments} comments</span>
       </a>
-      ${new FilmControlsView(stateControls).template}
     </article>
   `);
 };
 
 /**
- * Вью карточки фильма
+ * Представление карточки фильма
  * @param {Object} film данные фильма
  */
 export default class FilmCardView extends AbstractView {
-  /** @type {Object} данные фильма */
+  /** @type {Object|null} данные фильма */
   #film = {};
 
   constructor(film) {

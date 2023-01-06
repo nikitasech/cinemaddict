@@ -15,6 +15,16 @@ export const ListTitle = {
 };
 
 /**
+ * Перечисление типов элементов управления
+ * @enum {string}
+ * @readonly
+ */
+export const TypeControls = {
+  CARD: 'card',
+  DETAILS: 'details'
+};
+
+/**
  * Перечисление типов списка
  * @enum {string}
  * @readonly
@@ -22,6 +32,16 @@ export const ListTitle = {
 export const TypeList = {
   MAIN: 'main',
   EXTRA: 'extra'
+};
+
+/**
+ * Перечисление количества добавляемых карточек за один шаг
+ * @enum {number}
+ * @readonly
+ */
+export const PortionCardCount = {
+  MAIN: 5,
+  EXTRA: 2
 };
 
 /** @type {Array} массив случайных имен */
@@ -35,6 +55,3 @@ export const names = [
   'Takeshi Kitano',
   'Morgan Freeman'
 ];
-
-/** @type {number} количество добавляемых карточек за один шаг */
-export const PORTION_CARDS_COUNT = 5;

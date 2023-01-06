@@ -1,6 +1,6 @@
 import {FilterType, filter} from './../utils/filter.js';
 
-/** @type {Map<string, Array} карта, сопоставляющая ранг пользователя с количеством просмторенных фильмов */
+/** @type {Map<string, Array>} карта, сопоставляющая ранг пользователя с количеством просмторенных фильмов */
 const RankMap = new Map([
   ['Novice', [1, 10]],
   ['Fan', [11, 20]],

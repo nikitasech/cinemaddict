@@ -1,13 +1,8 @@
 import AbstractView from './../framework/view/abstract-view.js';
-import FilmDetailsView from './film-details-view.js';
-import CommentsView from './comments-view.js';
 
-const createPopupFilmTemplate = (film) => (`
+const createPopupFilmTemplate = () => (`
   <section class="film-details">
-    <div class="film-details__inner">
-      ${new FilmDetailsView(film).template}
-      ${new CommentsView(film.comments.length).template}
-    </div>
+    <div class="film-details__inner"></div>
   </section>
 `);
 
@@ -26,6 +21,14 @@ export default class PopupFilmView extends AbstractView {
 
   get template() {
     return createPopupFilmTemplate(this.#film);
+  }
+
+  /**
+   * Геттер получения контейнера для информации
+   * @returns {HTMLElement} контейнер для информации
+   */
+  get containerElement() {
+    return this.element.querySelector('.film-details__inner');
   }
 
   /**
@@ -48,7 +51,7 @@ export default class PopupFilmView extends AbstractView {
       .addEventListener('click', this.#closeClickHandler);
   };
 
-  /** Удаляет обработчик события с кнопки закрытия закрытия попапа */
+  /** Удаляет обработчик события с кнопки закрытия попапа */
   removeCloseClickHandler = () => {
     this.element
       .querySelector('.film-details__close-btn')

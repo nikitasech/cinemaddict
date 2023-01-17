@@ -35,6 +35,17 @@ export const TypeList = {
 };
 
 /**
+ * Перечисление типов списка
+ * @enum {string}
+ * @readonly
+ */
+export const TypeSort = {
+  DEFAULT: 'default',
+  DATE: 'date',
+  RATING: 'rating'
+};
+
+/**
  * Перечисление количества добавляемых карточек за один шаг
  * @enum {number}
  * @readonly

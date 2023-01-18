@@ -1,6 +1,6 @@
 import {render} from './../framework/render.js';
 import {ListTitle, TypeList, PortionCardCount} from './../const.js';
-import {sortCommentedFilms, sortTopFilms} from './../utils/sort.js';
+import {sortByComments, sortByRating} from './../utils/sort.js';
 import SortView from './../views/sort-view.js';
 import FilmsView from './../views/films-view.js';
 import PopupPresenter from './popup-presenter.js';
@@ -41,12 +41,6 @@ export default class FilmsPresenter {
   constructor(filmsModel, commentsModel) {
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
-  }
-
-  /** Отрисовывает начальное состояние приложения
-   * @param {HTMLElement} filmsContainer контейнер для отрисовки состояния
-   */
-  init = (rootContainer) => {
     this.#films = [...this.#filmsModel.items];
 
     this.#popupPresenter = new PopupPresenter(
@@ -57,28 +51,32 @@ export default class FilmsPresenter {
 
     this.#ListPresenter = {
       ALL: new ListPresenter(
-        this.#films,
+        this.#films.slice(),
         PortionCardCount.MAIN,
         this.#filmChangeHandler,
         this.#renderPopup
       ),
 
       TOP: new ListPresenter(
-        sortTopFilms(this.#films, PortionCardCount.EXTRA),
+        sortByRating(this.#films, PortionCardCount.EXTRA),
         PortionCardCount.EXTRA,
         this.#filmChangeHandler,
         this.#renderPopup
       ),
 
       COMMENTED: new ListPresenter(
-        sortCommentedFilms(this.#films, PortionCardCount.EXTRA),
+        sortByComments(this.#films, PortionCardCount.EXTRA),
         PortionCardCount.EXTRA,
         this.#filmChangeHandler,
         this.#renderPopup
       )
     };
+  }
 
-    this.#renderSort(rootContainer);
+  /** Отрисовывает начальное состояние приложения
+   * @param {HTMLElement} filmsContainer контейнер для отрисовки состояния
+   */
+  init = (rootContainer) => {
     this.#rednerFilmsContainer(rootContainer);
     this.#renderMainList();
 
@@ -88,22 +86,8 @@ export default class FilmsPresenter {
     }
   };
 
-  /** @param {HTMLElement} container контейнер для отрисовки сортировки */
-  #renderSort = (container) => render(this.#sortComponent, container);
-
   /** @param {HTMLElement} container контейнер для отрисовки контейнера фильмов */
   #rednerFilmsContainer = (container) => render(this.#filmsComponent, container);
-
-  /** Универсальный метод для отрисовки списка для фильмов
-   * @param {Object} presenter презентер списка
-   * @param {string} title текст заголовка списка
-   * @param {string} type тип списка
-   */
-  #universalRenderList = (presenter, title, type, isTitleHidden) => {
-    presenter.init(this.#filmsComponent.element, title, type, isTitleHidden);
-    presenter.renderFilmsContainer();
-    presenter.renderPortionCards();
-  };
 
   /** Отрисовывает главный список фильмов. Сначало с информацией
   загрузке, а потом перерисовывает со стандартным заголовком списка. */
@@ -122,8 +106,8 @@ export default class FilmsPresenter {
 
     isTitleHidden = true;
 
-    this.#universalRenderList(
-      this.#ListPresenter.ALL,
+    this.#ListPresenter.ALL.init(
+      this.#filmsComponent.element,
       ListTitle.ALL,
       TypeList.MAIN,
       isTitleHidden
@@ -134,8 +118,8 @@ export default class FilmsPresenter {
   #renderTopList = () => {
     const isTitleHidden = false;
 
-    this.#universalRenderList(
-      this.#ListPresenter.TOP,
+    this.#ListPresenter.TOP.init(
+      this.#filmsComponent.element,
       ListTitle.TOP,
       TypeList.EXTRA,
       isTitleHidden
@@ -146,8 +130,8 @@ export default class FilmsPresenter {
   #renderCommentedList = () => {
     const isTitleHidden = false;
 
-    this.#universalRenderList(
-      this.#ListPresenter.COMMENTED,
+    this.#ListPresenter.COMMENTED.init(
+      this.#filmsComponent.element,
       ListTitle.COMMENTED,
       TypeList.EXTRA,
       isTitleHidden

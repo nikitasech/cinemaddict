@@ -81,8 +81,8 @@ export const updateItem = (items, newItem) => {
   }
 
   return [
-    items.slice(0, index),
+    ...items.slice(0, index),
     newItem,
-    items.slice(index + 1)
+    ...items.slice(index + 1)
   ];
 };

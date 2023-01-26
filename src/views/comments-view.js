@@ -1,5 +1,4 @@
 import AbstractView from './../framework/view/abstract-view.js';
-import FormCommentView from './form-comment-view.js';
 
 const createCommentsTemplate = (commentsCount) => (`
   <div class="film-details__bottom-container">
@@ -8,7 +7,6 @@ const createCommentsTemplate = (commentsCount) => (`
         Comments <span class="film-details__comments-count">${commentsCount}</span>
       </h3>
       <ul class="film-details__comments-list"></ul>
-      ${new FormCommentView().template}
     </section>
   </div>
 `);

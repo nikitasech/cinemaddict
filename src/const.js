@@ -66,3 +66,6 @@ export const names = [
   'Takeshi Kitano',
   'Morgan Freeman'
 ];
+
+/** @type {Array} массив смайликов */
+export const emojies = ['smile', 'sleeping', 'puke', 'angry'];

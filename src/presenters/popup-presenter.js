@@ -1,10 +1,11 @@
 import {TypeControls} from './../const.js';
-import {remove, render, replace} from './../framework/render.js';
+import {remove, render, RenderPosition, replace} from './../framework/render.js';
 import PopupFilmView from './../views/popup-film-view.js';
 import CommentView from './../views/comment-view.js';
 import FilmControlsView from './../views/film-controls-view.js';
 import FilmDetailsView from './../views/film-details-view.js';
 import CommentsView from './../views/comments-view.js';
+import FormCommentView from '../views/form-comment-view.js';
 
 /**
  * Дочерний презентер {@link FilmsPresenter},
@@ -127,6 +128,8 @@ export default class PopupPresenter {
       replace(this.#commentsComponent, prevCommentsComponent);
     }
 
+    render(new FormCommentView(), this.#commentsComponent.listElement, RenderPosition.AFTEREND);
+
     comments.forEach((comment) => {
       render(new CommentView(comment), this.#commentsComponent.listElement);
     });
@@ -136,9 +139,8 @@ export default class PopupPresenter {
    * @param {Object} evt объект события
    */
   #EscKeyDownHandler = (evt) => {
-    evt.preventDefault();
-
     if (evt.code === 'Escape') {
+      evt.preventDefault();
       this.#closePopupClickHundler();
     }
   };

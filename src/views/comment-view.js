@@ -1,10 +1,10 @@
 import AbstractView from './../framework/view/abstract-view.js';
-import {formatIsoDate} from './../utils/common.js';
+import {dateFromNow} from './../utils/common.js';
 
 const createCommentTemplate = (comment) => {
   const {emotion, author} = comment;
   const text = comment.comment;
-  const date = formatIsoDate(comment.date, 'YYYY/MM/DD HH:mm');
+  const date = dateFromNow(comment.date);
 
   return (`
     <li class="film-details__comment">

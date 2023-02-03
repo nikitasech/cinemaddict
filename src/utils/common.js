@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime.js';
 
 /**
  * Функция из интернета по генерации случайного числа из диапазона.
@@ -37,6 +38,16 @@ export const shuffleArray = (array) => {
  * @returns {string} дата по шаблону
  */
 export const formatIsoDate = (date, template) => dayjs(date).format(template);
+
+/**
+ *
+ * @param {string} date дата в формате ISO 8601
+ * @returns {string} дата в формате "2 минуты назад"
+ */
+export const dateFromNow = (date) => {
+  dayjs.extend(relativeTime);
+  return dayjs(date).fromNow();
+};
 
 /**
  * @param {number} runtime время в минутах

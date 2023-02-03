@@ -39,6 +39,9 @@ const createFormCommentTemplate = (data) => {
   `);
 };
 
+/** Форма комментария с состоянием
+ * @param {Object} comment состояние комментария
+ */
 export default class FormCommentView extends AbstractStatefulView {
   constructor(comment = COMMENT_BLANK) {
     super();

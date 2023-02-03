@@ -1,5 +1,4 @@
-/**
- * Перечисление заголовков списка
+/** Перечисление заголовков списка
  * @enum {string}
  * @readonly
  */
@@ -14,8 +13,7 @@ export const ListTitle = {
   NO_FAVORITES: 'There are no favorite movies now'
 };
 
-/**
- * Перечисление типов элементов управления
+/** Перечисление типов элементов управления
  * @enum {string}
  * @readonly
  */
@@ -24,8 +22,7 @@ export const TypeControls = {
   DETAILS: 'details'
 };
 
-/**
- * Перечисление типов списка
+/** Перечисление типов списка
  * @enum {string}
  * @readonly
  */
@@ -34,8 +31,7 @@ export const TypeList = {
   EXTRA: 'extra'
 };
 
-/**
- * Перечисление типов списка
+/** Перечисление типов списка
  * @enum {string}
  * @readonly
  */
@@ -45,8 +41,7 @@ export const TypeSort = {
   RATING: 'rating'
 };
 
-/**
- * Перечисление количества добавляемых карточек за один шаг
+/** Перечисление количества добавляемых карточек за один шаг
  * @enum {number}
  * @readonly
  */
@@ -67,5 +62,5 @@ export const names = [
   'Morgan Freeman'
 ];
 
-/** @type {Array} массив смайликов */
+/** @type {Array} массив смайликов @readonly */
 export const emojies = ['smile', 'sleeping', 'puke', 'angry'];

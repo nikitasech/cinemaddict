@@ -1,17 +1,23 @@
+import Observable from '../framework/observable.js';
 import {generateComment} from '../mock/comment.js';
 
 /** Модель комментариев. */
-export default class CommentsModel {
-  #comments = Array.from({length: 74}, generateComment);
+export default class CommentsModel extends Observable {
+  #items = Array.from({length: 74}, generateComment);
 
-  get comments() {
-    return this.#comments;
+  get items() {
+    return this.#items;
   }
 
-  /**
-   * @param {array} ids Массив с id нужных комментариев.
-   * @returns {array} Массив с найденными по id комментариями.
-   */
-  getCommentsById = (ids) => ids.map((id) => this.#comments
-    .find((comment) => id === comment.id));
+  addItem = (newItem) => {
+    this.#items.push(newItem);
+
+    // this._notify();
+  };
+
+  removeItem = (deletedItem) => {
+    delete this.#items[this.#items.indexOf((item) => item.id === deletedItem.id)];
+
+    // this._notify();
+  };
 }

@@ -1,11 +1,10 @@
 import {render} from './../framework/render.js';
-import {ListTitle, TypeList, PortionCardCount} from './../const.js';
-import {sortByComments, sortByRating} from './../utils/sort.js';
-import SortView from './../views/sort-view.js';
+import {ListTitle, TypeList, TypeSort, NameList} from './../const.js';
+import {sortByDate, sortByComments, sortByRating} from './../utils/sort.js';
 import FilmsView from './../views/films-view.js';
 import PopupPresenter from './popup-presenter.js';
 import ListPresenter from './list-presenter.js';
-import {updateItem} from './../utils/common.js';
+import {ListConfig} from '../configs.js';
 
 /**
  * Главный презентер. Управляет всеми списками фильмов
@@ -29,49 +28,62 @@ export default class FilmsPresenter {
   /** @type {Object|null} представление корневого контейнера для фильмов */
   #filmsComponent = new FilmsView();
 
-  /** @type {Object|null} представление сортировки */
-  #sortComponent = new SortView();
-
-  /** @type {Object} список фильмов */
-  #films = {};
-
   /** @type {null|number} id отрисованного в попапе фильма */
   #popupFilmId = null;
 
   constructor(filmsModel, commentsModel) {
     this.#filmsModel = filmsModel;
     this.#commentsModel = commentsModel;
-    this.#films = [...this.#filmsModel.items];
 
     this.#popupPresenter = new PopupPresenter(
-      this.#commentsModel,
+      this.#getComments,
       this.#filmChangeHandler,
       this.#removePopup
     );
 
     this.#ListPresenter = {
       ALL: new ListPresenter(
-        this.#films.slice(),
-        PortionCardCount.MAIN,
+        ListConfig[NameList.MAIN],
+        this.#getFilms,
         this.#filmChangeHandler,
         this.#renderPopup
       ),
 
       TOP: new ListPresenter(
-        sortByRating(this.#films, PortionCardCount.EXTRA),
-        PortionCardCount.EXTRA,
+        ListConfig[NameList.TOP],
+        this.#getFilms,
         this.#filmChangeHandler,
         this.#renderPopup
       ),
 
       COMMENTED: new ListPresenter(
-        sortByComments(this.#films, PortionCardCount.EXTRA),
-        PortionCardCount.EXTRA,
+        ListConfig[NameList.COMMENTED],
+        this.#getFilms,
         this.#filmChangeHandler,
         this.#renderPopup
       )
     };
   }
+
+  #getFilms = (typeSort, countFilms) => {
+    switch (typeSort) {
+      case TypeSort.DATE:
+        return sortByDate(this.#filmsModel.items, countFilms);
+      case TypeSort.RATING:
+        return sortByRating(this.#filmsModel.items, countFilms);
+      case TypeList.COMMENTED:
+        return sortByComments(this.#filmsModel.items, countFilms);
+      default:
+        return this.#filmsModel.items.slice();
+    }
+  };
+
+  /**
+   * @param {array} ids массив с id нужных комментариев
+   * @returns {array} массив с найденными по id комментариями
+   */
+  #getComments = (ids) => ids.map((id) => this.#commentsModel.items
+    .find((comment) => id === comment.id));
 
   /** Отрисовывает начальное состояние приложения
    * @param {HTMLElement} filmsContainer контейнер для отрисовки состояния
@@ -80,7 +92,7 @@ export default class FilmsPresenter {
     this.#rednerFilmsContainer(rootContainer);
     this.#renderMainList();
 
-    if (this.#films.length) {
+    if (this.#filmsModel.items.length) {
       this.#renderTopList();
       this.#renderCommentedList();
     }
@@ -94,11 +106,10 @@ export default class FilmsPresenter {
   #renderMainList = () => {
     let isTitleHidden = false;
 
-    if (!this.#films.length) {
+    if (!this.#filmsModel.items.length) {
       this.#ListPresenter.ALL.init(
         this.#filmsComponent.element,
         ListTitle.LOADING,
-        TypeList.MAIN,
         isTitleHidden
       );
       return;
@@ -109,7 +120,6 @@ export default class FilmsPresenter {
     this.#ListPresenter.ALL.init(
       this.#filmsComponent.element,
       ListTitle.ALL,
-      TypeList.MAIN,
       isTitleHidden
     );
   };
@@ -121,7 +131,6 @@ export default class FilmsPresenter {
     this.#ListPresenter.TOP.init(
       this.#filmsComponent.element,
       ListTitle.TOP,
-      TypeList.EXTRA,
       isTitleHidden
     );
   };
@@ -133,7 +142,6 @@ export default class FilmsPresenter {
     this.#ListPresenter.COMMENTED.init(
       this.#filmsComponent.element,
       ListTitle.COMMENTED,
-      TypeList.EXTRA,
       isTitleHidden
     );
   };
@@ -157,7 +165,7 @@ export default class FilmsPresenter {
    * @param {Object} новые данные фильма
    */
   #filmChangeHandler = (newFilm) => {
-    this.#films = updateItem(this.#films, newFilm);
+    this.#filmsModel.updateItem(newFilm);
 
     this.#ListPresenter.ALL.updateFilm(newFilm);
     this.#ListPresenter.TOP.updateFilm(newFilm);

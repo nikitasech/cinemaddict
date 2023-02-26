@@ -78,22 +78,3 @@ export const capitalizeFirstLetter = (string) => (
  */
 export const splitNumberToClasses = (number) => number.toLocaleString();
 
-/**
- * Находит в массиве элемент по id и заменяет его на новый
- * @param {Array} items массив для замены
- * @param {Object} newItem новый элемент массива
- * @returns {Array} массив с обновленным элементом
- */
-export const updateItem = (items, newItem) => {
-  const index = items.findIndex((item) => item.id === newItem.id);
-
-  if (index === -1) {
-    return items;
-  }
-
-  return [
-    ...items.slice(0, index),
-    newItem,
-    ...items.slice(index + 1)
-  ];
-};

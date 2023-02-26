@@ -1,7 +1,7 @@
 import AbstractView from './../framework/view/abstract-view.js';
 import createDetailsControlsTemplate from './templates/details-controls-template.js';
 import createCardControlsTemplate from './templates/card-controls-template.js';
-import {TypeControls} from './../const.js';
+import {TypeControls, ControlName} from './../const.js';
 
 const activeClassName = new Map([
   ['card', 'film-card__controls-item--active'],
@@ -77,25 +77,15 @@ export default class FilmControlsView extends AbstractView {
 
     const controlClassesString = evt.target.classList.value;
 
-    /* Вы можете меня бить за эту индусскую
-    реализацию, но мне она нравится! */
-    switch (true) {
-      case /watchlist/.test(controlClassesString):
-        this._callback.watchlistClick();
-        break;
-      case /watched/.test(controlClassesString):
-        this._callback.watchedClick();
-        break;
-      case /favorite/.test(controlClassesString):
-        this._callback.favoriteClick();
-        break;
-    }
+    Object.values(ControlName).forEach((value) => {
+      if (controlClassesString.indexOf(value) !== -1) {
+        this._callback.clickHandler(value);
+      }
+    });
   };
 
-  setClickHandler = (watchlistCallback, watchedCallback, favoriteCallback) => {
-    this._callback.watchlistClick = watchlistCallback;
-    this._callback.watchedClick = watchedCallback;
-    this._callback.favoriteClick = favoriteCallback;
+  setClickHandler = (clickHandler) => {
+    this._callback.clickHandler = clickHandler;
 
     this.element.addEventListener('click', this.#clickHandler);
   };

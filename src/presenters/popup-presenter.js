@@ -19,7 +19,7 @@ export default class PopupPresenter {
   #containerElement = document.body;
 
   /** @type {Object|null} модель комментариев */
-  #commentsModel = null;
+  #getComments = null;
 
   /** @type {Object|null} представление всплывающего окна */
   #popupComponent = null;
@@ -42,8 +42,8 @@ export default class PopupPresenter {
   /** @type {Function|null} функция закрытия попапа */
   #closePopupClickHundler = null;
 
-  constructor(commentsModel, filmChangeHandler, closePopupClickHundler) {
-    this.#commentsModel = commentsModel;
+  constructor(getComments, filmChangeHandler, closePopupClickHundler) {
+    this.#getComments = getComments;
     this.#filmChangeHandler = filmChangeHandler;
     this.#closePopupClickHundler = closePopupClickHundler;
   }
@@ -118,7 +118,7 @@ export default class PopupPresenter {
 
   /** Отрисовывает комментарии */
   #renderComments = () => {
-    const comments = this.#commentsModel.getCommentsById(this.#film.comments);
+    const comments = this.#getComments(this.#film.comments);
     const prevCommentsComponent = this.#commentsComponent;
     this.#commentsComponent = new CommentsView(this.#film.comments.length);
 

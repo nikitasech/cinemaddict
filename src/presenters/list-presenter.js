@@ -4,9 +4,7 @@ import ButtonMoreView from './../views/load-more-button-view.js';
 import FilmsContainerView from './../views/films-container-view.js';
 import ListFilmsView from './../views/list-films-view.js';
 import ListFilmsTitleView from './../views/list-films-title-view.js';
-import {updateItem} from './../utils/common.js';
-import {sortByDate, sortByRating} from '../utils/sort.js';
-import {TypeList, TypeSort} from '../const.js';
+import {TypeList} from '../const.js';
 import SortView from '../views/sort-view.js';
 
 /**
@@ -40,17 +38,17 @@ export default class ListPresenter {
   /** @type {Object|null} представление кнопки "Load More" */
   #loadMoreButtonComponent = null;
 
-  /** @type {Object|null} список фильмов */
-  #films = null;
 
-  /** @type {Object|null} список отсортированных фильмов */
-  #sortedFilms = null;
+  #config = {};
 
   /** @type {number} количество отрисованных карточек */
   #renderedCardCount = 0;
 
-  /** @type {Object|null} количество карточек за одну порцию */
-  #portionCardCount = null;
+  /** @type {number} количество имеющийся фильмов */
+  #filmsLength = 0;
+
+  /** @type {Function|null} функция возвращающая список фильмов */
+  #getFilms = null;
 
   /** @type {Function|null} Функция обновления данных фильма */
   #filmChangeHandler = null;
@@ -58,10 +56,9 @@ export default class ListPresenter {
   /** @type {Function|null} Функция отрисовки попапа */
   #openPopupHandler = null;
 
-  constructor(films, portionCardsCount, filmChangeHandler, openPopupHandler) {
-    this.#films = films;
-    this.#sortedFilms = films;
-    this.#portionCardCount = portionCardsCount;
+  constructor(listConfig, getFilms, filmChangeHandler, openPopupHandler) {
+    this.#config = listConfig;
+    this.#getFilms = getFilms;
     this.#filmChangeHandler = filmChangeHandler;
     this.#openPopupHandler = openPopupHandler;
   }
@@ -72,19 +69,22 @@ export default class ListPresenter {
    * @param {string} title текст заголовка списка
    * @param {Boolean} isTitleHidden нужно ли скрыть заголовок
    */
-  init = (container, title, typeList, isTitleHidden) => {
-    this.#containerElement = container;
+  init = (container, title, isTitleHidden) => {
+    const films = this.#getFilms(this.#config.SORT);
 
-    this.#renderList(typeList);
+    this.#containerElement = container;
+    this.#filmsLength = films.length;
+
+    this.#renderList(this.#config.TYPE);
     this.#renderTitle(title, isTitleHidden);
 
-    if (this.#films) {
+    if (films) {
       this.renderFilmsContainer();
       this.#renderPortionCards();
     }
 
-    if (typeList === TypeList.MAIN && this.#films) {
-      this.#renderSort(TypeSort.DEFAULT);
+    if (this.#config.TYPE === TypeList.MAIN && films) {
+      this.#renderSort();
     }
   };
 
@@ -92,9 +92,6 @@ export default class ListPresenter {
    * @param {Object} newFilm обновленный объект фильма
    */
   updateFilm = (newFilm) => {
-    this.#films = updateItem(this.#films, newFilm);
-    this.#sortedFilms = updateItem(this.#sortedFilms, newFilm);
-
     const cardPresenter = this.#cardPresenter.get(newFilm.id);
 
     if (cardPresenter) {
@@ -102,10 +99,8 @@ export default class ListPresenter {
     }
   };
 
-  /** Отрисовывает сортировку
-   * @param {string} тип сортировки
-   */
-  #renderSort = (typeSort) => {
+  /** Отрисовывает сортировку */
+  #renderSort = (typeSort = this.#config.SORT) => {
     const prevSortComponent = this.#sortComponent;
     this.#sortComponent = new SortView(typeSort);
 
@@ -168,58 +163,47 @@ export default class ListPresenter {
 
   /**
    * Отрисовывает несколько карточек от и до отпределенного номера
-   * @param {number} from от какого фильма по счету
-   * @param {number} to до какого фильма
+   * @param {} films
    */
-  #renderCards = (from, to) => {
-    this.#sortedFilms.slice(from, to).forEach((film) => {
+  #renderCards = (films) => {
+    films.forEach((film) => {
       this.#rednerCard(film);
     });
-
-    this.#renderedCardCount = to;
   };
 
   /** Отрисовывает новую порцию карточек и кнопку,
   если есть ещё карточки которые нужно отрисовать */
   #renderPortionCards = () => {
+    const films = this.#getFilms(this.#config.SORT);
     const first = this.#renderedCardCount;
-    const last = Math.min(first + this.#portionCardCount, this.#sortedFilms.length);
+    const last = Math.min(first + this.#config.PORTION_CARDS, this.#filmsLength);
+    this.#renderedCardCount = last;
 
-    this.#renderCards(first, last);
-    this.#renderLoadMoreButton();
+    this.#renderCards(films.slice(first, last));
+
+    if (this.#config.TYPE === TypeList.MAIN) {
+      this.#renderLoadMoreButton();
+    }
   };
 
   /** Добавляет рабочую кнопку Load more в список всех фильмов */
   #renderLoadMoreButton = () => {
-    if (this.#loadMoreButtonComponent && this.#renderedCardCount >= this.#sortedFilms.length) {
+    if (this.#loadMoreButtonComponent && this.#renderedCardCount >= this.#filmsLength) {
       this.#loadMoreButtonComponent.element.remove();
       this.#loadMoreButtonComponent = null;
-    } else if (!this.#loadMoreButtonComponent && this.#renderedCardCount !== this.#sortedFilms.length) {
+    } else if (!this.#loadMoreButtonComponent && this.#renderedCardCount !== this.#filmsLength) {
       this.#loadMoreButtonComponent = new ButtonMoreView();
       render(this.#loadMoreButtonComponent, this.#listComponent.element);
       this.#loadMoreButtonComponent.setClickHandler(this.#renderPortionCards);
     }
   };
 
-  /** Сортирует список фильмов в соответсвии с переданным типом
-   * @param {string} typeSort тип сортировки
-   */
   #sortFilms = (typeSort) => {
-    switch (typeSort) {
-      case TypeSort.DATE:
-        this.#sortedFilms = sortByDate(this.#films, this.#films.length);
-        break;
-      case TypeSort.RATING:
-        this.#sortedFilms = sortByRating(this.#films, this.#films.length);
-        break;
-      default:
-        this.#sortedFilms = this.#films.slice();
-        break;
-    }
+    const films = this.#getFilms(typeSort).slice(0, this.#config.PORTION_CARDS);
 
     this.#cardPresenter.clear();
     this.renderFilmsContainer();
     this.#renderSort(typeSort);
-    this.#renderCards(0, this.#renderedCardCount);
+    this.#renderCards(films);
   };
 }

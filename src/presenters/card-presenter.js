@@ -1,4 +1,4 @@
-import {TypeControls} from './../const.js';
+import {TypeControls, ControlName} from './../const.js';
 import {render, replace} from './../framework/render.js';
 import FilmCardView from './../views/film-card-view.js';
 import FilmControlsView from './../views/film-controls-view.js';
@@ -34,59 +34,54 @@ export default class CardPresenter {
    * @param {Object} film объект с данными о фильме
    */
   init = (container, film) => {
-    if (!this.#film) {
-      this.#film = film;
-      this.#renderCard(container);
-    }
-
-    this.#renderControls();
+    this.#film = film;
+    this.#renderCard(container);
   };
 
   /** Отрисовывает новую карточку в контейнер
    * @param {HTMLElement} container контейнер для карточки
    */
   #renderCard = (container) => {
+    const prevCardComponent = this.#cardComponent;
     this.#cardComponent = new FilmCardView(this.#film);
-    render(this.#cardComponent, container);
+
+    if (!prevCardComponent) {
+      render(this.#cardComponent, container);
+    } else {
+      replace(this.#cardComponent, prevCardComponent);
+    }
+
+    this.#renderControls();
     this.#cardComponent.setClickHandler(this.#renderPopup);
   };
 
   /** Отрисовывает элементы управления в карточке */
   #renderControls = () => {
-    const prevControlsComponent = this.#controlsComponent;
     this.#controlsComponent = new FilmControlsView(
       this.#film.userDetails,
       TypeControls.CARD
     );
 
-    if (!prevControlsComponent) {
-      render(this.#controlsComponent, this.#cardComponent.element);
-    } else {
-      replace(this.#controlsComponent, prevControlsComponent);
+    render(this.#controlsComponent, this.#cardComponent.element);
+
+    this.#controlsComponent.setClickHandler(this.#changeControlHandler);
+  };
+
+  #changeControlHandler = (controlName) => {
+    const newFilm = structuredClone(this.#film);
+
+    switch (controlName) {
+      case ControlName.WATCHLIST:
+        newFilm.userDetails.watchlist = !newFilm.userDetails.watchlist;
+        break;
+      case ControlName.WATCHED:
+        newFilm.userDetails.alreadyWatched = !newFilm.userDetails.alreadyWatched;
+        break;
+      case ControlName.FAVORITE:
+        newFilm.userDetails.favorite = !newFilm.userDetails.favorite;
+        break;
     }
 
-    this.#controlsComponent.setClickHandler(
-      this.#chengeWatchlistHandler,
-      this.#chengeWatchedHandler,
-      this.#chengeFavoriteHandler
-    );
-  };
-
-  /** Добавляет фильм в список просмотров и наоборот @callback */
-  #chengeWatchlistHandler = () => {
-    this.#film.userDetails.watchlist = !this.#film.userDetails.watchlist;
-    this.#filmChangeHandler(this.#film);
-  };
-
-  /** Добавляет фильм в просмотренные и наоборот @callback */
-  #chengeWatchedHandler = () => {
-    this.#film.userDetails.alreadyWatched = !this.#film.userDetails.alreadyWatched;
-    this.#filmChangeHandler(this.#film);
-  };
-
-  /** Добавляет фильм в любимые и наоборот @callback */
-  #chengeFavoriteHandler = () => {
-    this.#film.userDetails.favorite = !this.#film.userDetails.favorite;
-    this.#filmChangeHandler(this.#film);
+    this.#filmChangeHandler(newFilm);
   };
 }

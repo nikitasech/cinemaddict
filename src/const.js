@@ -15,11 +15,17 @@ export const ListTitle = {
 
 /** Перечисление типов элементов управления
  * @enum {string}
- * @readonly
+ * @readonly #TODO исправить на TypeControl!!!
  */
 export const TypeControls = {
   CARD: 'card',
   DETAILS: 'details'
+};
+
+export const ControlName = {
+  WATCHLIST: 'watchlist',
+  WATCHED: 'watched',
+  FAVORITE: 'favorite'
 };
 
 /** Перечисление типов списка
@@ -31,6 +37,16 @@ export const TypeList = {
   EXTRA: 'extra'
 };
 
+/** Перечисление имен списка
+ * @enum {string}
+ * @readonly
+ */
+export const NameList = {
+  MAIN: 'main',
+  TOP: 'top',
+  COMMENTED: 'commented'
+};
+
 /** Перечисление типов списка
  * @enum {string}
  * @readonly
@@ -38,16 +54,8 @@ export const TypeList = {
 export const TypeSort = {
   DEFAULT: 'default',
   DATE: 'date',
-  RATING: 'rating'
-};
-
-/** Перечисление количества добавляемых карточек за один шаг
- * @enum {number}
- * @readonly
- */
-export const PortionCardCount = {
-  MAIN: 5,
-  EXTRA: 2
+  RATING: 'rating',
+  COMMENTED: 'commented'
 };
 
 /** @type {Array} массив случайных имен */

@@ -51,15 +51,15 @@ export default class ListPresenter {
   #getFilms = null;
 
   /** @type {Function|null} Функция обновления данных фильма */
-  #filmChangeHandler = null;
+  #viewActionHandler = null;
 
   /** @type {Function|null} Функция отрисовки попапа */
   #openPopupHandler = null;
 
-  constructor(listConfig, getFilms, filmChangeHandler, openPopupHandler) {
+  constructor(listConfig, getFilms, viewActionHandler, openPopupHandler) {
     this.#config = listConfig;
     this.#getFilms = getFilms;
-    this.#filmChangeHandler = filmChangeHandler;
+    this.#viewActionHandler = viewActionHandler;
     this.#openPopupHandler = openPopupHandler;
   }
 
@@ -153,7 +153,7 @@ export default class ListPresenter {
    */
   #rednerCard = (film) => {
     const cardPresenter = new CardPresenter(
-      this.#filmChangeHandler,
+      this.#viewActionHandler,
       this.#openPopupHandler
     );
 

@@ -76,11 +76,9 @@ export default class FilmControlsView extends AbstractView {
     evt.preventDefault();
 
     const controlClassesString = evt.target.classList.value;
-    console.log(controlClassesString);
 
     Object.values(ControlName).forEach((value) => {
       if (controlClassesString.indexOf(value) !== -1) {
-        console.log(value);
         this._callback.clickHandler(value);
       }
     });

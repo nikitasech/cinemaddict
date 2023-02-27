@@ -1,5 +1,5 @@
 import {render} from './../framework/render.js';
-import {ListTitle, TypeList, TypeSort, NameList} from './../const.js';
+import {ListTitle, TypeList, TypeSort, NameList, TypeAction, TypeUpdate} from './../const.js';
 import {sortByDate, sortByComments, sortByRating} from './../utils/sort.js';
 import FilmsView from './../views/films-view.js';
 import PopupPresenter from './popup-presenter.js';
@@ -37,7 +37,7 @@ export default class FilmsPresenter {
 
     this.#popupPresenter = new PopupPresenter(
       this.#getComments,
-      this.#filmChangeHandler,
+      this.#viewActionHandler,
       this.#removePopup
     );
 
@@ -45,25 +45,43 @@ export default class FilmsPresenter {
       ALL: new ListPresenter(
         ListConfig[NameList.MAIN],
         this.#getFilms,
-        this.#filmChangeHandler,
+        this.#viewActionHandler,
         this.#renderPopup
       ),
 
       TOP: new ListPresenter(
         ListConfig[NameList.TOP],
         this.#getFilms,
-        this.#filmChangeHandler,
+        this.#viewActionHandler,
         this.#renderPopup
       ),
 
       COMMENTED: new ListPresenter(
         ListConfig[NameList.COMMENTED],
         this.#getFilms,
-        this.#filmChangeHandler,
+        this.#viewActionHandler,
         this.#renderPopup
       )
     };
+
+    this.#filmsModel.addObserver(this.#modelEventHandler);
   }
+
+  #viewActionHandler = (typeAction, typeUpdate, payload) => {
+    switch(typeAction) {
+      case TypeAction.UPDATE_FILM:
+        this.#filmsModel.updateItem(typeUpdate, payload);
+        break;
+    }
+  };
+
+  #modelEventHandler = (typeUpdate, payload) => {
+    switch(typeUpdate) {
+      case TypeUpdate.PATCH:
+        this.#updateFilm(payload);
+        break;
+    }
+  };
 
   #getFilms = (typeSort, countFilms) => {
     switch (typeSort) {
@@ -164,9 +182,7 @@ export default class FilmsPresenter {
    * Обновляет данные фильма во всех списках
    * @param {Object} новые данные фильма
    */
-  #filmChangeHandler = (newFilm) => {
-    this.#filmsModel.updateItem(newFilm);
-
+  #updateFilm = (newFilm) => {
     this.#ListPresenter.ALL.updateFilm(newFilm);
     this.#ListPresenter.TOP.updateFilm(newFilm);
     this.#ListPresenter.COMMENTED.updateFilm(newFilm);

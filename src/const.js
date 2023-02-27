@@ -70,5 +70,13 @@ export const names = [
   'Morgan Freeman'
 ];
 
+export const TypeAction = {
+  UPDATE_FILM: 'update-film'
+};
+
+export const TypeUpdate = {
+  PATCH: 'PATCH'
+};
+
 /** @type {Array} массив смайликов @readonly */
 export const emojies = ['smile', 'sleeping', 'puke', 'angry'];

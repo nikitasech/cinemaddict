@@ -12,7 +12,7 @@ export default class FilmsModel extends Observable {
    * Находит в массиве элемент по id и заменяет его на новый
    * @param {Object} newItem новый элемент массива
    */
-  updateItem = (newItem) => {
+  updateItem = (typeUpdate, newItem) => {
     const index = this.#items.findIndex((item) => item.id === newItem.id);
 
     if (index !== -1) {
@@ -22,7 +22,7 @@ export default class FilmsModel extends Observable {
         ...this.#items.slice(index + 1)
       ];
 
-      // this._notify(); В будущем добавится подписочная система наблюдателя
+      this._notify(typeUpdate, newItem);
     }
   };
 }

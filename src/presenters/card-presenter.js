@@ -1,4 +1,4 @@
-import {TypeControls, ControlName} from './../const.js';
+import {TypeControls, ControlName, TypeAction, TypeUpdate} from './../const.js';
 import {render, replace} from './../framework/render.js';
 import FilmCardView from './../views/film-card-view.js';
 import FilmControlsView from './../views/film-controls-view.js';
@@ -19,13 +19,13 @@ export default class CardPresenter {
   #controlsComponent = null;
 
   /** @type {Function|null} функция изменения данных фильма */
-  #filmChangeHandler = null;
+  #viewActionHandler = null;
 
   /** @type {Function|null} функция отрисовки попапа */
   #renderPopup = null;
 
-  constructor(filmChangeHandler, renderPopup) {
-    this.#filmChangeHandler = filmChangeHandler;
+  constructor(viewActionHandler, renderPopup) {
+    this.#viewActionHandler = viewActionHandler;
     this.#renderPopup = renderPopup;
   }
 
@@ -82,6 +82,6 @@ export default class CardPresenter {
         break;
     }
 
-    this.#filmChangeHandler(newFilm);
+    this.#viewActionHandler(TypeAction.UPDATE_FILM, TypeUpdate.PATCH, newFilm);
   };
 }

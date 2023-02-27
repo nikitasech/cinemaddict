@@ -1,4 +1,4 @@
-import {ControlName, TypeControls} from './../const.js';
+import {ControlName, TypeAction, TypeControls, TypeUpdate} from './../const.js';
 import {remove, render, RenderPosition, replace} from './../framework/render.js';
 import PopupFilmView from './../views/popup-film-view.js';
 import CommentView from './../views/comment-view.js';
@@ -37,14 +37,14 @@ export default class PopupPresenter {
   #film = null;
 
   /** @type {Function|null} функция изменнеия данных фильма */
-  #filmChangeHandler = null;
+  #viewActionHandler = null;
 
   /** @type {Function|null} функция закрытия попапа */
   #closePopupClickHundler = null;
 
-  constructor(getComments, filmChangeHandler, closePopupClickHundler) {
+  constructor(getComments, viewActionHandler, closePopupClickHundler) {
     this.#getComments = getComments;
-    this.#filmChangeHandler = filmChangeHandler;
+    this.#viewActionHandler = viewActionHandler;
     this.#closePopupClickHundler = closePopupClickHundler;
   }
 
@@ -156,6 +156,6 @@ export default class PopupPresenter {
         break;
     }
 
-    this.#filmChangeHandler(newFilm);
+    this.#viewActionHandler(TypeAction.UPDATE_FILM, TypeUpdate.PATCH, newFilm);
   };
 }

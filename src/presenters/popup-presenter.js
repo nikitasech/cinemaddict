@@ -1,4 +1,4 @@
-import {TypeControls} from './../const.js';
+import {ControlName, TypeControls} from './../const.js';
 import {remove, render, RenderPosition, replace} from './../framework/render.js';
 import PopupFilmView from './../views/popup-film-view.js';
 import CommentView from './../views/comment-view.js';
@@ -107,11 +107,7 @@ export default class PopupPresenter {
       TypeControls.DETAILS
     );
 
-    this.#controlsComponent.setClickHandler(
-      this.#chengeWatchlistHandler,
-      this.#chengeWatchedHandler,
-      this.#chengeFavoriteHandler
-    );
+    this.#controlsComponent.setClickHandler(this.#changeControlHandler);
 
     render(this.#controlsComponent, this.#filmDetailsComponent.element);
   };
@@ -145,21 +141,21 @@ export default class PopupPresenter {
     }
   };
 
-  /** Добавляет фильм в список просмотров и наоборот @callback */
-  #chengeWatchlistHandler = () => {
-    this.#film.userDetails.watchlist = !this.#film.userDetails.watchlist;
-    this.#filmChangeHandler(this.#film);
-  };
+  #changeControlHandler = (controlName) => {
+    const newFilm = structuredClone(this.#film);
 
-  /** Добавляет фильм в просмотренные и наоборот @callback */
-  #chengeWatchedHandler = () => {
-    this.#film.userDetails.alreadyWatched = !this.#film.userDetails.alreadyWatched;
-    this.#filmChangeHandler(this.#film);
-  };
+    switch (controlName) {
+      case ControlName.WATCHLIST:
+        newFilm.userDetails.watchlist = !newFilm.userDetails.watchlist;
+        break;
+      case ControlName.WATCHED:
+        newFilm.userDetails.alreadyWatched = !newFilm.userDetails.alreadyWatched;
+        break;
+      case ControlName.FAVORITE:
+        newFilm.userDetails.favorite = !newFilm.userDetails.favorite;
+        break;
+    }
 
-  /** Добавляет фильм в любимые и наоборот @callback */
-  #chengeFavoriteHandler = () => {
-    this.#film.userDetails.favorite = !this.#film.userDetails.favorite;
-    this.#filmChangeHandler(this.#film);
+    this.#filmChangeHandler(newFilm);
   };
 }

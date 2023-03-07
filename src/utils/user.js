@@ -1,4 +1,5 @@
-import {FilterType, filter} from './../utils/filter.js';
+import { FilterType } from '../const.js';
+import {filter} from './../utils/filter.js';
 
 /** @type {Map<string, Array>} карта, сопоставляющая ранг пользователя с количеством просмторенных фильмов */
 const RankMap = new Map([

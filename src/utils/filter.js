@@ -1,8 +1,4 @@
-export const FilterType = {
-  WATCHLIST: 'watchlist',
-  HISTORY: 'history',
-  FAVORITE: 'favorite',
-};
+import {FilterType} from '../const.js';
 
 export const filter = {
   [FilterType.WATCHLIST]: (films) => films.filter((film) => film.userDetails.watchlist),

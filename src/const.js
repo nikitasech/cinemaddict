@@ -15,7 +15,7 @@ export const ListTitle = {
 
 /** Перечисление типов элементов управления
  * @enum {string}
- * @readonly #TODO исправить на TypeControl!!!
+ * @readonly
  */
 export const TypeControls = {
   CARD: 'card',
@@ -25,6 +25,12 @@ export const TypeControls = {
 export const ControlName = {
   WATCHLIST: 'watchlist',
   WATCHED: 'watched',
+  FAVORITE: 'favorite'
+};
+
+export const FilterType = {
+  WATCHLIST: 'watchlist',
+  HISTORY: 'history',
   FAVORITE: 'favorite'
 };
 

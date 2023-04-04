@@ -22,18 +22,12 @@ export default class FiltersModel extends Observable {
 
     Object.keys(this.#items).forEach((typeFilter) => {
       const filmIndex = this.#items[typeFilter]
-        .findIndex((film) => film.id === newFilm.id);
+        .findIndex((film) => film === newFilm.id);
 
       if (filmIndex !== -1 && !isFiltersNewFilm[typeFilter]) {
         this.#items[typeFilter].splice(filmIndex, 1);
-      } else if (filmIndex !== -1 && isFiltersNewFilm[typeFilter]) {
-        this.#items[typeFilter] = [
-          ...this.#items[typeFilter].slice(0, filmIndex),
-          newFilm,
-          ...this.#items[typeFilter].slice(filmIndex + 1)
-        ];
       } else if (filmIndex === -1 && isFiltersNewFilm[typeFilter]) {
-        this.#items[typeFilter].push(newFilm);
+        this.#items[typeFilter].push(newFilm.id);
       }
     });
 
@@ -46,7 +40,15 @@ export default class FiltersModel extends Observable {
     [FilterType.FAVORITE]: this.#getFavorite(films),
   });
 
-  #getWatchlist = (films) => films.filter((film) => film.userDetails.watchlist);
-  #getWatched = (films) => films.filter((film) => film.userDetails.alreadyWatched);
-  #getFavorite = (films) => films.filter((film) => film.userDetails.favorite);
+  #getWatchlist = (films) => films
+    .filter((film) => film.userDetails.watchlist)
+    .map((film) => film.id);
+
+  #getWatched = (films) => films
+    .filter((film) => film.userDetails.alreadyWatched)
+    .map((film) => film.id);
+
+  #getFavorite = (films) => films
+    .filter((film) => film.userDetails.favorite)
+    .map((film) => film.id);
 }

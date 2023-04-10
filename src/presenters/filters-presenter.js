@@ -1,4 +1,4 @@
-import { TypeUpdate } from '../const';
+import { FilterType, TypeAction, TypeUpdate } from '../const';
 import { render, replace } from '../framework/render';
 import FiltersView from '../views/filters-view';
 
@@ -18,23 +18,27 @@ export default class FiltersPresenter {
   }
 
   init = (container) => {
+    const defaultActiveFilter = FilterType.ALL;
     this.#container = container;
+
+    this.#render(defaultActiveFilter);
+  };
+
+  #render = (activeFilter) => {
     const filters = Object
       .entries(this.#filtersModel.items)
       .map(([name, films]) => ({name, count: films.length}));
 
-    this.#render(filters);
-  };
-
-  #render = (filters) => {
     const prevFiltersComponent = this.#filtersComponent;
-    this.#filtersComponent = new FiltersView(filters);
+    this.#filtersComponent = new FiltersView(filters, activeFilter);
 
     if (!prevFiltersComponent) {
       render(this.#filtersComponent, this.#container);
     } else {
       replace(this.#filtersComponent, prevFiltersComponent);
     }
+
+    this.#filtersComponent.setClickHandler(this.#viewActionHandler);
   };
 
   #filmsModelEventHandler = (typeUpdate, payload) => {
@@ -45,15 +49,19 @@ export default class FiltersPresenter {
     }
   };
 
-  #filtersModelEventHandler = (typeUpdate) => {
+  #filtersModelEventHandler = (typeUpdate, payload) => {
     switch (typeUpdate) {
-      case TypeUpdate.PATCH:
-        this.init(this.#container);
+      case TypeUpdate.MINOR:
+        this.#render(payload);
         break;
     }
   };
 
-  // #viewActionHandler = (typeAction, typeUpdate, payload) => {
-
-  // };
+  #viewActionHandler = (typeAction, typeUpdate, payload) => {
+    switch (typeAction) {
+      case TypeAction.UPDATE_FILTER:
+        this.#filtersModel.changeActiveItem(typeUpdate, payload);
+        break;
+    }
+  };
 }

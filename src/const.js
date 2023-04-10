@@ -29,6 +29,7 @@ export const ControlName = {
 };
 
 export const FilterType = {
+  ALL: 'all',
   WATCHLIST: 'watchlist',
   HISTORY: 'history',
   FAVORITE: 'favorite'
@@ -77,11 +78,13 @@ export const names = [
 ];
 
 export const TypeAction = {
-  UPDATE_FILM: 'update-film'
+  UPDATE_FILM: 'update-film',
+  UPDATE_FILTER: 'update-filter'
 };
 
 export const TypeUpdate = {
-  PATCH: 'PATCH'
+  PATCH: 'PATCH',
+  MINOR: 'MINOR'
 };
 
 /** @type {Array} массив смайликов @readonly */

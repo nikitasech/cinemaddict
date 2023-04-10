@@ -34,6 +34,10 @@ export default class FiltersModel extends Observable {
     this._notify(typeUpdate, this.#items);
   };
 
+  changeActiveItem = (typeUpdate, newActiveItem) => {
+    this._notify(typeUpdate, newActiveItem);
+  };
+
   #getFilters = (films) => ({
     [FilterType.WATCHLIST]: this.#getWatchlist(films),
     [FilterType.HISTORY]: this.#getWatched(films),

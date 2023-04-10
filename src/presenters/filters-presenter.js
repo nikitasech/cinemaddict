@@ -18,13 +18,13 @@ export default class FiltersPresenter {
   }
 
   init = (container) => {
-    const defaultActiveFilter = FilterType.ALL;
     this.#container = container;
 
-    this.#render(defaultActiveFilter);
+    this.#render(this.#filtersModel.activeItem);
   };
 
-  #render = (activeFilter) => {
+  #render = () => {
+    const activeFilter = this.#filtersModel.activeItem;
     const filters = Object
       .entries(this.#filtersModel.items)
       .map(([name, films]) => ({name, count: films.length}));
@@ -49,10 +49,13 @@ export default class FiltersPresenter {
     }
   };
 
-  #filtersModelEventHandler = (typeUpdate, payload) => {
+  #filtersModelEventHandler = (typeUpdate) => {
     switch (typeUpdate) {
+      case TypeUpdate.PATCH:
+        this.#render();
+        break;
       case TypeUpdate.MINOR:
-        this.#render(payload);
+        this.#render();
         break;
     }
   };

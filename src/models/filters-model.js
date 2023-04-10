@@ -1,12 +1,19 @@
 import { FilterType } from '../const';
 import Observable from '../framework/observable.js';
 
+const defaultActiveFilter = FilterType.ALL;
+
 export default class FiltersModel extends Observable {
+  #activeItem = defaultActiveFilter;
   #items = null;
 
   constructor(films) {
     super();
     this.#items = this.#getFilters(films);
+  }
+
+  get activeItem() {
+    return this.#activeItem;
   }
 
   get items() {
@@ -31,11 +38,12 @@ export default class FiltersModel extends Observable {
       }
     });
 
-    this._notify(typeUpdate, this.#items);
+    this._notify(typeUpdate, this.#activeItem);
   };
 
   changeActiveItem = (typeUpdate, newActiveItem) => {
-    this._notify(typeUpdate, newActiveItem);
+    this.#activeItem = newActiveItem;
+    this._notify(typeUpdate, this.#activeItem);
   };
 
   #getFilters = (films) => ({

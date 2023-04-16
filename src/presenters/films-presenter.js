@@ -1,10 +1,9 @@
 import {render} from './../framework/render.js';
-import {ListTitle, TypeList, TypeSort, NameList, TypeAction, TypeUpdate} from './../const.js';
+import {TypeSort, NameList, TypeAction, TypeUpdate, FilterType} from './../const.js';
 import {sortByDate, sortByComments, sortByRating} from './../utils/sort.js';
 import FilmsView from './../views/films-view.js';
 import PopupPresenter from './popup-presenter.js';
 import ListPresenter from './list-presenter.js';
-import {ListConfig} from '../configs.js';
 
 /**
  * Главный презентер. Управляет всеми списками фильмов
@@ -15,6 +14,9 @@ import {ListConfig} from '../configs.js';
 export default class FilmsPresenter {
   /** @type {Object|null} модель фильмов */
   #filmsModel = null;
+
+  /** @type {Object|null} модель фильтров */
+  #filtersModel = null;
 
   /** @type {Object|null} модель комментариев */
   #commentsModel = null;
@@ -31,8 +33,9 @@ export default class FilmsPresenter {
   /** @type {null|number} id отрисованного в попапе фильма */
   #popupFilmId = null;
 
-  constructor(filmsModel, commentsModel) {
+  constructor(filmsModel, filtersModel, commentsModel) {
     this.#filmsModel = filmsModel;
+    this.#filtersModel = filtersModel;
     this.#commentsModel = commentsModel;
 
     this.#popupPresenter = new PopupPresenter(
@@ -43,28 +46,26 @@ export default class FilmsPresenter {
 
     this.#ListPresenter = {
       ALL: new ListPresenter(
-        ListConfig[NameList.MAIN],
-        this.#getFilms,
+        this.#filmsComponent.element,
         this.#viewActionHandler,
         this.#renderPopup
       ),
 
       TOP: new ListPresenter(
-        ListConfig[NameList.TOP],
-        this.#getFilms,
+        this.#filmsComponent.element,
         this.#viewActionHandler,
         this.#renderPopup
       ),
 
       COMMENTED: new ListPresenter(
-        ListConfig[NameList.COMMENTED],
-        this.#getFilms,
+        this.#filmsComponent.element,
         this.#viewActionHandler,
         this.#renderPopup
       )
     };
 
     this.#filmsModel.addObserver(this.#modelEventHandler);
+    this.#filtersModel.addObserver(this.#modelEventHandler);
   }
 
   #viewActionHandler = (typeAction, typeUpdate, payload) => {
@@ -80,19 +81,29 @@ export default class FilmsPresenter {
       case TypeUpdate.PATCH:
         this.#updateFilm(payload);
         break;
+      case TypeUpdate.MINOR:
+        this.#ListPresenter.ALL.init(payload);
     }
   };
 
   #getFilms = (typeSort, countFilms) => {
+    const activeFilter = this.#filtersModel.activeItem;
+
+    const films = (activeFilter === FilterType.ALL)
+      ? this.#filmsModel.items
+      : this.#filmsModel.items
+        .filter((film) => this.#filtersModel
+          .items[activeFilter].includes(film.id));
+
     switch (typeSort) {
       case TypeSort.DATE:
-        return sortByDate(this.#filmsModel.items, countFilms);
+        return sortByDate(films, countFilms);
       case TypeSort.RATING:
-        return sortByRating(this.#filmsModel.items, countFilms);
-      case TypeList.COMMENTED:
-        return sortByComments(this.#filmsModel.items, countFilms);
+        return sortByRating(films, countFilms);
+      case NameList.COMMENTED:
+        return sortByComments(films, countFilms);
       default:
-        return this.#filmsModel.items.slice();
+        return films;
     }
   };
 
@@ -122,46 +133,20 @@ export default class FilmsPresenter {
   /** Отрисовывает главный список фильмов. Сначало с информацией
   загрузке, а потом перерисовывает со стандартным заголовком списка. */
   #renderMainList = () => {
-    let isTitleHidden = false;
-
-    if (!this.#filmsModel.items.length) {
-      this.#ListPresenter.ALL.init(
-        this.#filmsComponent.element,
-        ListTitle.LOADING,
-        isTitleHidden
-      );
-      return;
-    }
-
-    isTitleHidden = true;
-
-    this.#ListPresenter.ALL.init(
-      this.#filmsComponent.element,
-      ListTitle.ALL,
-      isTitleHidden
-    );
+    this.#ListPresenter.ALL
+      .init(NameList.MAIN, this.#getFilms, TypeSort.DEFAULT);
   };
 
   /** Отрисовывает список "Top rated" */
   #renderTopList = () => {
-    const isTitleHidden = false;
-
-    this.#ListPresenter.TOP.init(
-      this.#filmsComponent.element,
-      ListTitle.TOP,
-      isTitleHidden
-    );
+    this.#ListPresenter.TOP
+      .init(NameList.TOP, this.#getFilms, TypeSort.RATING);
   };
 
   /** Отрисовывает список "Most commented" */
   #renderCommentedList = () => {
-    const isTitleHidden = false;
-
-    this.#ListPresenter.COMMENTED.init(
-      this.#filmsComponent.element,
-      ListTitle.COMMENTED,
-      isTitleHidden
-    );
+    this.#ListPresenter.COMMENTED
+      .init(NameList.COMMENTED, this.#getFilms, TypeSort.COMMENTED);
   };
 
   /** Отрисовывает попап фильма

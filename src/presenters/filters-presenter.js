@@ -1,4 +1,4 @@
-import { FilterType, TypeAction, TypeUpdate } from '../const';
+import { TypeAction, TypeUpdate } from '../const';
 import { render, replace } from '../framework/render';
 import FiltersView from '../views/filters-view';
 
@@ -20,7 +20,7 @@ export default class FiltersPresenter {
   init = (container) => {
     this.#container = container;
 
-    this.#render(this.#filtersModel.activeItem);
+    this.#render();
   };
 
   #render = () => {

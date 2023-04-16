@@ -4,7 +4,7 @@ import ButtonMoreView from './../views/load-more-button-view.js';
 import FilmsContainerView from './../views/films-container-view.js';
 import ListFilmsView from './../views/list-films-view.js';
 import ListFilmsTitleView from './../views/list-films-title-view.js';
-import {TypeList} from '../const.js';
+import {ListTitle, NameList, NoFilmsListTitle, TypeList, typeListMap, TypeSort} from '../const.js';
 import SortView from '../views/sort-view.js';
 
 /**
@@ -38,8 +38,14 @@ export default class ListPresenter {
   /** @type {Object|null} представление кнопки "Load More" */
   #loadMoreButtonComponent = null;
 
+  /** @type {string} тип списка */
+  #type = TypeList.MAIN;
 
-  #config = {};
+  /** @type {string} тип сортировки */
+  #typeSort = TypeSort.DEFAULT;
+
+  /** @type {number} количество карточек за одну отрисовку */
+  #portionCards = 5;
 
   /** @type {number} количество отрисованных карточек */
   #renderedCardCount = 0;
@@ -56,9 +62,8 @@ export default class ListPresenter {
   /** @type {Function|null} Функция отрисовки попапа */
   #openPopupHandler = null;
 
-  constructor(listConfig, getFilms, viewActionHandler, openPopupHandler) {
-    this.#config = listConfig;
-    this.#getFilms = getFilms;
+  constructor(container, viewActionHandler, openPopupHandler) {
+    this.#containerElement = container;
     this.#viewActionHandler = viewActionHandler;
     this.#openPopupHandler = openPopupHandler;
   }
@@ -69,22 +74,37 @@ export default class ListPresenter {
    * @param {string} title текст заголовка списка
    * @param {Boolean} isTitleHidden нужно ли скрыть заголовок
    */
-  init = (container, title, isTitleHidden) => {
-    const films = this.#getFilms(this.#config.SORT);
+  init = (nameList, getFilms = this.#getFilms) => {
+    const isMainList = typeListMap[nameList] === NameList.MAIN;
 
-    this.#containerElement = container;
-    this.#filmsLength = films.length;
+    this.#type = typeListMap[nameList];
+    this.#getFilms = getFilms;
 
-    this.#renderList(this.#config.TYPE);
-    this.#renderTitle(title, isTitleHidden);
+    this.#loadMoreButtonComponent = null;
+    this.#renderedCardCount = 0;
+    this.#portionCards = (this.#type === NameList.MAIN)
+      ? 5 : 2;
 
-    if (films) {
-      this.renderFilmsContainer();
-      this.#renderPortionCards();
+    if (!this.#getFilms) {
+      throw Error('Missing function getFilms');
     }
 
-    if (this.#config.TYPE === TypeList.MAIN && films) {
+    const films = this.#getFilms(this.#typeSort);
+    this.#filmsLength = films.length;
+
+    this.#cardPresenter.clear();
+    this.#renderList(this.#type);
+
+    if (isMainList) {
       this.#renderSort();
+    }
+
+    if (films.length) {
+      this.#renderTitle(ListTitle[nameList], isMainList);
+      this.renderFilmsContainer();
+      this.#renderPortionCards(films);
+    } else if (isMainList) {
+      this.#renderTitle(NoFilmsListTitle[nameList], isMainList);
     }
   };
 
@@ -100,7 +120,7 @@ export default class ListPresenter {
   };
 
   /** Отрисовывает сортировку */
-  #renderSort = (typeSort = this.#config.SORT) => {
+  #renderSort = (typeSort = this.#typeSort) => {
     const prevSortComponent = this.#sortComponent;
     this.#sortComponent = new SortView(typeSort);
 
@@ -120,10 +140,10 @@ export default class ListPresenter {
     const prevListComponent = this.#listComponent;
     this.#listComponent = new ListFilmsView(typeList);
 
-    if (prevListComponent) {
-      replace(this.#listComponent, prevListComponent);
-    } else {
+    if (!prevListComponent) {
       render(this.#listComponent, this.#containerElement);
+    } else {
+      replace(this.#listComponent, prevListComponent);
     }
   };
 
@@ -138,14 +158,8 @@ export default class ListPresenter {
 
   /** Отрисовывает контейнер для фильмов в списке */
   renderFilmsContainer = () => {
-    const prevFilmsContainerComponent = this.#filmsContainerComponent;
     this.#filmsContainerComponent = new FilmsContainerView();
-
-    if (!prevFilmsContainerComponent) {
-      render(this.#filmsContainerComponent, this.#listComponent.element);
-    } else {
-      replace(this.#filmsContainerComponent, prevFilmsContainerComponent);
-    }
+    render(this.#filmsContainerComponent, this.#listComponent.element);
   };
 
   /** Отрисовыает карточку с списке фильмов
@@ -161,6 +175,11 @@ export default class ListPresenter {
     cardPresenter.init(this.#filmsContainerComponent.element, film);
   };
 
+  #removeCard = (filmId) => {
+    this.cardPresenter.get(filmId).remove();
+    this.cardPresenter.delete(filmId);
+  };
+
   /**
    * Отрисовывает несколько карточек от и до отпределенного номера
    * @param {} films
@@ -171,27 +190,37 @@ export default class ListPresenter {
     });
   };
 
+  #removeCards = () => {
+    for (const cardPresenter of this.#cardPresenter.values()) {
+      cardPresenter.remove();
+    }
+
+    this.#cardPresenter.clear();
+  };
+
   /** Отрисовывает новую порцию карточек и кнопку,
   если есть ещё карточки которые нужно отрисовать */
   #renderPortionCards = () => {
-    const films = this.#getFilms(this.#config.SORT);
+    const films = this.#getFilms(this.#typeSort);
     const first = this.#renderedCardCount;
-    const last = Math.min(first + this.#config.PORTION_CARDS, this.#filmsLength);
+    const last = Math.min(first + this.#portionCards, this.#filmsLength);
     this.#renderedCardCount = last;
 
     this.#renderCards(films.slice(first, last));
 
-    if (this.#config.TYPE === TypeList.MAIN) {
+    if (this.#type === TypeList.MAIN) {
       this.#renderLoadMoreButton();
     }
   };
 
   /** Добавляет рабочую кнопку Load more в список всех фильмов */
   #renderLoadMoreButton = () => {
-    if (this.#loadMoreButtonComponent && this.#renderedCardCount >= this.#filmsLength) {
-      this.#loadMoreButtonComponent.element.remove();
+    const component = this.#loadMoreButtonComponent;
+
+    if (component && this.#renderedCardCount >= this.#filmsLength) {
+      component.element.remove();
       this.#loadMoreButtonComponent = null;
-    } else if (!this.#loadMoreButtonComponent && this.#renderedCardCount !== this.#filmsLength) {
+    } else if (!component && this.#renderedCardCount !== this.#filmsLength) {
       this.#loadMoreButtonComponent = new ButtonMoreView();
       render(this.#loadMoreButtonComponent, this.#listComponent.element);
       this.#loadMoreButtonComponent.setClickHandler(this.#renderPortionCards);
@@ -199,11 +228,11 @@ export default class ListPresenter {
   };
 
   #sortFilms = (typeSort) => {
-    const films = this.#getFilms(typeSort).slice(0, this.#config.PORTION_CARDS);
+    this.#typeSort = typeSort;
+    this.#renderedCardCount = 0;
 
-    this.#cardPresenter.clear();
-    this.renderFilmsContainer();
+    this.#removeCards();
     this.#renderSort(typeSort);
-    this.#renderCards(films);
+    this.#renderPortionCards();
   };
 }

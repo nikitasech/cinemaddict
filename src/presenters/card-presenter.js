@@ -1,5 +1,5 @@
 import {TypeControls, ControlName, TypeAction, TypeUpdate} from './../const.js';
-import {render, replace} from './../framework/render.js';
+import {remove, render, replace} from './../framework/render.js';
 import FilmCardView from './../views/film-card-view.js';
 import FilmControlsView from './../views/film-controls-view.js';
 
@@ -36,6 +36,10 @@ export default class CardPresenter {
   init = (container, film) => {
     this.#film = film;
     this.#renderCard(container);
+  };
+
+  remove = () => {
+    remove(this.#cardComponent);
   };
 
   /** Отрисовывает новую карточку в контейнер

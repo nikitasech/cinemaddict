@@ -17,7 +17,7 @@ const siteStatisticsElement = document.querySelector('.footer__statistics');
 const filmsModel = new FilmsModel();
 const commentsModel = new CommentsModel();
 const filtersModel = new FiltersModel(filmsModel.items);
-const filmsPresenter = new FilmsPresenter(filmsModel, commentsModel);
+const filmsPresenter = new FilmsPresenter(filmsModel, filtersModel, commentsModel);
 const filtersPresenter = new FiltersPresenter(filmsModel, filtersModel);
 
 const profileRating = getUserRank(filmsModel.items);

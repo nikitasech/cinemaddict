@@ -4,13 +4,23 @@
  */
 export const ListTitle = {
   LOADING: 'Loading...',
-  ALL: 'All movies. Upcoming',
-  TOP: 'Top rated',
-  COMMENTED: 'Most commented',
-  NO_FILMS: 'There are no movies in our database',
-  NO_WATCHLIST: 'There are no movies to watch now',
-  NO_HISTIRY: 'There are no watched movies now',
-  NO_FAVORITES: 'There are no favorite movies now'
+  'all': 'All movies. Upcoming',
+  'watchlist': 'Watchlist movies. Upcoming',
+  'history': 'History movies. Upcoming',
+  'favorite': 'Favorite movies. Upcoming',
+  'rating': 'Top rated',
+  'commented': 'Most commented'
+};
+
+/** Перечисление заголовков списка при отсутсвии фильмов
+ * @enum {string}
+ * @readonly
+ */
+export const NoFilmsListTitle = {
+  'main': 'There are no movies in our database',
+  'watchlist': 'There are no movies to watch now',
+  'history': 'There are no watched movies now',
+  'favorite': 'There are no favorite movies now'
 };
 
 /** Перечисление типов элементов управления
@@ -40,8 +50,17 @@ export const FilterType = {
  * @readonly
  */
 export const TypeList = {
-  MAIN: 'main',
+  MAIN: 'all',
   EXTRA: 'extra'
+};
+
+export const typeListMap = {
+  'all': TypeList.MAIN,
+  'watchlist': TypeList.MAIN,
+  'history': TypeList.MAIN,
+  'favorite': TypeList.MAIN,
+  'rating': TypeList.EXTRA,
+  'commented': TypeList.EXTRA
 };
 
 /** Перечисление имен списка
@@ -49,9 +68,12 @@ export const TypeList = {
  * @readonly
  */
 export const NameList = {
-  MAIN: 'main',
-  TOP: 'top',
-  COMMENTED: 'commented'
+  MAIN: 'all',
+  TOP: 'rating',
+  COMMENTED: 'commented',
+  WATCHLIST: 'watchlist',
+  HISTORY: 'history',
+  FAVORITE: 'favorite'
 };
 
 /** Перечисление типов списка

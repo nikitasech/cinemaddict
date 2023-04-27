@@ -134,19 +134,19 @@ export default class FilmsPresenter {
   загрузке, а потом перерисовывает со стандартным заголовком списка. */
   #renderMainList = () => {
     this.#ListPresenter.ALL
-      .init(NameList.MAIN, this.#getFilms, TypeSort.DEFAULT);
+      .init(NameList.MAIN, this.#getFilms);
   };
 
   /** Отрисовывает список "Top rated" */
   #renderTopList = () => {
     this.#ListPresenter.TOP
-      .init(NameList.TOP, this.#getFilms, TypeSort.RATING);
+      .init(NameList.RATING, this.#getFilms);
   };
 
   /** Отрисовывает список "Most commented" */
   #renderCommentedList = () => {
     this.#ListPresenter.COMMENTED
-      .init(NameList.COMMENTED, this.#getFilms, TypeSort.COMMENTED);
+      .init(NameList.COMMENTED, this.#getFilms);
   };
 
   /** Отрисовывает попап фильма

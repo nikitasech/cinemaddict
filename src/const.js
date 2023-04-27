@@ -3,7 +3,6 @@
  * @readonly
  */
 export const ListTitle = {
-  LOADING: 'Loading...',
   'all': 'All movies. Upcoming',
   'watchlist': 'Watchlist movies. Upcoming',
   'history': 'History movies. Upcoming',
@@ -17,6 +16,7 @@ export const ListTitle = {
  * @readonly
  */
 export const NoFilmsListTitle = {
+  'loading': 'Loading...',
   'main': 'There are no movies in our database',
   'watchlist': 'There are no movies to watch now',
   'history': 'There are no watched movies now',
@@ -69,7 +69,7 @@ export const typeListMap = {
  */
 export const NameList = {
   MAIN: 'all',
-  TOP: 'rating',
+  RATING: 'rating',
   COMMENTED: 'commented',
   WATCHLIST: 'watchlist',
   HISTORY: 'history',

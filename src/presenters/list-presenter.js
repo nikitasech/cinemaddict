@@ -9,12 +9,10 @@ import SortView from '../views/sort-view.js';
 
 /**
  * Дочерний презентер {@link FilmsPresenter}, управляющий
- * списком фильмов и карточками фильмов ({@link CardPresenter})
- * @param {Object} films список фильмов
- * @param {number} portionCardsCount количество карточек, отображающихся за один раз
- * @param {Function} функция обновления данных фильма
- * @param {Function} функция отрисовки попапа
- * @param {Object|null} sortComponent представление сортировки (по умолчанию его нет)
+ * списком фильмов и презентерами карточек фильмов ({@link CardPresenter})
+ * @param {HTMLElement} container контейнер для отрисовки для списка
+ * @param {Function} viewActionHandler функция обновления данных фильма
+ * @param {Function} openPopupHandler функция отрисовки попапа
  */
 export default class ListPresenter {
   /** @type {HTMLElement|null} контейнер для списков фильмов */
@@ -68,25 +66,21 @@ export default class ListPresenter {
     this.#openPopupHandler = openPopupHandler;
   }
 
-  /** Инициализирует новый список без фильмов, с указанным заголовком
-   * @param {HTMLElement} container контейнер для отрисовки списка
-   * @param {string} type тип списка
-   * @param {string} title текст заголовка списка
-   * @param {Boolean} isTitleHidden нужно ли скрыть заголовок
+  /** Инициализирует новый список
+   * @param {string} nameList имя списка
+   * @param {Function} getFilms функция возвращающая список фильмов
    */
-  init = (nameList, getFilms = this.#getFilms) => {
+  init = (nameList, getFilms) => {
     const isMainList = typeListMap[nameList] === NameList.MAIN;
 
     this.#type = typeListMap[nameList];
     this.#getFilms = getFilms;
-
     this.#loadMoreButtonComponent = null;
     this.#renderedCardCount = 0;
-    this.#portionCards = (this.#type === NameList.MAIN)
-      ? 5 : 2;
+    this.#portionCards = (this.#type === NameList.MAIN) ? 5 : 2;
 
-    if (!this.#getFilms) {
-      throw Error('Missing function getFilms');
+    if (nameList === NameList.RATING || nameList === NameList.COMMENTED) {
+      this.#typeSort = nameList;
     }
 
     const films = this.#getFilms(this.#typeSort);
@@ -101,15 +95,15 @@ export default class ListPresenter {
 
     if (films.length) {
       this.#renderTitle(ListTitle[nameList], isMainList);
-      this.renderFilmsContainer();
+      this.#renderFilmsContainer();
       this.#renderPortionCards(films);
     } else if (isMainList) {
       this.#renderTitle(NoFilmsListTitle[nameList], isMainList);
     }
   };
 
-  /** Обновляет фильмы в списке
-   * @param {Object} newFilm обновленный объект фильма
+  /** Обновляет фильм в списке
+   * @param {Object} newFilm обновленный фильм
    */
   updateFilm = (newFilm) => {
     const cardPresenter = this.#cardPresenter.get(newFilm.id);
@@ -120,9 +114,9 @@ export default class ListPresenter {
   };
 
   /** Отрисовывает сортировку */
-  #renderSort = (typeSort = this.#typeSort) => {
+  #renderSort = () => {
     const prevSortComponent = this.#sortComponent;
-    this.#sortComponent = new SortView(typeSort);
+    this.#sortComponent = new SortView(this.#typeSort);
 
     if (!prevSortComponent) {
       render(this.#sortComponent, this.#containerElement, RenderPosition.BEFOREBEGIN);
@@ -157,7 +151,7 @@ export default class ListPresenter {
   };
 
   /** Отрисовывает контейнер для фильмов в списке */
-  renderFilmsContainer = () => {
+  #renderFilmsContainer = () => {
     this.#filmsContainerComponent = new FilmsContainerView();
     render(this.#filmsContainerComponent, this.#listComponent.element);
   };
@@ -165,7 +159,7 @@ export default class ListPresenter {
   /** Отрисовыает карточку с списке фильмов
    * @param {Object} film данные фильма
    */
-  #rednerCard = (film) => {
+  #renderCard = (film) => {
     const cardPresenter = new CardPresenter(
       this.#viewActionHandler,
       this.#openPopupHandler
@@ -180,16 +174,16 @@ export default class ListPresenter {
     this.cardPresenter.delete(filmId);
   };
 
-  /**
-   * Отрисовывает несколько карточек от и до отпределенного номера
-   * @param {} films
+  /** Отрисовывает карточки фильмов
+   * @param {Array} films массив фильмов
    */
   #renderCards = (films) => {
     films.forEach((film) => {
-      this.#rednerCard(film);
+      this.#renderCard(film);
     });
   };
 
+  /** Очищает список карточек */
   #removeCards = () => {
     for (const cardPresenter of this.#cardPresenter.values()) {
       cardPresenter.remove();
@@ -232,7 +226,7 @@ export default class ListPresenter {
     this.#renderedCardCount = 0;
 
     this.#removeCards();
-    this.#renderSort(typeSort);
+    this.#renderSort();
     this.#renderPortionCards();
   };
 }

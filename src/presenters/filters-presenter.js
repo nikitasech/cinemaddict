@@ -60,10 +60,10 @@ export default class FiltersPresenter {
     }
   };
 
-  #viewActionHandler = (typeAction, typeUpdate, payload) => {
+  #viewActionHandler = (typeAction, payload) => {
     switch (typeAction) {
       case TypeAction.UPDATE_FILTER:
-        this.#filtersModel.changeActiveItem(typeUpdate, payload);
+        this.#filtersModel.activeItem = payload;
         break;
     }
   };

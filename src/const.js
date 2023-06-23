@@ -17,7 +17,7 @@ export const ListTitle = {
  */
 export const NoFilmsListTitle = {
   'loading': 'Loading...',
-  'main': 'There are no movies in our database',
+  'all': 'There are no movies in our database',
   'watchlist': 'There are no movies to watch now',
   'history': 'There are no watched movies now',
   'favorite': 'There are no favorite movies now'
@@ -54,28 +54,6 @@ export const TypeList = {
   EXTRA: 'extra'
 };
 
-export const typeListMap = {
-  'all': TypeList.MAIN,
-  'watchlist': TypeList.MAIN,
-  'history': TypeList.MAIN,
-  'favorite': TypeList.MAIN,
-  'rating': TypeList.EXTRA,
-  'commented': TypeList.EXTRA
-};
-
-/** Перечисление имен списка
- * @enum {string}
- * @readonly
- */
-export const NameList = {
-  MAIN: 'all',
-  RATING: 'rating',
-  COMMENTED: 'commented',
-  WATCHLIST: 'watchlist',
-  HISTORY: 'history',
-  FAVORITE: 'favorite'
-};
-
 /** Перечисление типов списка
  * @enum {string}
  * @readonly
@@ -101,7 +79,8 @@ export const names = [
 
 export const TypeAction = {
   UPDATE_FILM: 'update-film',
-  UPDATE_FILTER: 'update-filter'
+  UPDATE_FILTER: 'update-filter',
+  SORT: 'sort'
 };
 
 export const TypeUpdate = {

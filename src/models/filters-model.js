@@ -1,4 +1,4 @@
-import { FilterType } from '../const';
+import { FilterType, TypeUpdate } from '../const.js';
 import Observable from '../framework/observable.js';
 
 const defaultActiveFilter = FilterType.ALL;
@@ -14,6 +14,15 @@ export default class FiltersModel extends Observable {
 
   get activeItem() {
     return this.#activeItem;
+  }
+
+  set activeItem(newActiveItem) {
+    if (newActiveItem === this.#activeItem) {
+      return;
+    }
+
+    this.#activeItem = newActiveItem;
+    this._notify(TypeUpdate.MINOR, this.#activeItem);
   }
 
   get items() {
@@ -41,26 +50,20 @@ export default class FiltersModel extends Observable {
     this._notify(typeUpdate, this.#activeItem);
   };
 
-  changeActiveItem = (typeUpdate, newActiveItem) => {
-    this.#activeItem = newActiveItem;
-    this._notify(typeUpdate, this.#activeItem);
-  };
+  filter = (films, type = this.#activeItem) => films.filter((film) => {
+    const isFilter = {
+      [FilterType.ALL]: true,
+      [FilterType.WATCHLIST]: film.userDetails.watchlist,
+      [FilterType.HISTORY]: film.userDetails.alreadyWatched,
+      [FilterType.FAVORITE]: film.userDetails.favorite
+    };
 
-  #getFilters = (films) => ({
-    [FilterType.WATCHLIST]: this.#getWatchlist(films),
-    [FilterType.HISTORY]: this.#getWatched(films),
-    [FilterType.FAVORITE]: this.#getFavorite(films),
+    return isFilter[type];
   });
 
-  #getWatchlist = (films) => films
-    .filter((film) => film.userDetails.watchlist)
-    .map((film) => film.id);
-
-  #getWatched = (films) => films
-    .filter((film) => film.userDetails.alreadyWatched)
-    .map((film) => film.id);
-
-  #getFavorite = (films) => films
-    .filter((film) => film.userDetails.favorite)
-    .map((film) => film.id);
+  #getFilters = (films) => ({
+    [FilterType.WATCHLIST]: this.filter(films, FilterType.WATCHLIST).map((film) => film.id),
+    [FilterType.HISTORY]: this.filter(films, FilterType.HISTORY).map((film) => film.id),
+    [FilterType.FAVORITE]: this.filter(films, FilterType.FAVORITE).map((film) => film.id)
+  });
 }

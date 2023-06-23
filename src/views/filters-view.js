@@ -1,6 +1,6 @@
 import AbstractView from './../framework/view/abstract-view.js';
 import {capitalizeFirstLetter} from '../utils/common.js';
-import { FilterType, TypeAction, TypeUpdate } from '../const.js';
+import { FilterType, TypeAction } from '../const.js';
 
 const createFiltersTemplate = (filters, activeFilter) => {
   const allFilterClassName = activeFilter === FilterType.ALL
@@ -47,7 +47,7 @@ export default class FiltersView extends AbstractView {
     if (evt.target.classList.contains('main-navigation__item')
     && !evt.target.href.includes(this.#activeFilter)) {
       const nameClickFilter = evt.target.href.split('#').pop();
-      this._callback.click(TypeAction.UPDATE_FILTER, TypeUpdate.MINOR, nameClickFilter);
+      this._callback.click(TypeAction.UPDATE_FILTER, nameClickFilter);
     }
   };
 

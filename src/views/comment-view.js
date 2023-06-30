@@ -1,3 +1,4 @@
+import { TypeAction, TypeUpdate } from '../const.js';
 import AbstractView from './../framework/view/abstract-view.js';
 import {dateFromNow} from './../utils/common.js';
 
@@ -39,4 +40,20 @@ export default class CommentView extends AbstractView {
   get template() {
     return createCommentTemplate(this.#comment);
   }
+
+  setClickHandler = (callback) => {
+    this._callback.click = callback;
+    this.element
+      .querySelector('.film-details__comment-delete')
+      .addEventListener('click', this.#clickHandler);
+  };
+
+  #clickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.click(
+      TypeAction.REMOVE_COMMENT,
+      TypeUpdate.PATCH,
+      this.#comment
+    );
+  };
 }

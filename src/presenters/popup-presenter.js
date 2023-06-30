@@ -18,9 +18,6 @@ export default class PopupPresenter {
   /** @type {HTMLElement} контейнер для отрисовки попапа */
   #containerElement = document.body;
 
-  /** @type {Object|null} модель комментариев */
-  #getComments = null;
-
   /** @type {Object|null} представление всплывающего окна */
   #popupComponent = null;
 
@@ -36,23 +33,27 @@ export default class PopupPresenter {
   /** @type {Object|null} данные фильма */
   #film = null;
 
+  /** @type {Array|null} массив комментариев */
+  #comments = null;
+
   /** @type {Function|null} функция изменнеия данных фильма */
   #viewActionHandler = null;
 
   /** @type {Function|null} функция закрытия попапа */
   #closePopupClickHundler = null;
 
-  constructor(getComments, viewActionHandler, closePopupClickHundler) {
-    this.#getComments = getComments;
+  constructor(viewActionHandler, closePopupClickHundler) {
     this.#viewActionHandler = viewActionHandler;
     this.#closePopupClickHundler = closePopupClickHundler;
   }
 
   /** Инициализирует попап
    * @param {Object} film объект фильма
+   * @param {Array} comments массив комментариев
    */
-  init = (film) => {
+  init = (film, comments) => {
     this.#film = film;
+    this.#comments = comments;
 
     if (!this.#popupComponent) {
       this.#renderPopup();
@@ -114,7 +115,6 @@ export default class PopupPresenter {
 
   /** Отрисовывает комментарии */
   #renderComments = () => {
-    const comments = this.#getComments(this.#film.comments);
     const prevCommentsComponent = this.#commentsComponent;
     this.#commentsComponent = new CommentsView(this.#film.comments.length);
 
@@ -126,8 +126,10 @@ export default class PopupPresenter {
 
     render(new FormCommentView(), this.#commentsComponent.listElement, RenderPosition.AFTEREND);
 
-    comments.forEach((comment) => {
-      render(new CommentView(comment), this.#commentsComponent.listElement);
+    this.#comments.forEach((comment) => {
+      const commentComponent = new CommentView(comment);
+      render(commentComponent, this.#commentsComponent.listElement);
+      commentComponent.setClickHandler(this.#viewActionHandler);
     });
   };
 

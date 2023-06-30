@@ -5,9 +5,8 @@ import {generateComment} from '../mock/comment.js';
 export default class CommentsModel extends Observable {
   #items = Array.from({length: 74}, generateComment);
 
-  get items() {
-    return this.#items;
-  }
+  getItems = (ids) => ids.map((id) => this.#items
+    .find((comment) => id === comment.id));
 
   addItem = (newItem) => {
     this.#items.push(newItem);
@@ -15,9 +14,11 @@ export default class CommentsModel extends Observable {
     // this._notify();
   };
 
-  removeItem = (deletedItem) => {
-    delete this.#items[this.#items.indexOf((item) => item.id === deletedItem.id)];
+  removeItem = (typeUpdate, deletedItem) => {
+    const deletedFilmIndex = this.#items
+      .findIndex((item) => item.id === deletedItem.id);
 
-    // this._notify();
+    this.#items.splice(deletedFilmIndex, 1);
+    this._notify(typeUpdate, deletedItem);
   };
 }

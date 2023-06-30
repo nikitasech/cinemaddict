@@ -32,8 +32,8 @@ export default class FilmsPresenter {
   /** @type {Object|null} представление корневого контейнера для фильмов */
   #filmsComponent = new FilmsView();
 
-  /** @type {null|number} id отрисованного в попапе фильма */
-  #popupFilmId = null;
+  /** @type {null|Object} */
+  #popupFilm = null;
 
   constructor(filmsModel, filtersModel, sortModel, commentsModel) {
     this.#filmsModel = filmsModel;
@@ -42,7 +42,6 @@ export default class FilmsPresenter {
     this.#commentsModel = commentsModel;
 
     this.#popupPresenter = new PopupPresenter(
-      this.#getComments,
       this.#viewActionHandler,
       this.#removePopup
     );
@@ -73,12 +72,16 @@ export default class FilmsPresenter {
     this.#filmsModel.addObserver(this.#filmsModelEventHandler);
     this.#filtersModel.addObserver(this.#filtersModelEventHandler);
     this.#sortModel.addObserver(this.#sortModelEventHandler);
+    this.#commentsModel.addObserver(this.#commentsModelEventHandler);
   }
 
   #viewActionHandler = (typeAction, typeUpdate, payload) => {
     switch(typeAction) {
       case TypeAction.UPDATE_FILM:
         this.#filmsModel.updateItem(typeUpdate, payload);
+        break;
+      case TypeAction.REMOVE_COMMENT:
+        this.#deleteComment(payload);
         break;
     }
   };
@@ -108,12 +111,12 @@ export default class FilmsPresenter {
     }
   };
 
-  /**
-   * @param {array} ids массив с id нужных комментариев
-   * @returns {array} массив с найденными по id комментариями
-   */
-  #getComments = (ids) => ids.map((id) => this.#commentsModel.items
-    .find((comment) => id === comment.id));
+  #commentsModelEventHandler = (typeUpdate) => {
+    switch(typeUpdate) {
+      case TypeUpdate.PATCH:
+        this.#renderPopup(this.#popupFilm);
+    }
+  };
 
   /** Отрисовывает начальное состояние приложения
    * @param {HTMLElement} filmsContainer контейнер для отрисовки состояния
@@ -158,13 +161,14 @@ export default class FilmsPresenter {
    * @param {Object} film фильм для отрисовки попапа
    */
   #renderPopup = (film) => {
-    this.#popupFilmId = film.id;
-    this.#popupPresenter.init(film);
+    const comments = this.#commentsModel.getItems(film.comments);
+    this.#popupFilm = film;
+    this.#popupPresenter.init(film, comments);
   };
 
   /** Удаляет попап фильма */
   #removePopup = () => {
-    this.#popupFilmId = null;
+    this.#popupFilm = null;
     this.#popupPresenter.destroy();
   };
 
@@ -177,8 +181,22 @@ export default class FilmsPresenter {
     this.#ListPresenter.TOP.updateFilm(newFilm);
     this.#ListPresenter.COMMENTED.updateFilm(newFilm);
 
-    if (this.#popupFilmId === newFilm.id) {
+    if (this.#popupFilm.id === newFilm.id) {
       this.#renderPopup(newFilm);
     }
+  };
+
+  #deleteComment = (deletedComment) => {
+    const newFilm = structuredClone(this.#popupFilm);
+    const comments = Array.from(this.#popupFilm.comments);
+    const commentIndexInFilmObject = comments
+      .findIndex((comment) => comment === deletedComment.id);
+
+    comments.splice(commentIndexInFilmObject, 1);
+    newFilm.comments = comments;
+    this.#popupFilm = newFilm;
+
+    this.#commentsModel.removeItem(TypeUpdate.PATCH, deletedComment);
+    this.#filmsModel.updateItem(TypeUpdate.PATCH, newFilm);
   };
 }

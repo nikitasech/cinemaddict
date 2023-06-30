@@ -80,12 +80,15 @@ export const names = [
 export const TypeAction = {
   UPDATE_FILM: 'update-film',
   UPDATE_FILTER: 'update-filter',
+  REMOVE_COMMENT: 'remove-comment',
+  ADD_COMMENT: 'add-comment',
   SORT: 'sort'
 };
 
 export const TypeUpdate = {
   PATCH: 'PATCH',
-  MINOR: 'MINOR'
+  MINOR: 'MINOR',
+  MOJOR: 'MAJOR'
 };
 
 /** @type {Array} массив смайликов @readonly */

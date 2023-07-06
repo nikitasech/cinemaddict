@@ -8,10 +8,8 @@ export default class CommentsModel extends Observable {
   getItems = (ids) => ids.map((id) => this.#items
     .find((comment) => id === comment.id));
 
-  addItem = (newItem) => {
+  addItem = (typeUpdate, newItem) => {
     this.#items.push(newItem);
-
-    // this._notify();
   };
 
   removeItem = (typeUpdate, deletedItem) => {
@@ -19,6 +17,5 @@ export default class CommentsModel extends Observable {
       .findIndex((item) => item.id === deletedItem.id);
 
     this.#items.splice(deletedFilmIndex, 1);
-    this._notify(typeUpdate, deletedItem);
   };
 }

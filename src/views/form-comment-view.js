@@ -1,5 +1,5 @@
 import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
-import {emojies} from './../const.js';
+import {TypeAction, TypeUpdate, emojies} from './../const.js';
 
 const COMMENT_BLANK = {
   comment: '',
@@ -39,8 +39,8 @@ const createFormCommentTemplate = (data) => {
   `);
 };
 
-/** Форма комментария с состоянием
- * @param {Object} comment состояние комментария
+/** Представление формы добавления нового комментария
+ * @param {Object} comment данные комментария
  */
 export default class FormCommentView extends AbstractStatefulView {
   constructor(comment = COMMENT_BLANK) {
@@ -54,40 +54,6 @@ export default class FormCommentView extends AbstractStatefulView {
     return createFormCommentTemplate(this._state);
   }
 
-  _restoreHandlers = () => {
-    this.#setInnerHandler();
-  };
-
-  /** Выставляет внутренние обработчики */
-  #setInnerHandler = () => {
-    this.element.querySelector('.film-details__comment-input')
-      .addEventListener('input', this.#textareaInputHandler);
-
-    this.element.querySelector('.film-details__emoji-list')
-      .addEventListener('input', this.#emojiInputHandler);
-  };
-
-  /** Обработчик ввода комментария
-   * @param {Object} evt объект события
-   */
-  #textareaInputHandler = (evt) => {
-    evt.preventDefault();
-    this._setState({comment: evt.target.value});
-  };
-
-  /** Обработчик выбора смайлика
-   * @param {Object} evt объект события
-   */
-  #emojiInputHandler = (evt) => {
-    evt.preventDefault();
-
-    for (const emoji of emojies) {
-      if (evt.target.value === emoji) {
-        this.updateElement({emotion: emoji, isEmojiActive: true});
-      }
-    }
-  };
-
   /** Преобразовывает объект комментария в состояние
    * @param {Object} comment объект комментария
    */
@@ -99,11 +65,55 @@ export default class FormCommentView extends AbstractStatefulView {
   /** Преобразовывает обект состояния в комментарий
    * @param {Object} state объект состояния
    */
-  static convertStateToComment = (state) => {
-    const comment = state;
+  static convertStateToComment = ({comment, emotion}) => ({comment, emotion});
 
-    delete comment.isEmojiActive;
+  /** Устанавливает обработчик на отправку формы сочитанием клавиш Cmd/Ctrl+Enter
+   * @param {Function} callback функция для выполнения после выявления события
+   */
+  setSubmitHandler = (callback) => {
+    this._callback.submit = callback;
+    document.addEventListener('keydown', this.#submitHandler);
+  };
 
-    return comment;
+  /** Удаляет обработчик отправки формы */
+  removeSubmitHandler = () => {
+    document.removeEventListener('keydown', this.#submitHandler);
+  };
+
+  _restoreHandlers = () => {
+    this.#setInnerHandler();
+  };
+
+  #setInnerHandler = () => {
+    this.element.querySelector('.film-details__comment-input')
+      .addEventListener('input', this.#textareaInputHandler);
+
+    this.element.querySelector('.film-details__emoji-list')
+      .addEventListener('input', this.#emojiInputHandler);
+  };
+
+  #submitHandler = (evt) => {
+    const comment = FormCommentView.convertStateToComment(this._state);
+
+    if (evt.key === 'Enter' && (evt.metaKey || evt.ctrlKey)
+    && comment.comment && comment.emotion) {
+      evt.preventDefault();
+      this._callback.submit(TypeAction.ADD_COMMENT, TypeUpdate.PATCH, comment);
+    }
+  };
+
+  #textareaInputHandler = (evt) => {
+    evt.preventDefault();
+    this._setState({comment: evt.target.value});
+  };
+
+  #emojiInputHandler = (evt) => {
+    evt.preventDefault();
+
+    for (const emoji of emojies) {
+      if (evt.target.value === emoji) {
+        this.updateElement({emotion: emoji, isEmojiActive: true});
+      }
+    }
   };
 }

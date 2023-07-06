@@ -4,6 +4,7 @@ import FilmsView from './../views/films-view.js';
 import PopupPresenter from './popup-presenter.js';
 import ListPresenter from './list-presenter.js';
 import MainListPresenter from './main-list-presenter.js';
+import {nanoid} from 'nanoid';
 
 /**
  * Главный презентер. Управляет всеми списками фильмов ({@link MainListPresenter}
@@ -72,7 +73,6 @@ export default class FilmsPresenter {
     this.#filmsModel.addObserver(this.#filmsModelEventHandler);
     this.#filtersModel.addObserver(this.#filtersModelEventHandler);
     this.#sortModel.addObserver(this.#sortModelEventHandler);
-    this.#commentsModel.addObserver(this.#commentsModelEventHandler);
   }
 
   #viewActionHandler = (typeAction, typeUpdate, payload) => {
@@ -82,6 +82,9 @@ export default class FilmsPresenter {
         break;
       case TypeAction.REMOVE_COMMENT:
         this.#deleteComment(payload);
+        break;
+      case TypeAction.ADD_COMMENT:
+        this.#addComment(payload);
         break;
     }
   };
@@ -108,13 +111,6 @@ export default class FilmsPresenter {
     switch(typeUpdate) {
       case TypeUpdate.MINOR:
         this.#renderMainList(true);
-    }
-  };
-
-  #commentsModelEventHandler = (typeUpdate) => {
-    switch(typeUpdate) {
-      case TypeUpdate.PATCH:
-        this.#renderPopup(this.#popupFilm);
     }
   };
 
@@ -184,6 +180,21 @@ export default class FilmsPresenter {
     if (this.#popupFilm.id === newFilm.id) {
       this.#renderPopup(newFilm);
     }
+  };
+
+  #addComment = (newComment) => {
+    const newFilm = structuredClone(this.#popupFilm);
+    const newCommentId = nanoid();
+    const comment = {
+      id: newCommentId,
+      author: 'Cooper',
+      date: new Date(),
+      ...newComment
+    };
+
+    newFilm.comments.push(newCommentId);
+    this.#commentsModel.addItem(TypeUpdate.PATCH, comment);
+    this.#filmsModel.updateItem(TypeUpdate.PATCH, newFilm);
   };
 
   #deleteComment = (deletedComment) => {

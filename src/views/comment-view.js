@@ -1,10 +1,11 @@
 import { TypeAction, TypeUpdate } from '../const.js';
 import AbstractView from './../framework/view/abstract-view.js';
-import {dateFromNow} from './../utils/common.js';
+import { dateFromNow } from './../utils/common.js';
+import he from 'he';
 
 const createCommentTemplate = (comment) => {
   const {emotion, author} = comment;
-  const text = comment.comment;
+  const text = he.encode(comment.comment);
   const date = dateFromNow(comment.date);
 
   return (`

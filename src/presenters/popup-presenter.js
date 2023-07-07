@@ -1,4 +1,4 @@
-import {ControlName, TypeAction, TypeControls, TypeUpdate} from './../const.js';
+import {NameControl, TypeAction, TypeControl, TypeUpdate} from './../const.js';
 import {remove, render, RenderPosition, replace} from './../framework/render.js';
 import PopupFilmView from './../views/popup-film-view.js';
 import CommentView from './../views/comment-view.js';
@@ -81,13 +81,13 @@ export default class PopupPresenter {
     }
 
     this.#popupComponent.setCloseClickHandler(this.#closePopup);
-    this.#popupComponent.setEscKeydownHandler(this.closePopup);
+    this.#popupComponent.setEscKeydownHandler(this.#closePopup);
   };
 
   #renderControls = () => {
     this.#controlsComponent = new FilmControlsView(
       this.#film.userDetails,
-      TypeControls.DETAILS
+      TypeControl.DETAILS
     );
 
     render(this.#controlsComponent, this.#filmDetailsComponent.element);
@@ -119,13 +119,13 @@ export default class PopupPresenter {
     const newFilm = structuredClone(this.#film);
 
     switch (controlName) {
-      case ControlName.WATCHLIST:
+      case NameControl.WATCHLIST:
         newFilm.userDetails.watchlist = !newFilm.userDetails.watchlist;
         break;
-      case ControlName.WATCHED:
+      case NameControl.WATCHED:
         newFilm.userDetails.alreadyWatched = !newFilm.userDetails.alreadyWatched;
         break;
-      case ControlName.FAVORITE:
+      case NameControl.FAVORITE:
         newFilm.userDetails.favorite = !newFilm.userDetails.favorite;
         break;
     }

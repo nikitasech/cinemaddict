@@ -24,12 +24,10 @@ const createCommentTemplate = (comment) => {
   `);
 };
 
-/**
- * Вью комментария
+/** Представление комментария
  * @param {Object} comment данные комменария
  */
 export default class CommentView extends AbstractView {
-  /** @type {Object} данные комменария */
   #comment = {};
 
   constructor(comment) {
@@ -41,6 +39,9 @@ export default class CommentView extends AbstractView {
     return createCommentTemplate(this.#comment);
   }
 
+  /** Устанавливает обработчик клика на кнопку "Delete"
+   * @param {Function} callback функция для выполнения после выявления события
+   */
   setClickHandler = (callback) => {
     this._callback.click = callback;
     this.element

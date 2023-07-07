@@ -1,4 +1,4 @@
-import {TypeList} from './../const.js';
+import { TypeList } from './../const.js';
 import AbstractView from './../framework/view/abstract-view.js';
 
 const createListFilmsTemplate = (type) => {
@@ -16,7 +16,6 @@ const createListFilmsTemplate = (type) => {
  * @param {string} [type] тип списка. 'main' или 'extra'
 */
 export default class ListFilmsView extends AbstractView {
-  /** @type {string} тип списка */
   #type = null;
 
   constructor(type) {

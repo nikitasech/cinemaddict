@@ -13,13 +13,10 @@ const createListFilmsTitleTemplate = (title, isHidden) => {
 /**
  * Представление заголовка для {@link ListFilmsView}
  * @param {string} title текст заголовка
- * @param {Boolean} isHidden нужно ли скрыть заголовок
+ * @param {Boolean} isHidden скрыть заголовок?
 */
 export default class ListFilmsTitleView extends AbstractView {
-  /** @type {string} заголовок компонента */
   #title = null;
-
-  /** @type {Boolean} нужно ли скрыть заголовок */
   #isHidden = null;
 
   constructor(title, isHidden) {

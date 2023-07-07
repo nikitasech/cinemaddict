@@ -1,7 +1,12 @@
-import {FilterType} from '../const.js';
+import { TypeFilter } from './../const.js';
 
-export const filter = {
-  [FilterType.WATCHLIST]: (films) => films.filter((film) => film.userDetails.watchlist),
-  [FilterType.HISTORY]: (films) => films.filter((film) => film.userDetails.alreadyWatched),
-  [FilterType.FAVORITE]: (films) => films.filter((film) => film.userDetails.favorite)
-};
+export const filter = (films, type) => films.filter((film) => {
+  const isFilter = {
+    [TypeFilter.ALL]: true,
+    [TypeFilter.WATCHLIST]: film.userDetails.watchlist,
+    [TypeFilter.HISTORY]: film.userDetails.alreadyWatched,
+    [TypeFilter.FAVORITE]: film.userDetails.favorite
+  };
+
+  return isFilter[type];
+});

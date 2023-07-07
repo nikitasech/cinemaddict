@@ -1,7 +1,10 @@
-import { TypeAction, TypeUpdate } from '../const.js';
-import { render, replace } from '../framework/render.js';
-import SortView from '../views/sort-view.js';
+import { TypeAction, TypeUpdate } from './../const.js';
+import { render, replace } from './../framework/render.js';
+import SortView from './../views/sort-view.js';
 
+/** Презентер управляющий сортировкой
+ * @param {Object} sortModel {@link SortModel}
+ */
 export default class SortPresenter {
   #containerElement = null;
   #model = null;
@@ -12,6 +15,9 @@ export default class SortPresenter {
     this.#model.addObserver(this.#modelEventHandler);
   }
 
+  /** Инициализирует сортировку в нужный контейнер
+   * @param {HTMLElement} container
+   */
   init = (container) => {
     this.#containerElement = container;
     this.#render(this.#model.activeItem);

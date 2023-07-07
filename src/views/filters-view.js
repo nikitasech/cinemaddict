@@ -1,9 +1,9 @@
 import AbstractView from './../framework/view/abstract-view.js';
 import {capitalizeFirstLetter} from '../utils/common.js';
-import { FilterType, TypeAction } from '../const.js';
+import { TypeFilter, TypeAction } from '../const.js';
 
 const createFiltersTemplate = (filters, activeFilter) => {
-  const allFilterClassName = activeFilter === FilterType.ALL
+  const allFilterClassName = activeFilter === TypeFilter.ALL
     ? 'main-navigation__item--active'
     : '';
 
@@ -41,6 +41,18 @@ export default class FiltersView extends AbstractView {
     this.#activeFilter = activeFilter;
   }
 
+  get template() {
+    return createFiltersTemplate(this.#filters, this.#activeFilter);
+  }
+
+  /** Устанавливает обработчик событий на клик по фильтрам
+   * @param {Function} callback функция для выполнения после выявления события
+   */
+  setClickHandler = (callback) => {
+    this._callback.click = callback;
+    this.element.addEventListener('click', this.#clickHandler);
+  };
+
   #clickHandler = (evt) => {
     evt.preventDefault();
 
@@ -50,13 +62,4 @@ export default class FiltersView extends AbstractView {
       this._callback.click(TypeAction.UPDATE_FILTER, nameClickFilter);
     }
   };
-
-  setClickHandler = (callback) => {
-    this._callback.click = callback;
-    this.element.addEventListener('click', this.#clickHandler);
-  };
-
-  get template() {
-    return createFiltersTemplate(this.#filters, this.#activeFilter);
-  }
 }

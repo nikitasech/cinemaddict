@@ -7,9 +7,10 @@ const createNewProfileRatingTemplate = (rank) => (`
   </section>
 `);
 
-/** Вью рейтинга пользователя */
+/**Вью рейтинга пользователя
+ * @param {string} rank рейтинг пользователя
+ */
 export default class ProfileRatingView extends AbstractView {
-  /** @type {string|null} ранг пользователя */
   #rank = null;
 
   constructor(rank) {

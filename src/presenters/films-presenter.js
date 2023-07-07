@@ -1,39 +1,29 @@
-import {render} from './../framework/render.js';
-import {TypeAction, TypeUpdate, FilterType, TypeList, ListTitle, NoFilmsListTitle, TypeSort} from './../const.js';
+import { render } from './../framework/render.js';
+import { TypeAction, TypeUpdate, TypeFilter, TypeList,
+  ListTitle, NoFilmsListTitle, TypeSort } from './../const.js';
 import FilmsView from './../views/films-view.js';
 import PopupPresenter from './popup-presenter.js';
 import ListPresenter from './list-presenter.js';
 import MainListPresenter from './main-list-presenter.js';
-import {nanoid} from 'nanoid';
+import { nanoid } from 'nanoid';
+import { filter } from '../utils/filter.js';
 
 /**
  * Главный презентер. Управляет всеми списками фильмов ({@link MainListPresenter}
  * и {@link ListPresenter}) и попапом ({@link PopupPresenter})
- * @param {Object} filmsModel модель фильмов
- * @param {Object} commentsModel модель комментариев
+ * @param {Object} filmsModel {@link FilmsModel}
+ * @param {Object} filtersModel {@link FiltersModel}
+ * @param {Object} sortModel {@link SortModel}
+ * @param {Object} commentsModel {@link CommentsModel}
 */
 export default class FilmsPresenter {
-  /** @type {Object|null} модель фильмов */
   #filmsModel = null;
-
-  /** @type {Object|null} модель фильтров */
   #filtersModel = null;
-
   #sortModel = null;
-
-  /** @type {Object|null} модель комментариев */
   #commentsModel = null;
-
-  /** @type {Object|null} презентер попапа */
   #popupPresenter = null;
-
-  /** Перечисление презентеров списков @enum {Object} */
   #ListPresenter = {};
-
-  /** @type {Object|null} представление корневого контейнера для фильмов */
   #filmsComponent = new FilmsView();
-
-  /** @type {null|Object} */
   #popupFilm = null;
 
   constructor(filmsModel, filtersModel, sortModel, commentsModel) {
@@ -75,47 +65,8 @@ export default class FilmsPresenter {
     this.#sortModel.addObserver(this.#sortModelEventHandler);
   }
 
-  #viewActionHandler = (typeAction, typeUpdate, payload) => {
-    switch(typeAction) {
-      case TypeAction.UPDATE_FILM:
-        this.#filmsModel.updateItem(typeUpdate, payload);
-        break;
-      case TypeAction.REMOVE_COMMENT:
-        this.#deleteComment(payload);
-        break;
-      case TypeAction.ADD_COMMENT:
-        this.#addComment(payload);
-        break;
-    }
-  };
-
-  #filmsModelEventHandler = (typeUpdate, payload) => {
-    this.#updateFilm(payload);
-    switch (typeUpdate) {
-      case TypeUpdate.PATCH:
-        if (this.#filtersModel.activeItem !== FilterType.ALL) {
-          this.#renderMainList(false);
-        }
-    }
-  };
-
-  #filtersModelEventHandler = (typeUpdate) => {
-    switch(typeUpdate) {
-      case TypeUpdate.MINOR:
-        this.#sortModel.resetItem();
-        this.#renderMainList(true);
-    }
-  };
-
-  #sortModelEventHandler = (typeUpdate) => {
-    switch(typeUpdate) {
-      case TypeUpdate.MINOR:
-        this.#renderMainList(true);
-    }
-  };
-
   /** Отрисовывает начальное состояние приложения
-   * @param {HTMLElement} filmsContainer контейнер для отрисовки состояния
+   * @param {HTMLElement} rootContainer контейнер для отрисовки
    */
   init = (rootContainer) => {
     this.#rednerFilmsContainer(rootContainer);
@@ -127,15 +78,80 @@ export default class FilmsPresenter {
     }
   };
 
-  /** @param {HTMLElement} container контейнер для отрисовки контейнера фильмов */
+  #viewActionHandler = (typeAction, typeUpdate, payload) => {
+    const addComment = (newComment) => {
+      const newFilm = structuredClone(this.#popupFilm);
+      const newCommentId = nanoid();
+      const comment = {
+        id: newCommentId,
+        author: 'Cooper',
+        date: new Date(),
+        ...newComment
+      };
+
+      newFilm.comments.push(newCommentId);
+      this.#commentsModel.addItem(typeUpdate, comment);
+      this.#filmsModel.updateItem(typeUpdate, newFilm);
+    };
+
+    const deleteComment = (deletedComment) => {
+      const newFilm = structuredClone(this.#popupFilm);
+      const comments = Array.from(this.#popupFilm.comments);
+      const commentIndexInFilmObject = comments
+        .findIndex((comment) => comment === deletedComment.id);
+
+      comments.splice(commentIndexInFilmObject, 1);
+      newFilm.comments = comments;
+      this.#popupFilm = newFilm;
+
+      this.#commentsModel.removeItem(typeUpdate, deletedComment);
+      this.#filmsModel.updateItem(typeUpdate, newFilm);
+    };
+
+    switch(typeAction) {
+      case TypeAction.UPDATE_FILM:
+        this.#filmsModel.updateItem(typeUpdate, payload);
+        break;
+      case TypeAction.REMOVE_COMMENT:
+        deleteComment(payload);
+        break;
+      case TypeAction.ADD_COMMENT:
+        addComment(payload);
+        break;
+    }
+  };
+
+  #filmsModelEventHandler = (typeUpdate, payload) => {
+    switch (typeUpdate) {
+      case TypeUpdate.PATCH:
+        this.#updateFilm(payload);
+
+        if (this.#filtersModel.activeItem !== TypeFilter.ALL) {
+          this.#renderMainList(false);
+        }
+    }
+  };
+
+  #filtersModelEventHandler = (typeUpdate) => {
+    switch(typeUpdate) {
+      case TypeUpdate.MINOR:
+        this.#sortModel.resetActiveItem();
+        this.#renderMainList(true);
+    }
+  };
+
+  #sortModelEventHandler = (typeUpdate) => {
+    switch(typeUpdate) {
+      case TypeUpdate.MINOR:
+        this.#renderMainList(true);
+    }
+  };
+
   #rednerFilmsContainer = (container) => render(this.#filmsComponent, container);
 
-  /** Отрисовывает главный список фильмов. Сначало с информацией
-  загрузке, а потом перерисовывает со стандартным заголовком списка. */
   #renderMainList = (isResetCounterFilms) => {
     const films = this.#sortModel
-      .sort(this.#filtersModel
-        .filter(this.#filmsModel.items));
+      .sort(filter(this.#filmsModel.items, this.#filtersModel.activeItem));
 
     const title = films.length
       ? ListTitle[this.#filtersModel.activeItem]
@@ -153,61 +169,24 @@ export default class FilmsPresenter {
     listPresenter.init(films, title);
   };
 
-  /** Отрисовывает попап фильма
-   * @param {Object} film фильм для отрисовки попапа
-   */
   #renderPopup = (film) => {
     const comments = this.#commentsModel.getItems(film.comments);
     this.#popupFilm = film;
     this.#popupPresenter.init(film, comments);
   };
 
-  /** Удаляет попап фильма */
   #removePopup = () => {
     this.#popupFilm = null;
     this.#popupPresenter.destroy();
   };
 
-  /**
-   * Обновляет данные фильма во всех списках
-   * @param {Object} новые данные фильма
-   */
   #updateFilm = (newFilm) => {
     this.#ListPresenter.ALL.updateFilm(newFilm);
     this.#ListPresenter.TOP.updateFilm(newFilm);
     this.#ListPresenter.COMMENTED.updateFilm(newFilm);
 
-    if (this.#popupFilm.id === newFilm.id) {
+    if (this.#popupFilm && this.#popupFilm.id === newFilm.id) {
       this.#renderPopup(newFilm);
     }
-  };
-
-  #addComment = (newComment) => {
-    const newFilm = structuredClone(this.#popupFilm);
-    const newCommentId = nanoid();
-    const comment = {
-      id: newCommentId,
-      author: 'Cooper',
-      date: new Date(),
-      ...newComment
-    };
-
-    newFilm.comments.push(newCommentId);
-    this.#commentsModel.addItem(TypeUpdate.PATCH, comment);
-    this.#filmsModel.updateItem(TypeUpdate.PATCH, newFilm);
-  };
-
-  #deleteComment = (deletedComment) => {
-    const newFilm = structuredClone(this.#popupFilm);
-    const comments = Array.from(this.#popupFilm.comments);
-    const commentIndexInFilmObject = comments
-      .findIndex((comment) => comment === deletedComment.id);
-
-    comments.splice(commentIndexInFilmObject, 1);
-    newFilm.comments = comments;
-    this.#popupFilm = newFilm;
-
-    this.#commentsModel.removeItem(TypeUpdate.PATCH, deletedComment);
-    this.#filmsModel.updateItem(TypeUpdate.PATCH, newFilm);
   };
 }

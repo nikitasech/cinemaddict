@@ -23,7 +23,9 @@ const createSortTemplate = (typeSort) => {
   `);
 };
 
-/** Вью сортировки */
+/** Вью сортировки
+ * @param {string} type тип активной сортировки
+ */
 export default class SortView extends AbstractView {
   #type = null;
 
@@ -36,6 +38,15 @@ export default class SortView extends AbstractView {
     return createSortTemplate(this.#type);
   }
 
+  /** Устанавливает обработчик событий на клик по одной из кнопок сортировки
+   * @param {Function} callback функция для выполнения после выявления события
+   */
+  setClickHandler = (sortCallback) => {
+    this._callback.sortClick = sortCallback;
+
+    this.element.addEventListener('click', this.#sortClickHandler);
+  };
+
   #sortClickHandler = (evt) => {
     evt.preventDefault();
 
@@ -44,11 +55,5 @@ export default class SortView extends AbstractView {
 
       this._callback.sortClick(TypeAction.SORT, this.#type);
     }
-  };
-
-  setClickHandler = (sortCallback) => {
-    this._callback.sortClick = sortCallback;
-
-    this.element.addEventListener('click', this.#sortClickHandler);
   };
 }

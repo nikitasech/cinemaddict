@@ -1,7 +1,11 @@
-import { TypeAction, TypeUpdate } from '../const';
-import { render, replace } from '../framework/render';
-import FiltersView from '../views/filters-view';
+import { TypeAction, TypeUpdate } from './../const.js';
+import { render, replace } from './../framework/render.js';
+import FiltersView from './../views/filters-view.js';
 
+/** Презентер управляющий фильтрами
+ * @param {Object} filmsModel {@link FilmsModel}
+ * @param {Object} filtersModel {@link FiltersModel}
+ */
 export default class FiltersPresenter {
   #container = null;
   #filmsModel = null;
@@ -17,6 +21,9 @@ export default class FiltersPresenter {
     this.#filtersModel.addObserver(this.#filtersModelEventHandler);
   }
 
+  /** Инициализирует фильтры в нужный контейнер
+   * @param {HTMLElement} container
+   */
   init = (container) => {
     this.#container = container;
 
@@ -44,7 +51,7 @@ export default class FiltersPresenter {
   #filmsModelEventHandler = (typeUpdate, payload) => {
     switch (typeUpdate) {
       case TypeUpdate.PATCH:
-        this.#filtersModel.updateItems(typeUpdate, payload);
+        this.#filtersModel.updateCounters(typeUpdate, payload);
         break;
     }
   };

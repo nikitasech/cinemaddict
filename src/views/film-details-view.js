@@ -74,12 +74,10 @@ const createFilmDetailsTemplate = (film) => {
   `);
 };
 
-/**
- * Вью блока с подробным описанием фильма
+/** Представление блока с подробным описанием фильма
  * @param {Object} film данные фильма
  */
 export default class FilmDetailsView extends AbstractView {
-  /** @type {Object} данные фильма */
   #film = {};
 
   constructor(film) {

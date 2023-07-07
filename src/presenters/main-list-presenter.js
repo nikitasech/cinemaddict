@@ -1,25 +1,18 @@
-import {render} from './../framework/render.js';
+import { render } from './../framework/render.js';
 import ButtonMoreView from './../views/load-more-button-view.js';
-import {TypeList} from '../const.js';
+import { TypeList } from './../const.js';
 import ListPresenter from './list-presenter.js';
 
 const IS_TITLE_HIDDEN = true;
 
 /**
- * Дочерний презентер {@link FilmsPresenter}, управляющий
+ * Дочерний презентер {@link FilmsPresenter}, управляющий главным
  * списком фильмов и презентерами карточек фильмов ({@link CardPresenter})
  */
 export default class MainListPresenter extends ListPresenter {
-  /** @type {Object|null} представление кнопки "Load More" */
   #loadMoreButtonComponent = null;
-
-  /** @type {number} количество карточек за одну отрисовку */
   #portionCards = 5;
-
-  /** @type {number} количество отрисованных карточек */
   #renderedCardCount = 0;
-
-  /** @type {number} длина массива с фильмами */
   #filmsLength = 0;
 
   constructor(...args) {
@@ -27,6 +20,11 @@ export default class MainListPresenter extends ListPresenter {
     this.#portionCards = (this._type === TypeList.MAIN) ? 5 : 2;
   }
 
+  /** Инициализирует список фильмов
+   * @param {Array} films список фильмов
+   * @param {string} titleText заголовок списка
+   * @param {Boolean} isResetCounter обновлять счетчик отрисованных фильмов?
+   */
   init = (films, titleText, isResetCounter = true) => {
     const portionCards = isResetCounter || !this.#renderedCardCount
       ? this.#portionCards
@@ -57,8 +55,6 @@ export default class MainListPresenter extends ListPresenter {
     }
   };
 
-  /** Отрисовывает новую порцию карточек и кнопку,
-  если есть ещё карточки которые нужно отрисовать */
   #renderPortionCards = (portion = this.#portionCards) => {
     const first = this.#renderedCardCount;
     const last = Math.min(first + portion, this.#filmsLength);
@@ -71,7 +67,6 @@ export default class MainListPresenter extends ListPresenter {
     }
   };
 
-  /** Добавляет рабочую кнопку Load more в список всех фильмов */
   #renderLoadMoreButton = () => {
     const component = this.#loadMoreButtonComponent;
 

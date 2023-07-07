@@ -5,9 +5,10 @@ const createStatisticsTemplate = (filmsCount) => (`
     <p>${splitNumberToClasses(filmsCount)} movies inside</p>
 `);
 
-/** Вью статистики количества фильмов на сервисе */
+/** Вью статистики количества фильмов на сервисе
+ * @param {number} filmsCount количество фильмов на сервисе
+ */
 export default class StatisticsView extends AbstractView {
-  /** @type {number|null} количество фильмов на сервисе */
   #filmsCount = null;
 
   constructor(filmsCount) {

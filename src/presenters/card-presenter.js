@@ -1,4 +1,4 @@
-import {TypeControls, ControlName, TypeAction, TypeUpdate} from './../const.js';
+import {TypeControl, NameControl, TypeAction, TypeUpdate} from './../const.js';
 import {remove, render, replace} from './../framework/render.js';
 import FilmCardView from './../views/film-card-view.js';
 import FilmControlsView from './../views/film-controls-view.js';
@@ -9,23 +9,14 @@ import FilmControlsView from './../views/film-controls-view.js';
  * @param {Function} renderPopup функция отрисовки попапа
 */
 export default class CardPresenter {
-  /** @type {Object|null} данные фильма */
   #film = null;
-
-  /** @type {Object|null} представление карточки */
   #cardComponent = null;
-
-  /** @type {Object|null} представление элементов управления */
   #controlsComponent = null;
-
-  /** @type {Function|null} функция изменения данных фильма */
-  #viewActionHandler = null;
-
-  /** @type {Function|null} функция отрисовки попапа */
+  #changeDate = null;
   #renderPopup = null;
 
-  constructor(viewActionHandler, renderPopup) {
-    this.#viewActionHandler = viewActionHandler;
+  constructor(changeDate, renderPopup) {
+    this.#changeDate = changeDate;
     this.#renderPopup = renderPopup;
   }
 
@@ -38,13 +29,11 @@ export default class CardPresenter {
     this.#renderCard(container);
   };
 
+  /** Удаляет карточку фильма */
   remove = () => {
     remove(this.#cardComponent);
   };
 
-  /** Отрисовывает новую карточку в контейнер
-   * @param {HTMLElement} container контейнер для карточки
-   */
   #renderCard = (container) => {
     const prevCardComponent = this.#cardComponent;
     this.#cardComponent = new FilmCardView(this.#film);
@@ -59,11 +48,10 @@ export default class CardPresenter {
     this.#cardComponent.setClickHandler(this.#renderPopup);
   };
 
-  /** Отрисовывает элементы управления в карточке */
   #renderControls = () => {
     this.#controlsComponent = new FilmControlsView(
       this.#film.userDetails,
-      TypeControls.CARD
+      TypeControl.CARD
     );
 
     render(this.#controlsComponent, this.#cardComponent.element);
@@ -75,17 +63,17 @@ export default class CardPresenter {
     const newFilm = structuredClone(this.#film);
 
     switch (controlName) {
-      case ControlName.WATCHLIST:
+      case NameControl.WATCHLIST:
         newFilm.userDetails.watchlist = !newFilm.userDetails.watchlist;
         break;
-      case ControlName.WATCHED:
+      case NameControl.WATCHED:
         newFilm.userDetails.alreadyWatched = !newFilm.userDetails.alreadyWatched;
         break;
-      case ControlName.FAVORITE:
+      case NameControl.FAVORITE:
         newFilm.userDetails.favorite = !newFilm.userDetails.favorite;
         break;
     }
 
-    this.#viewActionHandler(TypeAction.UPDATE_FILM, TypeUpdate.PATCH, newFilm);
+    this.#changeDate(TypeAction.UPDATE_FILM, TypeUpdate.PATCH, newFilm);
   };
 }

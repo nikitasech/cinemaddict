@@ -1,10 +1,14 @@
-import { FilterType, TypeUpdate } from '../const.js';
+import { TypeFilter, TypeUpdate } from '../const.js';
 import Observable from '../framework/observable.js';
+import { filter } from '../utils/filter.js';
 
-const defaultActiveFilter = FilterType.ALL;
+const DEFAULT_ACTIVE_FILTER = TypeFilter.ALL;
 
+/** Модель управляющая фильтрами
+ * @param {Array} films массив фильмов
+*/
 export default class FiltersModel extends Observable {
-  #activeItem = defaultActiveFilter;
+  #activeItem = DEFAULT_ACTIVE_FILTER;
   #items = null;
 
   constructor(films) {
@@ -29,11 +33,15 @@ export default class FiltersModel extends Observable {
     return this.#items;
   }
 
-  updateItems = (typeUpdate, newFilm) => {
+  /** Обновляет счетчики фильтров
+   * @param {string} typeUpdate
+   * @param {Object} newFilm
+   */
+  updateCounters = (typeUpdate, newFilm) => {
     const isFiltersNewFilm = {
-      [FilterType.WATCHLIST]: newFilm.userDetails.watchlist,
-      [FilterType.HISTORY]: newFilm.userDetails.alreadyWatched,
-      [FilterType.FAVORITE]: newFilm.userDetails.favorite
+      [TypeFilter.WATCHLIST]: newFilm.userDetails.watchlist,
+      [TypeFilter.HISTORY]: newFilm.userDetails.alreadyWatched,
+      [TypeFilter.FAVORITE]: newFilm.userDetails.favorite
     };
 
     Object.keys(this.#items).forEach((typeFilter) => {
@@ -50,20 +58,9 @@ export default class FiltersModel extends Observable {
     this._notify(typeUpdate, this.#activeItem);
   };
 
-  filter = (films, type = this.#activeItem) => films.filter((film) => {
-    const isFilter = {
-      [FilterType.ALL]: true,
-      [FilterType.WATCHLIST]: film.userDetails.watchlist,
-      [FilterType.HISTORY]: film.userDetails.alreadyWatched,
-      [FilterType.FAVORITE]: film.userDetails.favorite
-    };
-
-    return isFilter[type];
-  });
-
   #getFilters = (films) => ({
-    [FilterType.WATCHLIST]: this.filter(films, FilterType.WATCHLIST).map((film) => film.id),
-    [FilterType.HISTORY]: this.filter(films, FilterType.HISTORY).map((film) => film.id),
-    [FilterType.FAVORITE]: this.filter(films, FilterType.FAVORITE).map((film) => film.id)
+    [TypeFilter.WATCHLIST]: filter(films, TypeFilter.WATCHLIST).map((film) => film.id),
+    [TypeFilter.HISTORY]: filter(films, TypeFilter.HISTORY).map((film) => film.id),
+    [TypeFilter.FAVORITE]: filter(films, TypeFilter.FAVORITE).map((film) => film.id)
   });
 }

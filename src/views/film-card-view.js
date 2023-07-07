@@ -27,12 +27,10 @@ const createFilmCardTemplate = (film) => {
   `);
 };
 
-/**
- * Представление карточки фильма
+/** Представление карточки фильма
  * @param {Object} film данные фильма
  */
 export default class FilmCardView extends AbstractView {
-  /** @type {Object|null} данные фильма */
   #film = {};
 
   constructor(film) {
@@ -44,17 +42,7 @@ export default class FilmCardView extends AbstractView {
     return createFilmCardTemplate(this.#film);
   }
 
-  /**
-   * Функция обработчика нажатия на карточку фильма
-   * @param {Object} evt объект события
-   */
-  #clickHandler = (evt) => {
-    evt.preventDefault();
-    this._callback.click(this.#film);
-  };
-
-  /**
-   * Устанавливает обработчик событий на клик по карточке фильма
+  /** Устанавливает обработчик событий на клик по карточке фильма
    * @param {Function} callback функция для выполнения после выявления события
    */
   setClickHandler = (callback) => {
@@ -62,5 +50,10 @@ export default class FilmCardView extends AbstractView {
     this.element
       .querySelector('.film-card__link')
       .addEventListener('click', this.#clickHandler);
+  };
+
+  #clickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.click(this.#film);
   };
 }

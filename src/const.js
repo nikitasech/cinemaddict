@@ -1,67 +1,70 @@
-/** Перечисление заголовков списка
- * @enum {string}
- * @readonly
- */
+/** Перечисление заголовков списка @readonly @enum {string} */
 export const ListTitle = {
-  LOADING: 'Loading...',
-  ALL: 'All movies. Upcoming',
-  TOP: 'Top rated',
-  COMMENTED: 'Most commented',
-  NO_FILMS: 'There are no movies in our database',
-  NO_WATCHLIST: 'There are no movies to watch now',
-  NO_HISTIRY: 'There are no watched movies now',
-  NO_FAVORITES: 'There are no favorite movies now'
+  'all': 'All movies. Upcoming',
+  'watchlist': 'Watchlist movies. Upcoming',
+  'history': 'History movies. Upcoming',
+  'favorite': 'Favorite movies. Upcoming',
+  'rating': 'Top rated',
+  'commented': 'Most commented'
 };
 
-/** Перечисление типов элементов управления
- * @enum {string}
- * @readonly
- */
-export const TypeControls = {
+/** Перечисление заголовков списка при отсутсвии фильмов @readonly @enum {string} */
+export const NoFilmsListTitle = {
+  'loading': 'Loading...',
+  'all': 'There are no movies in our database',
+  'watchlist': 'There are no movies to watch now',
+  'history': 'There are no watched movies now',
+  'favorite': 'There are no favorite movies now'
+};
+
+/** Перечисление типов элементов управления @readonly @enum {string} */
+export const TypeControl = {
   CARD: 'card',
   DETAILS: 'details'
 };
 
-export const ControlName = {
-  WATCHLIST: 'watchlist',
-  WATCHED: 'watched',
-  FAVORITE: 'favorite'
+/** Перечисление типов списка @readonly @enum {string} */
+export const TypeList = {
+  MAIN: 'all',
+  EXTRA: 'extra'
 };
 
-export const FilterType = {
+export const TypeFilter = {
+  ALL: 'all',
   WATCHLIST: 'watchlist',
   HISTORY: 'history',
   FAVORITE: 'favorite'
 };
 
-/** Перечисление типов списка
- * @enum {string}
- * @readonly
- */
-export const TypeList = {
-  MAIN: 'main',
-  EXTRA: 'extra'
-};
-
-/** Перечисление имен списка
- * @enum {string}
- * @readonly
- */
-export const NameList = {
-  MAIN: 'main',
-  TOP: 'top',
-  COMMENTED: 'commented'
-};
-
-/** Перечисление типов списка
- * @enum {string}
- * @readonly
- */
+/** Перечисление типов сортировки @readonly @enum {string} */
 export const TypeSort = {
   DEFAULT: 'default',
   DATE: 'date',
   RATING: 'rating',
   COMMENTED: 'commented'
+};
+
+/** Перечисление типов действий пользователя @readonly @enum {string} */
+export const TypeAction = {
+  UPDATE_FILM: 'update-film',
+  UPDATE_FILTER: 'update-filter',
+  REMOVE_COMMENT: 'remove-comment',
+  ADD_COMMENT: 'add-comment',
+  SORT: 'sort'
+};
+
+/** Перечисление типов обновления экрана @readonly @enum {string} */
+export const TypeUpdate = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MOJOR: 'MAJOR'
+};
+
+/** Перечисление имен элементов управления фильмом @readonly @enum {string} */
+export const NameControl = {
+  WATCHLIST: 'watchlist',
+  WATCHED: 'watched',
+  FAVORITE: 'favorite'
 };
 
 /** @type {Array} массив случайных имен */
@@ -75,14 +78,6 @@ export const names = [
   'Takeshi Kitano',
   'Morgan Freeman'
 ];
-
-export const TypeAction = {
-  UPDATE_FILM: 'update-film'
-};
-
-export const TypeUpdate = {
-  PATCH: 'PATCH'
-};
 
 /** @type {Array} массив смайликов @readonly */
 export const emojies = ['smile', 'sleeping', 'puke', 'angry'];

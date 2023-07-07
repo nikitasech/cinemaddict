@@ -1,6 +1,7 @@
 import Observable from '../framework/observable.js';
-import {generateFilm} from '../mock/film.js';
+import { generateFilm } from '../mock/film.js';
 
+/** Модель управляющая всеми всеми фильмами */
 export default class FilmsModel extends Observable {
   #items = Array.from({length: 36}, generateFilm);
 
@@ -8,8 +9,7 @@ export default class FilmsModel extends Observable {
     return this.#items;
   }
 
-  /**
-   * Находит в массиве элемент по id и заменяет его на новый
+  /** Находит в массиве элемент по id и заменяет его на новый
    * @param {Object} newItem новый элемент массива
    */
   updateItem = (typeUpdate, newItem) => {

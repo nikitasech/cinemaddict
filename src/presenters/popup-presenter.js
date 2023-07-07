@@ -1,4 +1,4 @@
-import {ControlName, TypeAction, TypeControls, TypeUpdate} from './../const.js';
+import {NameControl, TypeAction, TypeControl, TypeUpdate} from './../const.js';
 import {remove, render, RenderPosition, replace} from './../framework/render.js';
 import PopupFilmView from './../views/popup-film-view.js';
 import CommentView from './../views/comment-view.js';
@@ -10,51 +10,38 @@ import FormCommentView from '../views/form-comment-view.js';
 /**
  * Дочерний презентер {@link FilmsPresenter},
  * управляющий отображением попапа с деталями фильма
- * @param {Object} commentsModel модель комментариев
- * @param {Function} filmChangeHandler функция изменения данных фильма
+ * @param {Function} changeData функция изменения данных
  * @param {Function} closePopup функция закрытия попапа
  */
 export default class PopupPresenter {
-  /** @type {HTMLElement} контейнер для отрисовки попапа */
   #containerElement = document.body;
-
-  /** @type {Object|null} модель комментариев */
-  #getComments = null;
-
-  /** @type {Object|null} представление всплывающего окна */
   #popupComponent = null;
-
-  /** @type {Object|null} представление деталей фильма */
   #filmDetailsComponent = null;
-
-  /** @type {Object|null} представление элементов управления */
   #controlsComponent = null;
-
-  /** @type {Object|null} представление комментариев */
   #commentsComponent = null;
-
-  /** @type {Object|null} данные фильма */
+  #formCommentComponent = null;
   #film = null;
+  #comments = null;
+  #changeData = null;
+  #closePopup = null;
 
-  /** @type {Function|null} функция изменнеия данных фильма */
-  #viewActionHandler = null;
-
-  /** @type {Function|null} функция закрытия попапа */
-  #closePopupClickHundler = null;
-
-  constructor(getComments, viewActionHandler, closePopupClickHundler) {
-    this.#getComments = getComments;
-    this.#viewActionHandler = viewActionHandler;
-    this.#closePopupClickHundler = closePopupClickHundler;
+  constructor(changeData, closePopup) {
+    this.#changeData = changeData;
+    this.#closePopup = closePopup;
   }
 
   /** Инициализирует попап
    * @param {Object} film объект фильма
+   * @param {Array} comments массив комментариев
    */
-  init = (film) => {
+  init = (film, comments) => {
     this.#film = film;
+    this.#comments = comments;
 
-    if (!this.#popupComponent) {
+    if (this.#popupComponent) {
+      this.#formCommentComponent.removeSubmitHandler();
+      this.#popupComponent.removeCloseClickHandler();
+    } else {
       this.#renderPopup();
     }
 
@@ -65,8 +52,9 @@ export default class PopupPresenter {
 
   /** Удаляет попап */
   destroy = () => {
-    this.#popupComponent.removeCloseClickHandler(this.#closePopupClickHundler);
-    document.removeEventListener('keydown', this.#EscKeyDownHandler);
+    this.#popupComponent.removeCloseClickHandler();
+    this.#formCommentComponent.removeSubmitHandler();
+    this.#popupComponent.removeEscKeydownHandler();
 
     this.#containerElement.classList.remove('hide-overflow');
     remove(this.#popupComponent);
@@ -75,9 +63,6 @@ export default class PopupPresenter {
     this.#commentsComponent = null;
   };
 
-  /** Отрисовывает папап фильма
-   * @param {HTMLElement} container контейнер для отрисовки попапа
-   */
   #renderPopup = () => {
     this.#popupComponent = new PopupFilmView(this.#film);
 
@@ -85,7 +70,6 @@ export default class PopupPresenter {
     this.#containerElement.classList.add('hide-overflow');
   };
 
-  /** Отрисовывает детали фильма */
   #renderDetails = () => {
     const prevDetailsComponent = this.#filmDetailsComponent;
     this.#filmDetailsComponent = new FilmDetailsView(this.#film);
@@ -96,27 +80,24 @@ export default class PopupPresenter {
       replace(this.#filmDetailsComponent, prevDetailsComponent);
     }
 
-    this.#popupComponent.setCloseClickHandler(this.#closePopupClickHundler);
-    document.addEventListener('keydown', this.#EscKeyDownHandler);
+    this.#popupComponent.setCloseClickHandler(this.#closePopup);
+    this.#popupComponent.setEscKeydownHandler(this.#closePopup);
   };
 
-  /** Отрисовывает элементы управления */
   #renderControls = () => {
     this.#controlsComponent = new FilmControlsView(
       this.#film.userDetails,
-      TypeControls.DETAILS
+      TypeControl.DETAILS
     );
 
-    this.#controlsComponent.setClickHandler(this.#changeControlHandler);
-
     render(this.#controlsComponent, this.#filmDetailsComponent.element);
+    this.#controlsComponent.setClickHandler(this.#changeControlHandler);
   };
 
-  /** Отрисовывает комментарии */
   #renderComments = () => {
-    const comments = this.#getComments(this.#film.comments);
     const prevCommentsComponent = this.#commentsComponent;
     this.#commentsComponent = new CommentsView(this.#film.comments.length);
+    this.#formCommentComponent = new FormCommentView();
 
     if (!prevCommentsComponent) {
       render(this.#commentsComponent, this.#popupComponent.element);
@@ -124,38 +105,31 @@ export default class PopupPresenter {
       replace(this.#commentsComponent, prevCommentsComponent);
     }
 
-    render(new FormCommentView(), this.#commentsComponent.listElement, RenderPosition.AFTEREND);
+    render(this.#formCommentComponent, this.#commentsComponent.listElement, RenderPosition.AFTEREND);
+    this.#formCommentComponent.setSubmitHandler(this.#changeData);
 
-    comments.forEach((comment) => {
-      render(new CommentView(comment), this.#commentsComponent.listElement);
+    this.#comments.forEach((comment) => {
+      const commentComponent = new CommentView(comment);
+      render(commentComponent, this.#commentsComponent.listElement);
+      commentComponent.setClickHandler(this.#changeData);
     });
-  };
-
-  /** Функция обработчика нажатия на esc
-   * @param {Object} evt объект события
-   */
-  #EscKeyDownHandler = (evt) => {
-    if (evt.code === 'Escape') {
-      evt.preventDefault();
-      this.#closePopupClickHundler();
-    }
   };
 
   #changeControlHandler = (controlName) => {
     const newFilm = structuredClone(this.#film);
 
     switch (controlName) {
-      case ControlName.WATCHLIST:
+      case NameControl.WATCHLIST:
         newFilm.userDetails.watchlist = !newFilm.userDetails.watchlist;
         break;
-      case ControlName.WATCHED:
+      case NameControl.WATCHED:
         newFilm.userDetails.alreadyWatched = !newFilm.userDetails.alreadyWatched;
         break;
-      case ControlName.FAVORITE:
+      case NameControl.FAVORITE:
         newFilm.userDetails.favorite = !newFilm.userDetails.favorite;
         break;
     }
 
-    this.#viewActionHandler(TypeAction.UPDATE_FILM, TypeUpdate.PATCH, newFilm);
+    this.#changeData(TypeAction.UPDATE_FILM, TypeUpdate.PATCH, newFilm);
   };
 }

@@ -1,209 +1,108 @@
-import {render, RenderPosition, replace} from './../framework/render.js';
+import { render, replace } from './../framework/render.js';
 import CardPresenter from './card-presenter.js';
-import ButtonMoreView from './../views/load-more-button-view.js';
 import FilmsContainerView from './../views/films-container-view.js';
 import ListFilmsView from './../views/list-films-view.js';
 import ListFilmsTitleView from './../views/list-films-title-view.js';
-import {TypeList} from '../const.js';
-import SortView from '../views/sort-view.js';
+
+const IS_TITLE_HIDDEN = false;
 
 /**
- * Дочерний презентер {@link FilmsPresenter}, управляющий
- * списком фильмов и карточками фильмов ({@link CardPresenter})
- * @param {Object} films список фильмов
- * @param {number} portionCardsCount количество карточек, отображающихся за один раз
- * @param {Function} функция обновления данных фильма
- * @param {Function} функция отрисовки попапа
- * @param {Object|null} sortComponent представление сортировки (по умолчанию его нет)
+ * Дочерний презентер {@link FilmsPresenter}, управляющий простым
+ * списком фильмов и презентерами карточек фильмов ({@link CardPresenter})
+ * @param {HTMLElement} container контейнер для отрисовки для списка
+ * @param {string} typeList тип списка
+ * @param {Function} changeDate функция обновления данных
+ * @param {Function} openPopup функция отрисовки попапа
  */
 export default class ListPresenter {
-  /** @type {HTMLElement|null} контейнер для списков фильмов */
-  #containerElement = null;
-
-  /** @type {Map<number, Object>} карта презентеров карточек */
-  #cardPresenter = new Map();
-
-  /** @type {Object|null} представление сортировки */
-  #sortComponent = null;
-
-  /** @type {Object|null} представление списка фильмов */
-  #listComponent = null;
-
-  /** @type {Object|null} представление заголовка списка */
+  _containerElement = null;
+  _cardPresenter = new Map();
+  _listComponent = null;
   #listTitleComponent = null;
-
-  /** @type {Object|null} представление контейнера для фильмов */
   #filmsContainerComponent = null;
+  _films = null;
+  _title = null;
+  _type = null;
+  #changeDate = null;
+  #openPopup = null;
 
-  /** @type {Object|null} представление кнопки "Load More" */
-  #loadMoreButtonComponent = null;
-
-
-  #config = {};
-
-  /** @type {number} количество отрисованных карточек */
-  #renderedCardCount = 0;
-
-  /** @type {number} количество имеющийся фильмов */
-  #filmsLength = 0;
-
-  /** @type {Function|null} функция возвращающая список фильмов */
-  #getFilms = null;
-
-  /** @type {Function|null} Функция обновления данных фильма */
-  #viewActionHandler = null;
-
-  /** @type {Function|null} Функция отрисовки попапа */
-  #openPopupHandler = null;
-
-  constructor(listConfig, getFilms, viewActionHandler, openPopupHandler) {
-    this.#config = listConfig;
-    this.#getFilms = getFilms;
-    this.#viewActionHandler = viewActionHandler;
-    this.#openPopupHandler = openPopupHandler;
+  constructor(container, typeList, changeDate, openPopup) {
+    this._containerElement = container;
+    this._type = typeList;
+    this.#changeDate = changeDate;
+    this.#openPopup = openPopup;
   }
 
-  /** Инициализирует новый список без фильмов, с указанным заголовком
-   * @param {HTMLElement} container контейнер для отрисовки списка
-   * @param {string} type тип списка
-   * @param {string} title текст заголовка списка
-   * @param {Boolean} isTitleHidden нужно ли скрыть заголовок
+  /** Инициализирует новый список
+   * @param {Array} films список фильмов
+   * @param {string} titleText заголовок списка
    */
-  init = (container, title, isTitleHidden) => {
-    const films = this.#getFilms(this.#config.SORT);
-
-    this.#containerElement = container;
-    this.#filmsLength = films.length;
-
-    this.#renderList(this.#config.TYPE);
-    this.#renderTitle(title, isTitleHidden);
-
-    if (films) {
-      this.renderFilmsContainer();
-      this.#renderPortionCards();
-    }
-
-    if (this.#config.TYPE === TypeList.MAIN && films) {
-      this.#renderSort();
-    }
+  init = (films, titleText) => {
+    this._films = films;
+    this._title = titleText;
+    this._reset();
+    this._render(films, titleText);
   };
 
-  /** Обновляет фильмы в списке
-   * @param {Object} newFilm обновленный объект фильма
+  /** Обновляет фильм в списке
+   * @param {Object} newFilm обновленный фильм
    */
   updateFilm = (newFilm) => {
-    const cardPresenter = this.#cardPresenter.get(newFilm.id);
+    const cardPresenter = this._cardPresenter.get(newFilm.id);
 
     if (cardPresenter) {
       cardPresenter.init(this.#filmsContainerComponent.element, newFilm);
     }
   };
 
-  /** Отрисовывает сортировку */
-  #renderSort = (typeSort = this.#config.SORT) => {
-    const prevSortComponent = this.#sortComponent;
-    this.#sortComponent = new SortView(typeSort);
-
-    if (!prevSortComponent) {
-      render(this.#sortComponent, this.#containerElement, RenderPosition.BEFOREBEGIN);
-    } else {
-      replace(this.#sortComponent, prevSortComponent);
-    }
-
-    this.#sortComponent.setClickHandler(this.#sortFilms);
+  _reset = () => {
+    this._cardPresenter.clear();
   };
 
-  /** Отрисовывает список для фильмов
-   * @param {string} typeList тип списка
-   */
-  #renderList = (typeList) => {
-    const prevListComponent = this.#listComponent;
-    this.#listComponent = new ListFilmsView(typeList);
+  _render = (films, titleText) => {
+    this._renderList();
+    this._renderTitle(titleText, IS_TITLE_HIDDEN);
 
-    if (prevListComponent) {
-      replace(this.#listComponent, prevListComponent);
-    } else {
-      render(this.#listComponent, this.#containerElement);
+    if (films.length) {
+      this._renderFilmsContainer();
+      this._renderCards(films);
     }
   };
 
-  /** Отрисовывает заголовок в списке
-   * @param {string} title текст заголовка
-   * @param {Boolean} isTitleHidden нужно ли скрыть заголовок
-   */
-  #renderTitle = (title, isTitleHidden) => {
+  _renderList = () => {
+    const prevListComponent = this._listComponent;
+    this._listComponent = new ListFilmsView(this._type);
+
+    if (!prevListComponent) {
+      render(this._listComponent, this._containerElement);
+    } else {
+      replace(this._listComponent, prevListComponent);
+    }
+  };
+
+  _renderTitle = (title, isTitleHidden) => {
     this.#listTitleComponent = new ListFilmsTitleView(title, isTitleHidden);
-    render(this.#listTitleComponent, this.#listComponent.element);
+    render(this.#listTitleComponent, this._listComponent.element);
   };
 
-  /** Отрисовывает контейнер для фильмов в списке */
-  renderFilmsContainer = () => {
-    const prevFilmsContainerComponent = this.#filmsContainerComponent;
+  _renderFilmsContainer = () => {
     this.#filmsContainerComponent = new FilmsContainerView();
-
-    if (!prevFilmsContainerComponent) {
-      render(this.#filmsContainerComponent, this.#listComponent.element);
-    } else {
-      replace(this.#filmsContainerComponent, prevFilmsContainerComponent);
-    }
+    render(this.#filmsContainerComponent, this._listComponent.element);
   };
 
-  /** Отрисовыает карточку с списке фильмов
-   * @param {Object} film данные фильма
-   */
-  #rednerCard = (film) => {
+  #renderCard = (film) => {
     const cardPresenter = new CardPresenter(
-      this.#viewActionHandler,
-      this.#openPopupHandler
+      this.#changeDate,
+      this.#openPopup
     );
 
-    this.#cardPresenter.set(film.id, cardPresenter);
+    this._cardPresenter.set(film.id, cardPresenter);
     cardPresenter.init(this.#filmsContainerComponent.element, film);
   };
 
-  /**
-   * Отрисовывает несколько карточек от и до отпределенного номера
-   * @param {} films
-   */
-  #renderCards = (films) => {
+  _renderCards = (films) => {
     films.forEach((film) => {
-      this.#rednerCard(film);
+      this.#renderCard(film);
     });
-  };
-
-  /** Отрисовывает новую порцию карточек и кнопку,
-  если есть ещё карточки которые нужно отрисовать */
-  #renderPortionCards = () => {
-    const films = this.#getFilms(this.#config.SORT);
-    const first = this.#renderedCardCount;
-    const last = Math.min(first + this.#config.PORTION_CARDS, this.#filmsLength);
-    this.#renderedCardCount = last;
-
-    this.#renderCards(films.slice(first, last));
-
-    if (this.#config.TYPE === TypeList.MAIN) {
-      this.#renderLoadMoreButton();
-    }
-  };
-
-  /** Добавляет рабочую кнопку Load more в список всех фильмов */
-  #renderLoadMoreButton = () => {
-    if (this.#loadMoreButtonComponent && this.#renderedCardCount >= this.#filmsLength) {
-      this.#loadMoreButtonComponent.element.remove();
-      this.#loadMoreButtonComponent = null;
-    } else if (!this.#loadMoreButtonComponent && this.#renderedCardCount !== this.#filmsLength) {
-      this.#loadMoreButtonComponent = new ButtonMoreView();
-      render(this.#loadMoreButtonComponent, this.#listComponent.element);
-      this.#loadMoreButtonComponent.setClickHandler(this.#renderPortionCards);
-    }
-  };
-
-  #sortFilms = (typeSort) => {
-    const films = this.#getFilms(typeSort).slice(0, this.#config.PORTION_CARDS);
-
-    this.#cardPresenter.clear();
-    this.renderFilmsContainer();
-    this.#renderSort(typeSort);
-    this.#renderCards(films);
   };
 }

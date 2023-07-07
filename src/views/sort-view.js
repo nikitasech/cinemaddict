@@ -1,4 +1,4 @@
-import {TypeSort} from '../const.js';
+import {TypeAction, TypeSort} from '../const.js';
 import AbstractView from './../framework/view/abstract-view.js';
 
 const createSortTemplate = (typeSort) => {
@@ -23,32 +23,37 @@ const createSortTemplate = (typeSort) => {
   `);
 };
 
-/** Вью сортировки */
+/** Вью сортировки
+ * @param {string} type тип активной сортировки
+ */
 export default class SortView extends AbstractView {
-  #typeSort = null;
+  #type = null;
 
   constructor(type) {
     super();
-    this.#typeSort = type;
+    this.#type = type;
   }
 
   get template() {
-    return createSortTemplate(this.#typeSort);
+    return createSortTemplate(this.#type);
   }
 
-  #sortClickHandler = (evt) => {
-    evt.preventDefault();
-
-    if (evt.target.dataset.typeSort && evt.target.dataset.typeSort !== this.#typeSort) {
-      this.#typeSort = evt.target.dataset.typeSort;
-
-      this._callback.sortClick(this.#typeSort);
-    }
-  };
-
+  /** Устанавливает обработчик событий на клик по одной из кнопок сортировки
+   * @param {Function} callback функция для выполнения после выявления события
+   */
   setClickHandler = (sortCallback) => {
     this._callback.sortClick = sortCallback;
 
     this.element.addEventListener('click', this.#sortClickHandler);
+  };
+
+  #sortClickHandler = (evt) => {
+    evt.preventDefault();
+
+    if (evt.target.dataset.typeSort && evt.target.dataset.typeSort !== this.#type) {
+      this.#type = evt.target.dataset.typeSort;
+
+      this._callback.sortClick(TypeAction.SORT, this.#type);
+    }
   };
 }

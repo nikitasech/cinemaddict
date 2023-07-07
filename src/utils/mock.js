@@ -1,4 +1,4 @@
-import {getRandomNumber} from './common.js';
+import { getRandomNumber } from './common.js';
 
 /**
  * @param {Array} array массив, из которого нужно выбрать случайный элемент

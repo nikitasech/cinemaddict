@@ -6,12 +6,10 @@ const createPopupFilmTemplate = () => (`
   </section>
 `);
 
-/**
- * Вью попапа для подробного описания фильма
+/** Представление попапа с подробный описанием фильма
  * @param {Object} film данные фильма
  */
 export default class PopupFilmView extends AbstractView {
-  /** @type {Object} данные фильма */
   #film = {};
 
   constructor(film) {
@@ -23,25 +21,11 @@ export default class PopupFilmView extends AbstractView {
     return createPopupFilmTemplate(this.#film);
   }
 
-  /**
-   * Геттер получения контейнера для информации
-   * @returns {HTMLElement} контейнер для информации
-   */
   get containerElement() {
     return this.element.querySelector('.film-details__inner');
   }
 
-  /**
-   * Функция обработчика нажатия на кнопку закрытия попапа
-   * @param {Object} evt объект события
-   */
-  #closeClickHandler = (evt) => {
-    evt.preventDefault();
-    this._callback.closeClick();
-  };
-
-  /**
-   * Устанавливает обработчик событий на клик по кнопке закрытия попапа
+  /** Устанавливает обработчик событий на клик по кнопке закрытия попапа
    * @param {Function} callback функция для выполнения после выявления события
    */
   setCloseClickHandler = (callback) => {
@@ -51,10 +35,35 @@ export default class PopupFilmView extends AbstractView {
       .addEventListener('click', this.#closeClickHandler);
   };
 
+  /** Устанавливает обработчик событий на Esc
+   * @param {Function} callback функция для выполнения после выявления события
+   */
+  setEscKeydownHandler = (callback) => {
+    this._callback.escKeydown = callback;
+    document.addEventListener('keydown', this.#escKeydownHandler);
+  };
+
   /** Удаляет обработчик события с кнопки закрытия попапа */
   removeCloseClickHandler = () => {
     this.element
       .querySelector('.film-details__close-btn')
       .removeEventListener('click', this.#closeClickHandler);
+  };
+
+  /** Удаляет обработчик события с клавиши Esc */
+  removeEscKeydownHandler = () => {
+    document.removeEventListener('keydown', this.#escKeydownHandler);
+  };
+
+  #closeClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.closeClick();
+  };
+
+  #escKeydownHandler = (evt) => {
+    if (evt.code === 'Escape') {
+      evt.preventDefault();
+      this._callback.escKeydown();
+    }
   };
 }

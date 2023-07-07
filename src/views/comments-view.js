@@ -16,7 +16,6 @@ const createCommentsTemplate = (commentsCount) => (`
  * @param {number} commentsCount количество комметариев
  */
 export default class CommentsView extends AbstractView {
-  /** @type {number|null} количество комметариев */
   #count = null;
 
   constructor(commentsCount) {
@@ -28,8 +27,7 @@ export default class CommentsView extends AbstractView {
     return createCommentsTemplate(this.#count);
   }
 
-  /**
-   * Геттер получения списка комментариев
+  /** Геттер получения списка комментариев
    * @returns {HTMLElement} список комментариев
    */
   get listElement() {

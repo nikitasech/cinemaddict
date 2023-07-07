@@ -1,5 +1,5 @@
-import { FilterType } from '../const.js';
-import {filter} from './../utils/filter.js';
+import { TypeFilter } from '../const.js';
+import { filter } from './filter.js';
 
 /** @type {Map<string, Array>} карта, сопоставляющая ранг пользователя с количеством просмторенных фильмов */
 const RankMap = new Map([
@@ -14,7 +14,7 @@ const RankMap = new Map([
  * @returns {string|null} ранг пользователя
  */
 export const getUserRank = (films) => {
-  const watchedCount = filter[FilterType.WATCHLIST](films).length;
+  const watchedCount = filter(films, TypeFilter.WATCHLIST).length;
 
   for (const [rank, [min, max]] of RankMap) {
     if (watchedCount >= min && watchedCount <= max) {

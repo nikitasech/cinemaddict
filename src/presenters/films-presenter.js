@@ -7,6 +7,7 @@ import ListPresenter from './list-presenter.js';
 import MainListPresenter from './main-list-presenter.js';
 import { nanoid } from 'nanoid';
 import { filter } from '../utils/filter.js';
+import SortPresenter from './sort-presenter.js';
 
 /**
  * Главный презентер. Управляет всеми списками фильмов ({@link MainListPresenter}
@@ -21,43 +22,29 @@ export default class FilmsPresenter {
   #filtersModel = null;
   #sortModel = null;
   #commentsModel = null;
+  #sortPresenter = null;
   #popupPresenter = null;
   #ListPresenter = {};
   #filmsComponent = new FilmsView();
   #popupFilm = null;
 
   constructor(filmsModel, filtersModel, sortModel, commentsModel) {
+    const filmsElement = this.#filmsComponent.element;
+    const changeDate = this.#viewActionHandler;
+    const renderPopup = this.#renderPopup;
+
     this.#filmsModel = filmsModel;
     this.#filtersModel = filtersModel;
     this.#sortModel = sortModel;
     this.#commentsModel = commentsModel;
 
-    this.#popupPresenter = new PopupPresenter(
-      this.#viewActionHandler,
-      this.#removePopup
-    );
+    this.#popupPresenter = new PopupPresenter(changeDate, this.#removePopup);
+    this.#sortPresenter = new SortPresenter(filmsModel, sortModel)
 
     this.#ListPresenter = {
-      ALL: new MainListPresenter(
-        this.#filmsComponent.element,
-        TypeList.MAIN,
-        this.#viewActionHandler,
-        this.#renderPopup
-      ),
-
-      TOP: new ListPresenter(
-        this.#filmsComponent.element,
-        TypeList.EXTRA,
-        this.#viewActionHandler,
-        this.#renderPopup
-      ),
-
-      COMMENTED: new ListPresenter(
-        this.#filmsComponent.element,
-        TypeList.EXTRA,
-        this.#viewActionHandler,
-        this.#renderPopup
-      )
+      ALL: new MainListPresenter(filmsElement, TypeList.MAIN, changeDate, renderPopup),
+      TOP: new ListPresenter(filmsElement, TypeList.EXTRA, changeDate, renderPopup),
+      COMMENTED: new ListPresenter(filmsElement, TypeList.EXTRA, changeDate, renderPopup)
     };
 
     this.#filmsModel.addObserver(this.#filmsModelEventHandler);
@@ -71,11 +58,7 @@ export default class FilmsPresenter {
   init = (rootContainer) => {
     this.#rednerFilmsContainer(rootContainer);
     this.#renderMainList();
-
-    if (this.#filmsModel.items.length) {
-      this.#renderExtraList(this.#ListPresenter.TOP, TypeSort.RATING);
-      this.#renderExtraList(this.#ListPresenter.COMMENTED, TypeSort.COMMENTED);
-    }
+    this.#ListPresenter.ALL.init(NoFilmsListTitle.loading);
   };
 
   #viewActionHandler = (typeAction, typeUpdate, payload) => {
@@ -123,6 +106,11 @@ export default class FilmsPresenter {
 
   #filmsModelEventHandler = (typeUpdate, payload) => {
     switch (typeUpdate) {
+      case TypeUpdate.INIT:
+        this.#renderMainList(true); // #TODO заменить на конст
+        this.#renderExtraList(this.#ListPresenter.TOP, TypeSort.RATING);
+        this.#renderExtraList(this.#ListPresenter.COMMENTED, TypeSort.COMMENTED);
+        break;
       case TypeUpdate.PATCH:
         this.#updateFilm(payload);
 
@@ -136,14 +124,14 @@ export default class FilmsPresenter {
     switch(typeUpdate) {
       case TypeUpdate.MINOR:
         this.#sortModel.resetActiveItem();
-        this.#renderMainList(true);
+        this.#renderMainList(true); // #TODO заменить на конст
     }
   };
 
   #sortModelEventHandler = (typeUpdate) => {
     switch(typeUpdate) {
       case TypeUpdate.MINOR:
-        this.#renderMainList(true);
+        this.#renderMainList(true); // #TODO заменить на конст
     }
   };
 
@@ -157,7 +145,14 @@ export default class FilmsPresenter {
       ? ListTitle[this.#filtersModel.activeItem]
       : NoFilmsListTitle[this.#filtersModel.activeItem];
 
-    this.#ListPresenter.ALL.init(films, title, isResetCounterFilms);
+    this.#ListPresenter.ALL.init(title, films, isResetCounterFilms);
+
+    if (films.length) {
+      this.#sortPresenter.init(this.#filmsComponent.element);
+      return;
+    }
+
+    this.#sortPresenter.remove();
   };
 
   #renderExtraList = (listPresenter, typeSort) => {
@@ -166,7 +161,9 @@ export default class FilmsPresenter {
       .sort(this.#filmsModel.items, typeSort)
       .slice(0, 2);
 
-    listPresenter.init(films, title);
+    if (films.length) {
+      listPresenter.init(title, films);
+    }
   };
 
   #renderPopup = (film) => {

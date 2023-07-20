@@ -25,7 +25,7 @@ export default class MainListPresenter extends ListPresenter {
    * @param {string} titleText заголовок списка
    * @param {Boolean} isResetCounter обновлять счетчик отрисованных фильмов?
    */
-  init = (films, titleText, isResetCounter = true) => {
+  init = (titleText, films = {}, isResetCounter = true) => {
     const portionCards = isResetCounter || !this.#renderedCardCount
       ? this.#portionCards
       : this.#renderedCardCount;

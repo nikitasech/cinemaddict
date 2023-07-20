@@ -37,9 +37,9 @@ export default class ListPresenter {
    * @param {Array} films список фильмов
    * @param {string} titleText заголовок списка
    */
-  init = (films, titleText) => {
-    this._films = films;
+  init = (titleText, films) => {
     this._title = titleText;
+    this._films = films;
     this._reset();
     this._render(films, titleText);
   };

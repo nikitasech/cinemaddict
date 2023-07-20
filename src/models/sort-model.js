@@ -1,9 +1,10 @@
 import { TypeSort, TypeUpdate } from '../const.js';
 import Observable from '../framework/observable.js';
-import {shuffleArray} from '../utils/common.js';
+import { shuffleArray } from '../utils/common.js';
 
 const sortByDate = (items) => shuffleArray(items.slice())
   .sort((before, after) => {
+    // #TODO ещё раз попробовать объединить в одну функцию
     const beforeDate = Date.parse(before.info.release.date);
     const afterDate = Date.parse(after.info.release.date);
 

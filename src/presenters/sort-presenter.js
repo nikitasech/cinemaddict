@@ -1,5 +1,5 @@
 import { TypeAction, TypeUpdate } from './../const.js';
-import { render, replace } from './../framework/render.js';
+import { RenderPosition, remove, render, replace } from './../framework/render.js';
 import SortView from './../views/sort-view.js';
 
 /** Презентер управляющий сортировкой
@@ -10,8 +10,9 @@ export default class SortPresenter {
   #model = null;
   #component = null;
 
-  constructor(sortModel) {
+  constructor(filmsModel, sortModel) {
     this.#model = sortModel;
+    filmsModel.addObserver(this.#modelEventHandler);
     this.#model.addObserver(this.#modelEventHandler);
   }
 
@@ -23,17 +24,9 @@ export default class SortPresenter {
     this.#render(this.#model.activeItem);
   };
 
-  #render = (type) => {
-    const prevComponent = this.#component;
-    this.#component = new SortView(type);
-
-    if (!prevComponent) {
-      render(this.#component, this.#containerElement);
-    } else {
-      replace(this.#component, prevComponent);
-    }
-
-    this.#component.setClickHandler(this.#viewActionHandler);
+  remove = () => {
+    remove(this.#component);
+    this.#component = null;
   };
 
   #viewActionHandler = (typeAction, payload) => {
@@ -48,5 +41,18 @@ export default class SortPresenter {
       case TypeUpdate.MINOR:
         this.#render(payload);
     }
+  };
+
+  #render = (type) => {
+    const prevComponent = this.#component;
+    this.#component = new SortView(type);
+
+    if (!prevComponent) {
+      render(this.#component, this.#containerElement, RenderPosition.AFTERBEGIN);
+    } else {
+      replace(this.#component, prevComponent);
+    }
+
+    this.#component.setClickHandler(this.#viewActionHandler);
   };
 }

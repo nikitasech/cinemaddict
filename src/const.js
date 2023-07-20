@@ -57,7 +57,16 @@ export const TypeAction = {
 export const TypeUpdate = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
-  MOJOR: 'MAJOR'
+  MOJOR: 'MAJOR',
+  INIT: 'INIT'
+};
+
+/** Перечисление типов HTTP=запросов @readonly @enum {string} */
+export const Method = {
+  GET: 'GET',
+  POST: 'POST',
+  PUT: 'PUT',
+  PATCH: 'PATCH',
 };
 
 /** Перечисление имен элементов управления фильмом @readonly @enum {string} */

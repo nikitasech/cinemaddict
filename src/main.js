@@ -44,7 +44,7 @@ filtersPresenter.init(siteMainElement);
 // render(new StatisticsView(filmsCount), siteStatisticsElement);
 filmsPresenter.init(siteMainElement);
 
-setTimeout(() => {
+// setTimeout(() => {
   filmsModel.init();
-}, 5000);
+// }, 5000);
 

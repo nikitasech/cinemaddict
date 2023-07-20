@@ -1,6 +1,5 @@
 import { TypeUpdate } from '../const.js';
 import Observable from '../framework/observable.js';
-import { generateFilm } from '../mock/film.js';
 
 /** Модель управляющая всеми всеми фильмами */
 export default class FilmsModel extends Observable {
@@ -17,8 +16,14 @@ export default class FilmsModel extends Observable {
   }
 
   /** Инициализирует модель */
-  init = () => {
-    this.#items = Array.from({length: 36}, generateFilm);
+  init = async () => {
+    try {
+      const films = await this.#filmsApiService.items;
+      this.#items = films.map(this.#adaptToClient);
+    } catch (err) {
+      this.#items = [];
+    }
+
     this._notify(TypeUpdate.INIT, this.#items);
   };
 
@@ -68,6 +73,6 @@ export default class FilmsModel extends Observable {
     delete adaptedItem.userDetails['already_watched'];
     delete adaptedItem.userDetails['watching_date'];
 
-    return item;
+    return adaptedItem;
   };
 }

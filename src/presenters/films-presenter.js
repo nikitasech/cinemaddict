@@ -39,7 +39,7 @@ export default class FilmsPresenter {
     this.#commentsModel = commentsModel;
 
     this.#popupPresenter = new PopupPresenter(changeDate, this.#removePopup);
-    this.#sortPresenter = new SortPresenter(filmsModel, sortModel)
+    this.#sortPresenter = new SortPresenter(filmsModel, sortModel);
 
     this.#ListPresenter = {
       ALL: new MainListPresenter(filmsElement, TypeList.MAIN, changeDate, renderPopup),

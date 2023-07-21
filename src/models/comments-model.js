@@ -1,16 +1,31 @@
 import Observable from './../framework/observable.js';
-import { generateComment } from './../mock/comment.js';
 
 /** Модель комментариев. */
 export default class CommentsModel extends Observable {
-  #items = Array.from({length: 74}, generateComment);
+  #apiService;
+  #items = new Map();
 
-  /** Ищет и возвращает комментарии с нужныхм id
-   * @param {Array} ids список id нужных комментариев
+  constructor(apiService) {
+    super();
+    this.#apiService = apiService;
+  }
+
+  /** Возвращает комментарии к фильму
+   * @param {number} filmId id нужного фильма
    * @returns {Array} список комментариев
    */
-  getItems = (ids) => ids.map((id) => this.#items
-    .find((comment) => id === comment.id));
+  getItems = async (filmId) => {
+    if (!this.#items.get(filmId)) {
+      try {
+        const comments = await this.#apiService.getItems(filmId);
+        this.#items.set(filmId, comments);
+      } catch (err) {
+        return [];
+      }
+    }
+
+    return this.#items.get(filmId);
+  };
 
   /** Добавляет новый комментарий
    * @param {Array} typeUpdate

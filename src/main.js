@@ -2,6 +2,7 @@
 // import {getUserRank} from './utils/user.js';
 
 import FilmsApiService from './api-services/films-api-service.js';
+import CommentsApiService from './api-services/comments-api-service.js';
 
 import FilmsModel from './models/films-model.js';
 import CommentsModel from './models/comments-model.js';
@@ -23,11 +24,12 @@ const siteMainElement = document.querySelector('.main');
 // const siteStatisticsElement = document.querySelector('.footer__statistics');
 
 const filmsApiService = new FilmsApiService(END_POINT, AUTHORIZATION);
+const commentsApiService = new CommentsApiService(END_POINT, AUTHORIZATION);
 
 const filmsModel = new FilmsModel(filmsApiService);
+const commentsModel = new CommentsModel(commentsApiService);
 const filtersModel = new FiltersModel();
 const sortModel = new SortModel();
-const commentsModel = new CommentsModel();
 
 const filtersPresenter = new FiltersPresenter(filmsModel, filtersModel);
 const filmsPresenter = new FilmsPresenter(filmsModel, filtersModel, sortModel, commentsModel);
@@ -44,7 +46,5 @@ filtersPresenter.init(siteMainElement);
 // render(new StatisticsView(filmsCount), siteStatisticsElement);
 filmsPresenter.init(siteMainElement);
 
-// setTimeout(() => {
-  filmsModel.init();
-// }, 5000);
+filmsModel.init();
 

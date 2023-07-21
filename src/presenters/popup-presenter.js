@@ -15,28 +15,28 @@ import FormCommentView from '../views/form-comment-view.js';
  */
 export default class PopupPresenter {
   #containerElement = document.body;
+  #commentsModel = null;
   #popupComponent = null;
   #filmDetailsComponent = null;
   #controlsComponent = null;
   #commentsComponent = null;
   #formCommentComponent = null;
   #film = null;
-  #comments = null;
   #changeData = null;
   #closePopup = null;
 
-  constructor(changeData, closePopup) {
+  constructor(changeData, closePopup, commentsModel) {
     this.#changeData = changeData;
     this.#closePopup = closePopup;
+    this.#commentsModel = commentsModel;
   }
 
   /** Инициализирует попап
    * @param {Object} film объект фильма
    * @param {Array} comments массив комментариев
    */
-  init = (film, comments) => {
+  init = (film) => {
     this.#film = film;
-    this.#comments = comments;
 
     if (this.#popupComponent) {
       this.#formCommentComponent.removeSubmitHandler();
@@ -94,8 +94,9 @@ export default class PopupPresenter {
     this.#controlsComponent.setClickHandler(this.#changeControlHandler);
   };
 
-  #renderComments = () => {
+  #renderComments = async () => {
     const prevCommentsComponent = this.#commentsComponent;
+    const comments = await this.#commentsModel.getItems(this.#film.id);
     this.#commentsComponent = new CommentsView(this.#film.comments.length);
     this.#formCommentComponent = new FormCommentView();
 
@@ -108,7 +109,7 @@ export default class PopupPresenter {
     render(this.#formCommentComponent, this.#commentsComponent.listElement, RenderPosition.AFTEREND);
     this.#formCommentComponent.setSubmitHandler(this.#changeData);
 
-    this.#comments.forEach((comment) => {
+    comments.forEach((comment) => {
       const commentComponent = new CommentView(comment);
       render(commentComponent, this.#commentsComponent.listElement);
       commentComponent.setClickHandler(this.#changeData);

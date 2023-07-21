@@ -32,13 +32,14 @@ export default class FilmsPresenter {
     const filmsElement = this.#filmsComponent.element;
     const changeDate = this.#viewActionHandler;
     const renderPopup = this.#renderPopup;
+    const removePopup = this.#removePopup;
 
     this.#filmsModel = filmsModel;
     this.#filtersModel = filtersModel;
     this.#sortModel = sortModel;
     this.#commentsModel = commentsModel;
 
-    this.#popupPresenter = new PopupPresenter(changeDate, this.#removePopup);
+    this.#popupPresenter = new PopupPresenter(changeDate, removePopup, commentsModel);
     this.#sortPresenter = new SortPresenter(filmsModel, sortModel);
 
     this.#ListPresenter = {
@@ -167,9 +168,8 @@ export default class FilmsPresenter {
   };
 
   #renderPopup = (film) => {
-    const comments = this.#commentsModel.getItems(film.comments);
     this.#popupFilm = film;
-    this.#popupPresenter.init(film, comments);
+    this.#popupPresenter.init(film);
   };
 
   #removePopup = () => {

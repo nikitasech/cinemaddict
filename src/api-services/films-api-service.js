@@ -1,7 +1,7 @@
-import { Method } from '../const';
+import { Method } from '../const.js';
 import ApiService from './../framework/api-service.js';
 
-/** Модуль помогающий синхронизировать локальные данные с сервером */
+/** Модуль помогающий синхронизировать локальные данные фильмов с сервером */
 export default class FilmsApiService extends ApiService {
   get items() {
     return this._load({url: 'movies'})

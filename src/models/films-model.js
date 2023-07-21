@@ -3,12 +3,12 @@ import Observable from '../framework/observable.js';
 
 /** Модель управляющая всеми всеми фильмами */
 export default class FilmsModel extends Observable {
+  #apiService;
   #items = [];
-  #filmsApiService = null;
 
-  constructor(filmsApiService) {
+  constructor(apiService) {
     super();
-    this.#filmsApiService = filmsApiService;
+    this.#apiService = apiService;
   }
 
   get items() {
@@ -18,7 +18,7 @@ export default class FilmsModel extends Observable {
   /** Инициализирует модель */
   init = async () => {
     try {
-      const films = await this.#filmsApiService.items;
+      const films = await this.#apiService.items;
       this.#items = films.map(this.#adaptToClient);
     } catch (err) {
       this.#items = [];
@@ -30,17 +30,25 @@ export default class FilmsModel extends Observable {
   /** Находит в массиве элемент по id и заменяет его на новый
    * @param {Object} newItem новый элемент массива
    */
-  updateItem = (typeUpdate, newItem) => {
+  updateItem = async (typeUpdate, newItem) => {
     const index = this.#items.findIndex((item) => item.id === newItem.id);
 
-    if (index !== -1) {
+    if (index === -1) {
+      throw new Error('Can\'t update unexisting film');
+    }
+
+    try {
+      const response = await this.#apiService.updateItem(newItem);
+      const updatedItem = this.#adaptToClient(response);
       this.#items = [
         ...this.#items.slice(0, index),
-        newItem,
+        updatedItem,
         ...this.#items.slice(index + 1)
       ];
 
       this._notify(typeUpdate, newItem);
+    } catch (err) {
+      throw new Error('Can\'t update film');
     }
   };
 

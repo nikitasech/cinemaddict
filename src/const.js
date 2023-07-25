@@ -61,12 +61,12 @@ export const TypeUpdate = {
   INIT: 'INIT'
 };
 
-/** Перечисление типов HTTP=запросов @readonly @enum {string} */
+/** Перечисление типов HTTP-запросов @readonly @enum {string} */
 export const Method = {
   GET: 'GET',
   POST: 'POST',
   PUT: 'PUT',
-  PATCH: 'PATCH',
+  DELETE: 'DELETE',
 };
 
 /** Перечисление имен элементов управления фильмом @readonly @enum {string} */

@@ -5,7 +5,6 @@ import FilmsView from './../views/films-view.js';
 import PopupPresenter from './popup-presenter.js';
 import ListPresenter from './list-presenter.js';
 import MainListPresenter from './main-list-presenter.js';
-import { nanoid } from 'nanoid';
 import { filter } from '../utils/filter.js';
 import SortPresenter from './sort-presenter.js';
 
@@ -63,44 +62,15 @@ export default class FilmsPresenter {
   };
 
   #viewActionHandler = (typeAction, typeUpdate, payload) => {
-    const addComment = (newComment) => {
-      const newFilm = structuredClone(this.#popupFilm);
-      const newCommentId = nanoid();
-      const comment = {
-        id: newCommentId,
-        author: 'Cooper',
-        date: new Date(),
-        ...newComment
-      };
-
-      newFilm.comments.push(newCommentId);
-      this.#commentsModel.addItem(typeUpdate, comment);
-      this.#filmsModel.updateItem(typeUpdate, newFilm);
-    };
-
-    const deleteComment = (deletedComment) => {
-      const newFilm = structuredClone(this.#popupFilm);
-      const comments = Array.from(this.#popupFilm.comments);
-      const commentIndexInFilmObject = comments
-        .findIndex((comment) => comment === deletedComment.id);
-
-      comments.splice(commentIndexInFilmObject, 1);
-      newFilm.comments = comments;
-      this.#popupFilm = newFilm;
-
-      this.#commentsModel.removeItem(typeUpdate, deletedComment);
-      this.#filmsModel.updateItem(typeUpdate, newFilm);
-    };
-
     switch(typeAction) {
       case TypeAction.UPDATE_FILM:
-        this.#filmsModel.updateItem(typeUpdate, payload);
+        this.#filmsModel.updateItemOnServer(typeUpdate, payload);
         break;
       case TypeAction.REMOVE_COMMENT:
-        deleteComment(payload);
+        this.#commentsModel.removeItem(typeUpdate, payload, this.#popupFilm);
         break;
       case TypeAction.ADD_COMMENT:
-        addComment(payload);
+        this.#commentsModel.addItem(typeUpdate, payload, this.#popupFilm.id);
         break;
     }
   };

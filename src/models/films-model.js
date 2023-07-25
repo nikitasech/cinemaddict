@@ -30,26 +30,33 @@ export default class FilmsModel extends Observable {
   /** Находит в массиве элемент по id и заменяет его на новый
    * @param {Object} newItem новый элемент массива
    */
-  updateItem = async (typeUpdate, newItem) => {
+  updateItemOnServer = async (typeUpdate, newItem) => {
+    try {
+      const response = await this.#apiService.updateItem(newItem);
+      const isAdapted = false;
+      this.updateItemOnClient(typeUpdate, response, isAdapted);
+    } catch (err) {
+      throw new Error('Can\'t update film');
+    }
+  };
+
+  updateItemOnClient = (typeUpdate, newItem, isAdapted) => {
+    const adaptedItem = (!isAdapted)
+      ? this.#adaptToClient(newItem)
+      : newItem;
     const index = this.#items.findIndex((item) => item.id === newItem.id);
 
     if (index === -1) {
       throw new Error('Can\'t update unexisting film');
     }
 
-    try {
-      const response = await this.#apiService.updateItem(newItem);
-      const updatedItem = this.#adaptToClient(response);
-      this.#items = [
-        ...this.#items.slice(0, index),
-        updatedItem,
-        ...this.#items.slice(index + 1)
-      ];
+    this.#items = [
+      ...this.#items.slice(0, index),
+      adaptedItem,
+      ...this.#items.slice(index + 1)
+    ];
 
-      this._notify(typeUpdate, newItem);
-    } catch (err) {
-      throw new Error('Can\'t update film');
-    }
+    this._notify(typeUpdate, adaptedItem);
   };
 
   #adaptToClient = (item) => {

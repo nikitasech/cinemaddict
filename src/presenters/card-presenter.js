@@ -34,6 +34,13 @@ export default class CardPresenter {
     remove(this.#cardComponent);
   };
 
+  setAborting = (typeAction) => {
+    switch(typeAction) {
+      case TypeAction.UPDATE_FILM:
+        this.#cardComponent.shake();
+    }
+  };
+
   #renderCard = (container) => {
     const prevCardComponent = this.#cardComponent;
     this.#cardComponent = new FilmCardView(this.#film);

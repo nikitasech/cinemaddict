@@ -33,11 +33,11 @@ export default class CommentsModel extends Observable {
    * @param {Array} typeUpdate
    * @param {Object} newComment
    */
-  addItem = async (typeUpdate, newItem, filmId) => {
+  addItem = async (typeUpdate, newItem, film) => {
     try {
-      const response = await this.#apiService.add(newItem, filmId);
+      const response = await this.#apiService.add(newItem, film.id);
       const idAdapted = false;
-      this.#items.set(filmId, response.comments);
+      this.#items.set(film.id, response.comments);
       this.#filmsModel.updateItemOnClient(typeUpdate, response.movie, idAdapted);
     } catch (err) {
       throw new Error('Can\'t add comment');

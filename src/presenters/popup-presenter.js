@@ -20,6 +20,7 @@ export default class PopupPresenter {
   #filmDetailsComponent = null;
   #controlsComponent = null;
   #commentsComponent = null;
+  #commentComponent = new Map();
   #formCommentComponent = null;
   #film = null;
   #changeData = null;
@@ -61,6 +62,21 @@ export default class PopupPresenter {
     this.#popupComponent = null;
     this.#filmDetailsComponent = null;
     this.#commentsComponent = null;
+  };
+
+  setAborting = (typeAction, commentId) => {
+    switch (typeAction) {
+      case TypeAction.ADD_COMMENT:
+        this.#formCommentComponent.shake();
+        break;
+      case TypeAction.REMOVE_COMMENT:
+        if (this.#commentComponent.get(commentId)) {
+          this.#commentComponent.get(commentId).shake();
+        }
+        break;
+      case TypeAction.UPDATE_FILM:
+        this.#controlsComponent.shake();
+    }
   };
 
   #renderPopup = () => {
@@ -111,6 +127,7 @@ export default class PopupPresenter {
 
     comments.forEach((comment) => {
       const commentComponent = new CommentView(comment);
+      this.#commentComponent.set(comment.id, commentComponent);
       render(commentComponent, this.#commentsComponent.listElement);
       commentComponent.setClickHandler(this.#changeData);
     });

@@ -7,6 +7,12 @@ import ListPresenter from './list-presenter.js';
 import MainListPresenter from './main-list-presenter.js';
 import { filter } from '../utils/filter.js';
 import SortPresenter from './sort-presenter.js';
+import UiBlocker from './../framework/ui-blocker/ui-blocker.js';
+
+const TimeLimit = {
+  LOWER: 100,
+  UPPER: 500
+};
 
 /**
  * Главный презентер. Управляет всеми списками фильмов ({@link MainListPresenter}
@@ -25,6 +31,7 @@ export default class FilmsPresenter {
   #popupPresenter = null;
   #ListPresenter = {};
   #filmsComponent = new FilmsView();
+  #uiBlocker = new UiBlocker(TimeLimit.LOWER, TimeLimit.UPPER);
   #popupFilm = null;
 
   constructor(filmsModel, filtersModel, sortModel, commentsModel) {
@@ -61,16 +68,47 @@ export default class FilmsPresenter {
     this.#ListPresenter.ALL.init(NoFilmsListTitle.loading);
   };
 
-  #viewActionHandler = (typeAction, typeUpdate, payload) => {
+  #viewActionHandler = async (typeAction, typeUpdate, payload) => {
+    this.#uiBlocker.block();
+
+    const accessHandler = async (access) => {
+      try {
+        await access(typeUpdate, payload, this.#popupFilm);
+      } catch (err) {
+        this.#setAborting(typeAction, payload.id);
+      }
+    };
+
     switch(typeAction) {
       case TypeAction.UPDATE_FILM:
-        this.#filmsModel.updateItemOnServer(typeUpdate, payload);
+        accessHandler(this.#filmsModel.updateItemOnServer);
         break;
       case TypeAction.REMOVE_COMMENT:
-        this.#commentsModel.removeItem(typeUpdate, payload, this.#popupFilm);
+        accessHandler(this.#commentsModel.removeItem);
         break;
       case TypeAction.ADD_COMMENT:
-        this.#commentsModel.addItem(typeUpdate, payload, this.#popupFilm.id);
+        accessHandler(this.#commentsModel.addItem);
+        break;
+    }
+
+    this.#uiBlocker.unblock();
+  };
+
+  #setAborting = (typeAction, elementId) => {
+    switch (typeAction) {
+      case TypeAction.ADD_COMMENT:
+      case TypeAction.REMOVE_COMMENT:
+        this.#popupPresenter.setAborting(typeAction, elementId);
+        break;
+      case TypeAction.UPDATE_FILM:
+        if (this.#popupFilm) {
+          this.#popupPresenter.setAborting(typeAction);
+          break;
+        }
+
+        for (const list of Object.values(this.#ListPresenter)) {
+          list.setAborting(typeAction, elementId);
+        }
         break;
     }
   };

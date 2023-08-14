@@ -37,7 +37,7 @@ export default class MainListPresenter extends ListPresenter {
   };
 
   _reset = () => {
-    this._cardPresenter.clear();
+    this._CardPresenter.clear();
     this.#loadMoreButtonComponent = null;
     this.#renderedCardCount = 0;
     this.#filmsLength = this._films.length;

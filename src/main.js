@@ -10,8 +10,7 @@ import SortModel from './models/sort-model.js';
 import FilmsPresenter from './presenters/films-presenter.js';
 import FiltersPresenter from './presenters/filters-presenter.js';
 import UserPresenter from './presenters/user-presenter.js';
-
-// import StatisticsView from './views/statistics-view.js';
+import { StatisticsPresenter } from './presenters/statistics-presenter.js';
 
 const AUTHORIZATION = 'Basic hS2sfS44wFDdsf4l1sa2j';
 const END_POINT = 'https://17.ecmascript.pages.academy/cinemaddict';
@@ -19,7 +18,7 @@ const END_POINT = 'https://17.ecmascript.pages.academy/cinemaddict';
 
 const siteHeaderElement = document.querySelector('.header');
 const siteMainElement = document.querySelector('.main');
-// const siteStatisticsElement = document.querySelector('.footer__statistics');
+const siteStatisticsElement = document.querySelector('.footer__statistics');
 
 const filmsApiService = new FilmsApiService(END_POINT, AUTHORIZATION);
 const commentsApiService = new CommentsApiService(END_POINT, AUTHORIZATION);
@@ -33,13 +32,12 @@ const sortModel = new SortModel();
 const filtersPresenter = new FiltersPresenter(filmsModel, filtersModel);
 const userPresenter = new UserPresenter(userModel, filmsModel);
 const filmsPresenter = new FilmsPresenter(filmsModel, filtersModel, sortModel, commentsModel);
-
-// const filmsCount = filmsModel.items.length;
+const statisticsPresenter = new StatisticsPresenter(filmsModel);
 
 filtersPresenter.init(siteMainElement);
 userPresenter.init(siteHeaderElement);
 filmsPresenter.init(siteMainElement);
-// render(new StatisticsView(filmsCount), siteStatisticsElement);
+statisticsPresenter.init(siteStatisticsElement);
 
 filmsModel.init();
 

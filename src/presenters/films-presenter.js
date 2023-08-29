@@ -23,16 +23,16 @@ const TimeLimit = {
  * @param {Object} commentsModel {@link CommentsModel}
 */
 export default class FilmsPresenter {
-  #filmsModel = null;
-  #filtersModel = null;
-  #sortModel = null;
-  #commentsModel = null;
-  #sortPresenter = null;
-  #popupPresenter = null;
+  #filmsModel;
+  #filtersModel;
+  #sortModel;
+  #commentsModel;
+  #sortPresenter;
+  #popupPresenter;
   #ListPresenter = {};
   #filmsComponent = new FilmsView();
   #uiBlocker = new UiBlocker(TimeLimit.LOWER, TimeLimit.UPPER);
-  #popupFilm = null;
+  #popupFilm;
 
   constructor(filmsModel, filtersModel, sortModel, commentsModel) {
     const filmsElement = this.#filmsComponent.element;
@@ -94,25 +94,6 @@ export default class FilmsPresenter {
     this.#uiBlocker.unblock();
   };
 
-  #setAborting = (typeAction, elementId) => {
-    switch (typeAction) {
-      case TypeAction.ADD_COMMENT:
-      case TypeAction.REMOVE_COMMENT:
-        this.#popupPresenter.setAborting(typeAction, elementId);
-        break;
-      case TypeAction.UPDATE_FILM:
-        if (this.#popupFilm) {
-          this.#popupPresenter.setAborting(typeAction);
-          break;
-        }
-
-        for (const list of Object.values(this.#ListPresenter)) {
-          list.setAborting(typeAction, elementId);
-        }
-        break;
-    }
-  };
-
   #filmsModelEventHandler = (typeUpdate, payload) => {
     switch (typeUpdate) {
       case TypeUpdate.INIT:
@@ -141,6 +122,25 @@ export default class FilmsPresenter {
     switch(typeUpdate) {
       case TypeUpdate.MINOR:
         this.#renderMainList(true); // #TODO заменить на конст
+    }
+  };
+
+  #setAborting = (typeAction, elementId) => {
+    switch (typeAction) {
+      case TypeAction.ADD_COMMENT:
+      case TypeAction.REMOVE_COMMENT:
+        this.#popupPresenter.setAborting(typeAction, elementId);
+        break;
+      case TypeAction.UPDATE_FILM:
+        if (this.#popupFilm) {
+          this.#popupPresenter.setAborting(typeAction);
+          break;
+        }
+
+        for (const list of Object.values(this.#ListPresenter)) {
+          list.setAborting(typeAction, elementId);
+        }
+        break;
     }
   };
 

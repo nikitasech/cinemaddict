@@ -5,7 +5,7 @@ import CommentView from './../views/comment-view.js';
 import FilmControlsView from './../views/film-controls-view.js';
 import FilmDetailsView from './../views/film-details-view.js';
 import CommentsView from './../views/comments-view.js';
-import FormCommentView from '../views/form-comment-view.js';
+import FormCommentView from './../views/form-comment-view.js';
 
 /**
  * Дочерний презентер {@link FilmsPresenter},

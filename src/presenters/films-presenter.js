@@ -5,9 +5,10 @@ import FilmsView from './../views/films-view.js';
 import PopupPresenter from './popup-presenter.js';
 import ListPresenter from './list-presenter.js';
 import MainListPresenter from './main-list-presenter.js';
-import { filter } from '../utils/filter.js';
+import { filter } from './../utils/filter.js';
 import SortPresenter from './sort-presenter.js';
 import UiBlocker from './../framework/ui-blocker/ui-blocker.js';
+import SortModel from '../models/sort-model.js';
 
 const TimeLimit = {
   LOWER: 100,
@@ -54,9 +55,9 @@ export default class FilmsPresenter {
       COMMENTED: new ListPresenter(filmsElement, TypeList.EXTRA, changeDate, renderPopup)
     };
 
-    this.#filmsModel.addObserver(this.#filmsModelEventHandler);
-    this.#filtersModel.addObserver(this.#filtersModelEventHandler);
-    this.#sortModel.addObserver(this.#sortModelEventHandler);
+    this.#filmsModel.addObserver(this.#modelEventHandler);
+    this.#filtersModel.addObserver(this.#modelEventHandler);
+    this.#sortModel.addObserver(this.#modelEventHandler);
   }
 
   /** Отрисовывает начальное состояние приложения
@@ -94,10 +95,12 @@ export default class FilmsPresenter {
     this.#uiBlocker.unblock();
   };
 
-  #filmsModelEventHandler = (typeUpdate, payload) => {
+  #modelEventHandler = (typeUpdate, payload) => {
+    let isResetCounterFilms = false;
+
     switch (typeUpdate) {
       case TypeUpdate.INIT:
-        this.#renderMainList(true); // #TODO заменить на конст
+        this.#renderMainList(true);
         this.#renderExtraList(this.#ListPresenter.TOP, TypeSort.RATING);
         this.#renderExtraList(this.#ListPresenter.COMMENTED, TypeSort.COMMENTED);
         break;
@@ -105,23 +108,19 @@ export default class FilmsPresenter {
         this.#updateFilm(payload);
 
         if (this.#filtersModel.activeItem !== TypeFilter.ALL) {
-          this.#renderMainList(false);
+          this.#renderMainList(isResetCounterFilms);
         }
-    }
-  };
 
-  #filtersModelEventHandler = (typeUpdate) => {
-    switch(typeUpdate) {
+        break;
       case TypeUpdate.MINOR:
+        isResetCounterFilms = true;
+
+        this.#renderMainList(isResetCounterFilms);
+        break;
+      case TypeUpdate.MAJOR:
         this.#sortModel.resetActiveItem();
-        this.#renderMainList(true); // #TODO заменить на конст
-    }
-  };
-
-  #sortModelEventHandler = (typeUpdate) => {
-    switch(typeUpdate) {
-      case TypeUpdate.MINOR:
-        this.#renderMainList(true); // #TODO заменить на конст
+        this.#modelEventHandler(TypeUpdate.MINOR);
+        break;
     }
   };
 
@@ -147,8 +146,10 @@ export default class FilmsPresenter {
   #rednerFilmsContainer = (container) => render(this.#filmsComponent, container);
 
   #renderMainList = (isResetCounterFilms) => {
-    const films = this.#sortModel
-      .sort(filter(this.#filmsModel.items, this.#filtersModel.activeItem));
+    const films = SortModel.sort(
+      filter(this.#filmsModel.items, this.#filtersModel.activeItem),
+      this.#sortModel.activeItem
+    );
 
     const title = films.length
       ? ListTitle[this.#filtersModel.activeItem]
@@ -166,9 +167,7 @@ export default class FilmsPresenter {
 
   #renderExtraList = (listPresenter, typeSort) => {
     const title = ListTitle[typeSort];
-    const films = this.#sortModel
-      .sort(this.#filmsModel.items, typeSort)
-      .slice(0, 2);
+    const films = SortModel.sort(this.#filmsModel.items, typeSort).slice(0, 2);
 
     if (films.length) {
       listPresenter.init(title, films);

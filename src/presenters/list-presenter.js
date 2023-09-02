@@ -3,7 +3,7 @@ import CardPresenter from './card-presenter.js';
 import FilmsContainerView from './../views/films-container-view.js';
 import ListFilmsView from './../views/list-films-view.js';
 import ListFilmsTitleView from './../views/list-films-title-view.js';
-import { TypeAction } from '../const.js';
+import { TypeAction } from './../const.js';
 
 const IS_TITLE_HIDDEN = false;
 

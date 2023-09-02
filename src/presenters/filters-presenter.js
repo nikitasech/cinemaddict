@@ -44,9 +44,9 @@ export default class FiltersPresenter {
         break;
       case TypeUpdate.PATCH:
         this.#filtersModel.setCounters(this.#filmsModel.items);
-        this.#modelEventHandler(TypeUpdate.MINOR);
+        this.#modelEventHandler(TypeUpdate.MAJOR);
         break;
-      case TypeUpdate.MINOR:
+      case TypeUpdate.MAJOR:
         this.#render();
         break;
     }

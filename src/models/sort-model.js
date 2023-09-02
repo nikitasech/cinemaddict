@@ -1,32 +1,6 @@
-import { TypeSort, TypeUpdate } from '../const.js';
-import Observable from '../framework/observable.js';
-import { shuffleArray } from '../utils/common.js';
-
-const sortByDate = (items) => shuffleArray(items.slice())
-  .sort((before, after) => {
-    // #TODO ещё раз попробовать объединить в одну функцию
-    const beforeDate = Date.parse(before.info.release.date);
-    const afterDate = Date.parse(after.info.release.date);
-
-    return afterDate - beforeDate;
-  });
-
-const sortByRating = (items) => shuffleArray(items.slice())
-  .sort((before, after) => {
-    const beforeRating = before.info.totalRating;
-    const afterRating = after.info.totalRating;
-
-    return afterRating - beforeRating;
-  });
-
-const sortByComments = (items) => shuffleArray(items.slice())
-  .sort((before, after) => {
-    const beforeCount = before.comments.length;
-    const afterCount = after.comments.length;
-
-    return afterCount - beforeCount;
-  });
-
+import { TypeSort, TypeUpdate } from './../const.js';
+import Observable from './../framework/observable.js';
+import { shuffleArray } from './../utils/common.js';
 
 /** Модель управляющая сортировкой */
 export default class SortModel extends Observable {
@@ -55,16 +29,22 @@ export default class SortModel extends Observable {
    * @param {string} typeSort
    * @returns {Array}
    */
-  sort = (films, typeSort = this.#activeItem) => {
-    switch (typeSort) {
-      case TypeSort.DATE:
-        return sortByDate(films);
-      case TypeSort.RATING:
-        return sortByRating(films);
-      case TypeSort.COMMENTED:
-        return sortByComments(films);
-    }
+  static sort = (films, typeSort) => shuffleArray(films.slice())
+    .sort((before, after) => {
+      let beforeComparison = before.info.totalRating;
+      let afterComparison = before.info.totalRating;
 
-    return films;
-  };
+      switch (typeSort) {
+        case TypeSort.DATE:
+          beforeComparison = Date.parse(before.info.release.date);
+          afterComparison = Date.parse(after.info.release.date);
+          break;
+        case TypeSort.COMMENTED:
+          beforeComparison = before.comments.length;
+          afterComparison = after.comments.length;
+          break;
+      }
+
+      return afterComparison - beforeComparison;
+    });
 }

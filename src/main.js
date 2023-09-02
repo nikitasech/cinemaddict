@@ -10,7 +10,7 @@ import SortModel from './models/sort-model.js';
 import FilmsPresenter from './presenters/films-presenter.js';
 import FiltersPresenter from './presenters/filters-presenter.js';
 import UserPresenter from './presenters/user-presenter.js';
-import { StatisticsPresenter } from './presenters/statistics-presenter.js';
+import StatisticsPresenter from './presenters/statistics-presenter.js';
 
 const AUTHORIZATION = 'Basic hS2sfS44wFDdsf4l1sa2j';
 const END_POINT = 'https://17.ecmascript.pages.academy/cinemaddict';

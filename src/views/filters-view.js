@@ -1,6 +1,6 @@
 import AbstractView from './../framework/view/abstract-view.js';
-import {capitalizeFirstLetter} from '../utils/common.js';
-import { TypeFilter, TypeAction } from '../const.js';
+import {capitalizeFirstLetter} from './../utils/common.js';
+import { TypeFilter, TypeAction } from './../const.js';
 
 const createFiltersTemplate = (filters, activeFilter) => {
   const allFilterClassName = activeFilter === TypeFilter.ALL

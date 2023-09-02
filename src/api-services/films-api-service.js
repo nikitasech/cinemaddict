@@ -1,4 +1,4 @@
-import { Method } from '../const.js';
+import { Method } from './../const.js';
 import ApiService from './../framework/api-service.js';
 
 /** Модуль помогающий синхронизировать локальные данные фильмов с сервером */

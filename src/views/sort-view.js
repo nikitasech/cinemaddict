@@ -1,4 +1,4 @@
-import {TypeAction, TypeSort} from '../const.js';
+import {TypeAction, TypeSort} from './../const.js';
 import AbstractView from './../framework/view/abstract-view.js';
 
 const createSortTemplate = (typeSort) => {

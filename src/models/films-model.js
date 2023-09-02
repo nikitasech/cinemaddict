@@ -1,5 +1,5 @@
-import { TypeUpdate } from '../const.js';
-import Observable from '../framework/observable.js';
+import { TypeUpdate } from './../const.js';
+import Observable from './../framework/observable.js';
 
 /** Модель управляющая всеми всеми фильмами */
 export default class FilmsModel extends Observable {

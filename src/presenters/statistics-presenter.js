@@ -1,8 +1,8 @@
-import { TypeUpdate } from '../const.js';
-import { render, replace } from '../framework/render';
-import StatisticsView from '../views/statistics-view.js';
+import { TypeUpdate } from './../const.js';
+import { render, replace } from './../framework/render';
+import StatisticsView from './../views/statistics-view.js';
 
-export class StatisticsPresenter {
+export default class StatisticsPresenter {
   #containerElement;
   #filmsModel;
   #component;

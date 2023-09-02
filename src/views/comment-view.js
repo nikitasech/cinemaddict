@@ -1,5 +1,5 @@
-import { TypeAction, TypeUpdate } from '../const.js';
-import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+import { TypeAction, TypeUpdate } from './../const.js';
+import AbstractStatefulView from './../framework/view/abstract-stateful-view.js';
 import { dateFromNow } from './../utils/common.js';
 import he from 'he';
 

@@ -1,4 +1,4 @@
-import { TypeFilter, TypeUpdate } from '../const.js';
+import { TypeFilter, TypeUpdate } from './../const.js';
 import Observable from './../framework/observable.js';
 import { filter } from './../utils/filter.js';
 
@@ -24,14 +24,13 @@ export default class FiltersModel extends Observable {
     return this.#counters;
   }
 
-  // #TODO заменить на функцию updateActiveItem
   set activeItem(newActiveItem) {
     if (newActiveItem === this.#activeItem) {
       return;
     }
 
     this.#activeItem = newActiveItem;
-    this._notify(TypeUpdate.MINOR, this.#activeItem);
+    this._notify(TypeUpdate.MAJOR, this.#activeItem);
   }
 
   setCounters(films = []) {

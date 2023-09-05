@@ -1,33 +1,70 @@
 import Observable from './../framework/observable.js';
-import { generateComment } from './../mock/comment.js';
 
 /** Модель комментариев. */
 export default class CommentsModel extends Observable {
-  #items = Array.from({length: 74}, generateComment);
+  #apiService;
+  #filmsModel;
+  #items = new Map();
 
-  /** Ищет и возвращает комментарии с нужныхм id
-   * @param {Array} ids список id нужных комментариев
+  constructor(apiService, filmsModel) {
+    super();
+    this.#apiService = apiService;
+    this.#filmsModel = filmsModel;
+  }
+
+  /** Возвращает комментарии к фильму
+   * @param {number} filmId id нужного фильма
    * @returns {Array} список комментариев
    */
-  getItems = (ids) => ids.map((id) => this.#items
-    .find((comment) => id === comment.id));
+  getItems = async (filmId) => {
+    if (!this.#items.get(filmId)) {
+      try {
+        const comments = await this.#apiService.getItems(filmId);
+        this.#items.set(filmId, comments);
+      } catch (err) {
+        throw new Error('Failed to load comments from the server');
+      }
+    }
+
+    return this.#items.get(filmId);
+  };
 
   /** Добавляет новый комментарий
    * @param {Array} typeUpdate
    * @param {Object} newComment
    */
-  addItem = (typeUpdate, newItem) => {
-    this.#items.push(newItem);
+  addItem = async (typeUpdate, newItem, film) => {
+    try {
+      const response = await this.#apiService.add(newItem, film.id);
+      const idAdapted = false;
+      this.#items.set(film.id, response.comments);
+      this.#filmsModel.updateItemOnClient(typeUpdate, response.movie, idAdapted);
+    } catch (err) {
+      throw new Error('Can\'t add comment');
+    }
   };
 
   /** Удаляет комментарий
    * @param {Array} typeUpdate
    * @param {Object} deletedItem
+   * @param {Object} film
    */
-  removeItem = (typeUpdate, deletedItem) => {
-    const deletedFilmIndex = this.#items
-      .findIndex((item) => item.id === deletedItem.id);
+  removeItem = async (typeUpdate, removedItem, film) => {
+    const newFilm = structuredClone(film);
+    const filmComments = structuredClone(this.#items.get(film.id));
+    const commentIndex = filmComments
+      .findIndex((item) => removedItem.id === item.id);
 
-    this.#items.splice(deletedFilmIndex, 1);
+    try {
+      const isAdapted = true;
+
+      await this.#apiService.remove(removedItem.id);
+      filmComments.splice(commentIndex, 1);
+      this.#items.set(film.id, filmComments);
+      newFilm.comments = filmComments;
+      this.#filmsModel.updateItemOnClient(typeUpdate, newFilm, isAdapted);
+    } catch (err) {
+      throw new Error('Can\'t remove comment');
+    }
   };
 }

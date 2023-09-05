@@ -1,4 +1,4 @@
-import { TypeFilter } from '../const.js';
+import { TypeFilter } from './../const.js';
 import { filter } from './filter.js';
 
 /** @type {Map<string, Array>} карта, сопоставляющая ранг пользователя с количеством просмторенных фильмов */

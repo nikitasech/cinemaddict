@@ -5,8 +5,15 @@ import FilmsView from './../views/films-view.js';
 import PopupPresenter from './popup-presenter.js';
 import ListPresenter from './list-presenter.js';
 import MainListPresenter from './main-list-presenter.js';
-import { nanoid } from 'nanoid';
-import { filter } from '../utils/filter.js';
+import { filter } from './../utils/filter.js';
+import SortPresenter from './sort-presenter.js';
+import UiBlocker from './../framework/ui-blocker/ui-blocker.js';
+import SortModel from '../models/sort-model.js';
+
+const TimeLimit = {
+  LOWER: 100,
+  UPPER: 500
+};
 
 /**
  * Главный презентер. Управляет всеми списками фильмов ({@link MainListPresenter}
@@ -17,52 +24,40 @@ import { filter } from '../utils/filter.js';
  * @param {Object} commentsModel {@link CommentsModel}
 */
 export default class FilmsPresenter {
-  #filmsModel = null;
-  #filtersModel = null;
-  #sortModel = null;
-  #commentsModel = null;
-  #popupPresenter = null;
+  #filmsModel;
+  #filtersModel;
+  #sortModel;
+  #commentsModel;
+  #sortPresenter;
+  #popupPresenter;
   #ListPresenter = {};
   #filmsComponent = new FilmsView();
-  #popupFilm = null;
+  #uiBlocker = new UiBlocker(TimeLimit.LOWER, TimeLimit.UPPER);
+  #popupFilm;
 
   constructor(filmsModel, filtersModel, sortModel, commentsModel) {
+    const filmsElement = this.#filmsComponent.element;
+    const changeDate = this.#viewActionHandler;
+    const renderPopup = this.#renderPopup;
+    const removePopup = this.#removePopup;
+
     this.#filmsModel = filmsModel;
     this.#filtersModel = filtersModel;
     this.#sortModel = sortModel;
     this.#commentsModel = commentsModel;
 
-    this.#popupPresenter = new PopupPresenter(
-      this.#viewActionHandler,
-      this.#removePopup
-    );
+    this.#popupPresenter = new PopupPresenter(changeDate, removePopup, commentsModel);
+    this.#sortPresenter = new SortPresenter(filmsModel, sortModel);
 
     this.#ListPresenter = {
-      ALL: new MainListPresenter(
-        this.#filmsComponent.element,
-        TypeList.MAIN,
-        this.#viewActionHandler,
-        this.#renderPopup
-      ),
-
-      TOP: new ListPresenter(
-        this.#filmsComponent.element,
-        TypeList.EXTRA,
-        this.#viewActionHandler,
-        this.#renderPopup
-      ),
-
-      COMMENTED: new ListPresenter(
-        this.#filmsComponent.element,
-        TypeList.EXTRA,
-        this.#viewActionHandler,
-        this.#renderPopup
-      )
+      ALL: new MainListPresenter(filmsElement, TypeList.MAIN, changeDate, renderPopup),
+      TOP: new ListPresenter(filmsElement, TypeList.EXTRA, changeDate, renderPopup),
+      COMMENTED: new ListPresenter(filmsElement, TypeList.EXTRA, changeDate, renderPopup)
     };
 
-    this.#filmsModel.addObserver(this.#filmsModelEventHandler);
-    this.#filtersModel.addObserver(this.#filtersModelEventHandler);
-    this.#sortModel.addObserver(this.#sortModelEventHandler);
+    this.#filmsModel.addObserver(this.#modelEventHandler);
+    this.#filtersModel.addObserver(this.#modelEventHandler);
+    this.#sortModel.addObserver(this.#modelEventHandler);
   }
 
   /** Отрисовывает начальное состояние приложения
@@ -71,108 +66,117 @@ export default class FilmsPresenter {
   init = (rootContainer) => {
     this.#rednerFilmsContainer(rootContainer);
     this.#renderMainList();
-
-    if (this.#filmsModel.items.length) {
-      this.#renderExtraList(this.#ListPresenter.TOP, TypeSort.RATING);
-      this.#renderExtraList(this.#ListPresenter.COMMENTED, TypeSort.COMMENTED);
-    }
+    this.#ListPresenter.ALL.init(NoFilmsListTitle.loading);
   };
 
-  #viewActionHandler = (typeAction, typeUpdate, payload) => {
-    const addComment = (newComment) => {
-      const newFilm = structuredClone(this.#popupFilm);
-      const newCommentId = nanoid();
-      const comment = {
-        id: newCommentId,
-        author: 'Cooper',
-        date: new Date(),
-        ...newComment
-      };
+  #viewActionHandler = async (typeAction, typeUpdate, payload) => {
+    this.#uiBlocker.block();
 
-      newFilm.comments.push(newCommentId);
-      this.#commentsModel.addItem(typeUpdate, comment);
-      this.#filmsModel.updateItem(typeUpdate, newFilm);
-    };
-
-    const deleteComment = (deletedComment) => {
-      const newFilm = structuredClone(this.#popupFilm);
-      const comments = Array.from(this.#popupFilm.comments);
-      const commentIndexInFilmObject = comments
-        .findIndex((comment) => comment === deletedComment.id);
-
-      comments.splice(commentIndexInFilmObject, 1);
-      newFilm.comments = comments;
-      this.#popupFilm = newFilm;
-
-      this.#commentsModel.removeItem(typeUpdate, deletedComment);
-      this.#filmsModel.updateItem(typeUpdate, newFilm);
+    const accessHandler = async (access) => {
+      try {
+        await access(typeUpdate, payload, this.#popupFilm);
+      } catch (err) {
+        this.#setAborting(typeAction, payload.id);
+      }
     };
 
     switch(typeAction) {
       case TypeAction.UPDATE_FILM:
-        this.#filmsModel.updateItem(typeUpdate, payload);
+        accessHandler(this.#filmsModel.updateItemOnServer);
         break;
       case TypeAction.REMOVE_COMMENT:
-        deleteComment(payload);
+        accessHandler(this.#commentsModel.removeItem);
         break;
       case TypeAction.ADD_COMMENT:
-        addComment(payload);
+        accessHandler(this.#commentsModel.addItem);
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 
-  #filmsModelEventHandler = (typeUpdate, payload) => {
+  #modelEventHandler = (typeUpdate, payload) => {
+    let isResetCounterFilms = false;
+
     switch (typeUpdate) {
+      case TypeUpdate.INIT:
+        this.#renderMainList(true);
+        this.#renderExtraList(this.#ListPresenter.TOP, TypeSort.RATING);
+        this.#renderExtraList(this.#ListPresenter.COMMENTED, TypeSort.COMMENTED);
+        break;
       case TypeUpdate.PATCH:
         this.#updateFilm(payload);
 
         if (this.#filtersModel.activeItem !== TypeFilter.ALL) {
-          this.#renderMainList(false);
+          this.#renderMainList(isResetCounterFilms);
         }
-    }
-  };
 
-  #filtersModelEventHandler = (typeUpdate) => {
-    switch(typeUpdate) {
+        break;
       case TypeUpdate.MINOR:
+        isResetCounterFilms = true;
+
+        this.#renderMainList(isResetCounterFilms);
+        break;
+      case TypeUpdate.MAJOR:
         this.#sortModel.resetActiveItem();
-        this.#renderMainList(true);
+        this.#modelEventHandler(TypeUpdate.MINOR);
+        break;
     }
   };
 
-  #sortModelEventHandler = (typeUpdate) => {
-    switch(typeUpdate) {
-      case TypeUpdate.MINOR:
-        this.#renderMainList(true);
+  #setAborting = (typeAction, elementId) => {
+    switch (typeAction) {
+      case TypeAction.ADD_COMMENT:
+      case TypeAction.REMOVE_COMMENT:
+        this.#popupPresenter.setAborting(typeAction, elementId);
+        break;
+      case TypeAction.UPDATE_FILM:
+        if (this.#popupFilm) {
+          this.#popupPresenter.setAborting(typeAction);
+          break;
+        }
+
+        for (const list of Object.values(this.#ListPresenter)) {
+          list.setAborting(typeAction, elementId);
+        }
+        break;
     }
   };
 
   #rednerFilmsContainer = (container) => render(this.#filmsComponent, container);
 
   #renderMainList = (isResetCounterFilms) => {
-    const films = this.#sortModel
-      .sort(filter(this.#filmsModel.items, this.#filtersModel.activeItem));
+    const films = SortModel.sort(
+      filter(this.#filmsModel.items, this.#filtersModel.activeItem),
+      this.#sortModel.activeItem
+    );
 
     const title = films.length
       ? ListTitle[this.#filtersModel.activeItem]
       : NoFilmsListTitle[this.#filtersModel.activeItem];
 
-    this.#ListPresenter.ALL.init(films, title, isResetCounterFilms);
+    this.#ListPresenter.ALL.init(title, films, isResetCounterFilms);
+
+    if (films.length) {
+      this.#sortPresenter.init(this.#filmsComponent.element);
+      return;
+    }
+
+    this.#sortPresenter.remove();
   };
 
   #renderExtraList = (listPresenter, typeSort) => {
     const title = ListTitle[typeSort];
-    const films = this.#sortModel
-      .sort(this.#filmsModel.items, typeSort)
-      .slice(0, 2);
+    const films = SortModel.sort(this.#filmsModel.items, typeSort).slice(0, 2);
 
-    listPresenter.init(films, title);
+    if (films.length) {
+      listPresenter.init(title, films);
+    }
   };
 
   #renderPopup = (film) => {
-    const comments = this.#commentsModel.getItems(film.comments);
     this.#popupFilm = film;
-    this.#popupPresenter.init(film, comments);
+    this.#popupPresenter.init(film);
   };
 
   #removePopup = () => {

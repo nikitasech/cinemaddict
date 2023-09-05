@@ -25,7 +25,7 @@ export default class MainListPresenter extends ListPresenter {
    * @param {string} titleText заголовок списка
    * @param {Boolean} isResetCounter обновлять счетчик отрисованных фильмов?
    */
-  init = (films, titleText, isResetCounter = true) => {
+  init = (titleText, films = {}, isResetCounter = true) => {
     const portionCards = isResetCounter || !this.#renderedCardCount
       ? this.#portionCards
       : this.#renderedCardCount;
@@ -37,7 +37,7 @@ export default class MainListPresenter extends ListPresenter {
   };
 
   _reset = () => {
-    this._cardPresenter.clear();
+    this._CardPresenter.clear();
     this.#loadMoreButtonComponent = null;
     this.#renderedCardCount = 0;
     this.#filmsLength = this._films.length;

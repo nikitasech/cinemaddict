@@ -3,6 +3,7 @@ import CardPresenter from './card-presenter.js';
 import FilmsContainerView from './../views/films-container-view.js';
 import ListFilmsView from './../views/list-films-view.js';
 import ListFilmsTitleView from './../views/list-films-title-view.js';
+import { TypeAction } from './../const.js';
 
 const IS_TITLE_HIDDEN = false;
 
@@ -16,7 +17,7 @@ const IS_TITLE_HIDDEN = false;
  */
 export default class ListPresenter {
   _containerElement = null;
-  _cardPresenter = new Map();
+  _CardPresenter = new Map();
   _listComponent = null;
   #listTitleComponent = null;
   #filmsContainerComponent = null;
@@ -37,9 +38,9 @@ export default class ListPresenter {
    * @param {Array} films список фильмов
    * @param {string} titleText заголовок списка
    */
-  init = (films, titleText) => {
-    this._films = films;
+  init = (titleText, films) => {
     this._title = titleText;
+    this._films = films;
     this._reset();
     this._render(films, titleText);
   };
@@ -48,15 +49,25 @@ export default class ListPresenter {
    * @param {Object} newFilm обновленный фильм
    */
   updateFilm = (newFilm) => {
-    const cardPresenter = this._cardPresenter.get(newFilm.id);
+    const cardPresenter = this._CardPresenter.get(newFilm.id);
 
     if (cardPresenter) {
       cardPresenter.init(this.#filmsContainerComponent.element, newFilm);
     }
   };
 
+  setAborting = (typeAction, elementId) => {
+    switch (typeAction) {
+      case TypeAction.UPDATE_FILM:
+        if (this._CardPresenter.get(elementId)) {
+          this._CardPresenter.get(elementId).setAborting(typeAction);
+          break;
+        }
+    }
+  };
+
   _reset = () => {
-    this._cardPresenter.clear();
+    this._CardPresenter.clear();
   };
 
   _render = (films, titleText) => {
@@ -96,7 +107,7 @@ export default class ListPresenter {
       this.#openPopup
     );
 
-    this._cardPresenter.set(film.id, cardPresenter);
+    this._CardPresenter.set(film.id, cardPresenter);
     cardPresenter.init(this.#filmsContainerComponent.element, film);
   };
 

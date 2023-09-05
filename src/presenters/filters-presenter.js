@@ -17,8 +17,8 @@ export default class FiltersPresenter {
     this.#filmsModel = filmsModel;
     this.#filtersModel = filtersModel;
 
-    this.#filmsModel.addObserver(this.#filmsModelEventHandler);
-    this.#filtersModel.addObserver(this.#filtersModelEventHandler);
+    this.#filmsModel.addObserver(this.#modelEventHandler);
+    this.#filtersModel.addObserver(this.#modelEventHandler);
   }
 
   /** Инициализирует фильтры в нужный контейнер
@@ -26,45 +26,7 @@ export default class FiltersPresenter {
    */
   init = (container) => {
     this.#container = container;
-
     this.#render();
-  };
-
-  #render = () => {
-    const activeFilter = this.#filtersModel.activeItem;
-    const filters = Object
-      .entries(this.#filtersModel.items)
-      .map(([name, films]) => ({name, count: films.length}));
-
-    const prevFiltersComponent = this.#filtersComponent;
-    this.#filtersComponent = new FiltersView(filters, activeFilter);
-
-    if (!prevFiltersComponent) {
-      render(this.#filtersComponent, this.#container);
-    } else {
-      replace(this.#filtersComponent, prevFiltersComponent);
-    }
-
-    this.#filtersComponent.setClickHandler(this.#viewActionHandler);
-  };
-
-  #filmsModelEventHandler = (typeUpdate, payload) => {
-    switch (typeUpdate) {
-      case TypeUpdate.PATCH:
-        this.#filtersModel.updateCounters(typeUpdate, payload);
-        break;
-    }
-  };
-
-  #filtersModelEventHandler = (typeUpdate) => {
-    switch (typeUpdate) {
-      case TypeUpdate.PATCH:
-        this.#render();
-        break;
-      case TypeUpdate.MINOR:
-        this.#render();
-        break;
-    }
   };
 
   #viewActionHandler = (typeAction, payload) => {
@@ -73,5 +35,36 @@ export default class FiltersPresenter {
         this.#filtersModel.activeItem = payload;
         break;
     }
+  };
+
+  #modelEventHandler = (typeUpdate) => {
+    switch (typeUpdate) {
+      case TypeUpdate.INIT:
+        this.#modelEventHandler(TypeUpdate.PATCH);
+        break;
+      case TypeUpdate.PATCH:
+        this.#filtersModel.setCounters(this.#filmsModel.items);
+        this.#modelEventHandler(TypeUpdate.MAJOR);
+        break;
+      case TypeUpdate.MAJOR:
+        this.#render();
+        break;
+    }
+  };
+
+  #render = () => {
+    const filterCounters = this.#filtersModel.counters;
+    const activeFilter = this.#filtersModel.activeItem;
+
+    const prevFiltersComponent = this.#filtersComponent;
+    this.#filtersComponent = new FiltersView(filterCounters, activeFilter);
+
+    if (!prevFiltersComponent) {
+      render(this.#filtersComponent, this.#container);
+    } else {
+      replace(this.#filtersComponent, prevFiltersComponent);
+    }
+
+    this.#filtersComponent.setClickHandler(this.#viewActionHandler);
   };
 }

@@ -3,7 +3,7 @@ import {
   getRandomText,
   getRandomDate,
   getCounter
-} from '../utils/mock.js';
+} from './../utils/mock.js';
 import {getRandomNumber} from './../utils/common.js';
 import {names} from './../const.js';
 
